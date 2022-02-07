@@ -34,7 +34,20 @@ void MainWindow::init()
 
     ui->verticalLayout4log->addWidget(&textedit4log);
 
+    // UI
     setup4mic = new Setup4Mic();
+    //    debug
+    setup4mic->showNormal();
+    setup4mic->setWindowState(Qt::WindowActive);
+
+    this->setWindowState(Qt::WindowMinimized);
+
+
+
+    // todo
+
+//    ui->comboBoxModel->set
+
 }
 
 void MainWindow::saveConfig()
@@ -49,6 +62,14 @@ void MainWindow::loadConfig()
 
 void MainWindow::resetConfig()
 {
+
+}
+
+void MainWindow::startRecord()
+{
+    //驱动两麦克风同时录音
+
+
 
 }
 

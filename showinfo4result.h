@@ -1,4 +1,4 @@
-#ifndef SHOWINFO4RESULT_H
+﻿#ifndef SHOWINFO4RESULT_H
 #define SHOWINFO4RESULT_H
 
 #include <QWidget>
@@ -14,6 +14,9 @@ class ShowInfo4Result : public QWidget
 public:
     explicit ShowInfo4Result(QWidget *parent = nullptr);
     ~ShowInfo4Result();
+
+private slots:
+    void on_btnClear_clicked();
 
 private:
     Ui::ShowInfo4Result *ui;

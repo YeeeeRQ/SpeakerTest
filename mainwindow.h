@@ -45,6 +45,8 @@ private: // config
 private: // Test
     QString wavdir;
 
+    void startRecord();
+
 
 private:
     Setup4Mic * setup4mic = nullptr;

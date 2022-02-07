@@ -386,5 +386,10 @@
         <source>200,200,000</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="showinfo4result.ui" line="202"/>
+        <source>Clear</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 </TS>

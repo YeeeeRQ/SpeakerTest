@@ -79,7 +79,7 @@
               <item>
                <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,0">
                 <item>
-                 <widget class="QComboBox" name="comboBox"/>
+                 <widget class="QComboBox" name="comboBoxModel"/>
                 </item>
                 <item>
                  <widget class="QPushButton" name="btnLockOption4Model">
@@ -279,7 +279,7 @@
                    </layout>
                   </item>
                   <item>
-                   <layout class="QHBoxLayout" name="horizontalLayout_10" stretch=""/>
+                   <layout class="QHBoxLayout" name="horizontalLayout_10"/>
                   </item>
                   <item>
                    <layout class="QHBoxLayout" name="horizontalLayout_11">
@@ -376,7 +376,7 @@
         </layout>
        </widget>
       </widget>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <layout class="QHBoxLayout" name="horizontalLayout_14">
         <item>
          <widget class="Line" name="line">
