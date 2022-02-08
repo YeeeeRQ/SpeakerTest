@@ -2,42 +2,12 @@
 #include "ui_setup4mic.h"
 #include <QDebug>
 
-QString SampleTypeString(QAudioFormat::SampleType sampleType)
-{//将QAudioFormat::SampleType类型转换为字符串
-    QString result("Unknown");
-    switch (sampleType) {
-    case QAudioFormat::SignedInt:
-        result = "SignedInt";
-        break;
-    case QAudioFormat::UnSignedInt:
-        result = "UnSignedInt";
-        break;
-    case QAudioFormat::Float:
-        result = "Float";
-        break;
-    case QAudioFormat::Unknown:
-        result = "Unknown";
-    }
-    return result;
-}
-
-QString ByteOrderString(QAudioFormat::Endian endian)
-{ //将QAudioFormat::Endian  转换为字符串
-    if (endian==QAudioFormat::LittleEndian)
-        return "LittleEndian";
-    else if (endian==QAudioFormat::BigEndian)
-        return "BigEndian";
-    else
-        return "Unknown";
-}
-
 Setup4Mic::Setup4Mic(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::Setup4Mic)
 {
     ui->setupUi(this);
     this->setWindowTitle(tr("麦克风设定"));
-
 
     // 默认设定
     defaultAudioFormat.setSampleRate(8000);
@@ -48,8 +18,6 @@ Setup4Mic::Setup4Mic(QWidget *parent) :
     defaultAudioFormat.setSampleType(QAudioFormat::UnSignedInt);
 
     //载入配置
-
-
 
     //输入设备列表 init
     ui->comboDevicesL->clear();

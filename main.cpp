@@ -1,8 +1,10 @@
-#include "mainwindow.h"
+﻿#include "mainwindow.h"
 
 #include <QApplication>
 #include <QLocale>
 #include <QTranslator>
+#include <QThread>
+#include <QDebug>
 
 int main(int argc, char *argv[])
 {
@@ -17,6 +19,9 @@ int main(int argc, char *argv[])
             break;
         }
     }
+
+    qDebug() << "Thread ID(Main): " << QThread::currentThreadId() << Qt::endl;
+
     MainWindow w;
     w.show();
     return a.exec();

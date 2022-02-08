@@ -15,18 +15,17 @@ find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets LinguistTools REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets LinguistTools REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Multimedia REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Charts REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS SerialPort REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Network REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Sql REQUIRED)
+
 
 set(TS_FILES SpeakersTest_zh_CN.ts)
 
 set(PROJECT_SOURCES
         main.cpp
 
-        mainwindow.cpp
-        mainwindow.h
-        mainwindow.ui
-        qmydisplaydevice.cpp
-        qmydisplaydevice.h
-
+        mainwindow.cpp mainwindow.h mainwindow.ui
         Setup4AutoTest.h Setup4AutoTest.cpp Setup4AutoTest.ui
         setup4mic.h setup4mic.cpp setup4mic.ui
         Dlg4ChangeValue.h Dlg4ChangeValue.cpp Dlg4ChangeValue.ui
@@ -34,13 +33,15 @@ set(PROJECT_SOURCES
         setup4model.h setup4model.cpp setup4model.ui
         showinfo4result.h showinfo4result.cpp showinfo4result.ui
 
-        recordworker.h recordworker.cpp
-        res.qrc
+        qmydisplaydevice.cpp qmydisplaydevice.h
+        RecordWorker.h RecordWorker.cpp
+        AutoLine.h AutoLine.cpp
+        CodeReader.cpp CodeReader.h
+        config.cpp config.h
+        simplelog.cpp simplelog.h
 
-        config.cpp
-        config.h
-        simplelog.cpp
-        simplelog.h
+        MyCommonFun.h
+        res.qrc
         ${TS_FILES}
 )
 
@@ -81,6 +82,9 @@ target_link_libraries(SpeakersTest PRIVATE
     Qt${QT_VERSION_MAJOR}::Widgets
     Qt${QT_VERSION_MAJOR}::Charts
     Qt${QT_VERSION_MAJOR}::Multimedia
+    Qt${QT_VERSION_MAJOR}::SerialPort
+    Qt${QT_VERSION_MAJOR}::Network
+    Qt${QT_VERSION_MAJOR}::Sql
 )
 
 
