@@ -480,7 +480,7 @@
                <item>
                 <widget class="QPushButton" name="btnSetting4AutoTest">
                  <property name="text">
-                  <string>自动测试</string>
+                  <string>音频测试</string>
                  </property>
                 </widget>
                </item>

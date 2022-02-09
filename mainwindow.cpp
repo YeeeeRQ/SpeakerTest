@@ -1,5 +1,6 @@
 ﻿#include <QDateTime>
 #include <QScrollBar>
+#include <numeric>
 
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
@@ -8,50 +9,6 @@
 #define WAV_FILE_R  "/R.wav"
 
 ////////////////////////////////////////////////////////////////////////////////
-#include   <windows.h>
-
-//调用命令行命令而不显示命令行窗口
-BOOL system_hide(char* CommandLine)
-{
-    SECURITY_ATTRIBUTES   sa;
-    HANDLE   hRead,hWrite;
-
-    sa.nLength   =   sizeof(SECURITY_ATTRIBUTES);
-    sa.lpSecurityDescriptor   =   NULL;
-    sa.bInheritHandle   =   TRUE;
-    if   (!CreatePipe(&hRead,&hWrite,&sa,0))
-    {
-        return   FALSE;
-    }
-
-    STARTUPINFO   si;
-    PROCESS_INFORMATION   pi;
-    si.cb   =   sizeof(STARTUPINFO);
-    GetStartupInfo(&si);
-    si.hStdError   =   hWrite;
-    si.hStdOutput   =   hWrite;
-    si.wShowWindow   =   SW_HIDE;
-    si.dwFlags   =   STARTF_USESHOWWINDOW   |   STARTF_USESTDHANDLES;
-    //关键步骤，CreateProcess函数参数意义请查阅MSDN
-    if   (!CreateProcess(NULL, CommandLine, NULL,NULL,TRUE,NULL,NULL,NULL,&si,&pi))
-    {
-        return   FALSE;
-    }
-    CloseHandle(hWrite);
-
-    char   buffer[4096]   =   {0};
-    DWORD   bytesRead;
-    while(true)
-    {
-        memset(buffer,0,strlen(buffer));
-        if(ReadFile(hRead,buffer,4095,&bytesRead,NULL)==NULL)
-            break;
-        //buffer中就是执行的结果，可以保存到文本，也可以直接输出
-        //printf(buffer);//这行注释掉就可以了
-        Sleep(100);
-    }
-    return   TRUE;
-}
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -428,24 +385,91 @@ void MainWindow::onAudioTestFinished()
     qDebug() << result_l;
     qDebug() << result_r;
 
-    // pitch
+    double llevel1, rlevel1, llevel2, rlevel2;
     double lpitch1, rpitch1, lpitch2, rpitch2;
+    llevel1 = L_data.at(1).toDouble();
+    rlevel1 = R_data.at(1).toDouble();
+    llevel2 = L_data.at(3).toDouble();
+    rlevel2 = R_data.at(3).toDouble();
     lpitch1 = L_data.at(2).toDouble();
     rpitch1 = R_data.at(2).toDouble();
     lpitch2 = L_data.at(4).toDouble();
     rpitch2 = R_data.at(4).toDouble();
 
+    /*
+     * 1. 有无不响的情况
+     * 2. 有无左右放置错误的情况
+     *
+     * 时段1，2 的频率分别是多少？
+     * 左侧和右侧哪个先响?
+    // 前提先左响， 后右响
+
+    // 播放顺序是否正常， 根据频率判断
+    // 时段1 频率是不是 1K, 是则正常
+    lpitch1 == rpitch1 == 10000;
+
+    // 时段2 频率是不是 2K, 是则正常
+    lpitch2 == rpitch2 == 20000;
 
 
-    //
+    // 左右是否正常放置
 
-    double llevel1, rlevel1, llevel2, rlevel2;
-    llevel1 = L_data.at(1).toDouble();
-    rlevel1 = R_data.at(1).toDouble();
-    llevel2 = L_data.at(3).toDouble();
-    rlevel2 = R_data.at(3).toDouble();
+    //时段1,左侧强度>右侧强度, 大于则正常
+    llevel1 > rlevel1;
 
+    //时段2,左侧强度<右侧强度, 小于则正常
+    llevel2 < rlevel2;
+    */
+    quint64 accept_pitch1[2] = {900,1100};
+    quint64 accept_pitch2[2] = {1900,2100};
 
+    // 左侧 时段1
+    if(lpitch1 > accept_pitch1[0] && lpitch1 < accept_pitch1[1]){
+        log.info("左侧频率 时段1 正常");
+    }else{
+        goto ERROR_L;
+    }
+    // 左侧 时段2
+    if(lpitch2 > accept_pitch2[0] && lpitch2 < accept_pitch2[1]){
+        log.info("左侧频率 时段2 正常");
+    }else{
+        goto ERROR_L;
+    }
+    // 右侧 时段1
+    if(rpitch1 > accept_pitch1[0] && rpitch1 < accept_pitch1[1]){
+        log.info("右侧频率 时段1 正常");
+    }else{
+        goto ERROR_R;
+    }
+    // 右侧 时段2
+    if(rpitch2 > accept_pitch2[0] && rpitch2 < accept_pitch2[1]){
+        log.info("右侧频率 时段1 正常");
+    }else{
+        goto ERROR_R;
+    }
+
+    if(llevel1 > rlevel1){// 1K
+        log.info("时段1 左侧强度>右侧强度 正常");
+    }else{
+        goto ERROR_BOTH;
+    }
+    if(llevel2 < rlevel2){// 2K
+        log.info("时段2 左侧强度<右侧强度 正常");
+    }else{
+        goto ERROR_BOTH;
+    }
+
+ERROR_L:
+    log.warn("异常， 请检查 左侧扬声器！");
+    return;
+
+ERROR_R:
+    log.warn("异常， 请检查 右侧扬声器！");
+    return;
+
+ERROR_BOTH:
+    log.warn("异常， 请检查 [左+右]两侧扬声器！");
+    return;
 
 }
 
@@ -453,6 +477,12 @@ void MainWindow::onAudioTestFinished()
 void MainWindow::on_btnSetting4Model_clicked()
 {//机种管理
 
+
+}
+
+
+void MainWindow::on_btnSetting4AutoTest_clicked()
+{
 
 }
 

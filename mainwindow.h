@@ -75,12 +75,6 @@ private: // Test
     QString current_WorkDir;
     QString current_AudioTestDir;
 
-private slots:
-    //-------------------------------------
-    void autoProcess();  // 自动测试流程
-    void testAudio();    //
-    void onAudioTestFinished();
-    //-------------------------------------
 
 
 private: // device
@@ -102,6 +96,11 @@ signals:
 private slots:
     void onRecordingOver();
     void onTestStarted();
+    //-------------------------------------
+    void autoProcess();  // 自动测试流程
+    void testAudio();    // for startTestAudio
+    void onAudioTestFinished(); //音频检测后结果判断输出
+    //-------------------------------------
 
 private:
     Setup4Mic * setup4mic = nullptr;
@@ -116,5 +115,6 @@ private slots:
     void on_btnStartRecord_clicked();
     void on_btnStartTest_clicked();
     void on_btnSetting4Model_clicked();
+    void on_btnSetting4AutoTest_clicked();
 };
 #endif // MAINWINDOW_H
