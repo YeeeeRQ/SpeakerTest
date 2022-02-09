@@ -69,10 +69,17 @@ private: // Test
     int micIndexR;       // 右麦克风设备号
     quint64 m_AutoTestDelay = 0;
 
+    QString default_WorkDir;
+    QString default_AudioTestDir;
+
+    QString current_WorkDir;
+    QString current_AudioTestDir;
+
 private slots:
     //-------------------------------------
     void autoProcess();  // 自动测试流程
     void testAudio();    //
+    void onAudioTestFinished();
     //-------------------------------------
 
 
@@ -90,6 +97,7 @@ signals:
     void startAutoProcess(); //已接收到读卡器开始指令 自动测试流程开始
     void startRecording(quint64 duration); // 目录+时长以确定，开始录音
     void startTestAudio(); //录音文件已就绪， 开始测试
+    void audioTestFinished();
 
 private slots:
     void onRecordingOver();

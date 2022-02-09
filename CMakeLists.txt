@@ -19,7 +19,6 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS SerialPort REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Network REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Sql REQUIRED)
 
-
 set(TS_FILES SpeakersTest_zh_CN.ts)
 
 set(PROJECT_SOURCES
@@ -40,7 +39,7 @@ set(PROJECT_SOURCES
         config.cpp config.h
         simplelog.cpp simplelog.h
 
-        MyCommonFun.h
+        MyCommonFun.cpp MyCommonFun.h
         res.qrc
         ${TS_FILES}
 )
@@ -86,7 +85,6 @@ target_link_libraries(SpeakersTest PRIVATE
     Qt${QT_VERSION_MAJOR}::Network
     Qt${QT_VERSION_MAJOR}::Sql
 )
-
 
 
 

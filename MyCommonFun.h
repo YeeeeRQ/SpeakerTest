@@ -4,11 +4,6 @@
 #include <QEventLoop>
 #include <QTimer>
 
-void delaymsec(int msec)
-{
-    QEventLoop loop;
-    QTimer::singleShot(msec,&loop,SLOT(quit()));
-    loop.exec();
-}
+void delaymsec(int msec);
 
 #endif // MYCOMMONFUN_H

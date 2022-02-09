@@ -8,6 +8,50 @@
 #define WAV_FILE_R  "/R.wav"
 
 ////////////////////////////////////////////////////////////////////////////////
+#include   <windows.h>
+
+//调用命令行命令而不显示命令行窗口
+BOOL system_hide(char* CommandLine)
+{
+    SECURITY_ATTRIBUTES   sa;
+    HANDLE   hRead,hWrite;
+
+    sa.nLength   =   sizeof(SECURITY_ATTRIBUTES);
+    sa.lpSecurityDescriptor   =   NULL;
+    sa.bInheritHandle   =   TRUE;
+    if   (!CreatePipe(&hRead,&hWrite,&sa,0))
+    {
+        return   FALSE;
+    }
+
+    STARTUPINFO   si;
+    PROCESS_INFORMATION   pi;
+    si.cb   =   sizeof(STARTUPINFO);
+    GetStartupInfo(&si);
+    si.hStdError   =   hWrite;
+    si.hStdOutput   =   hWrite;
+    si.wShowWindow   =   SW_HIDE;
+    si.dwFlags   =   STARTF_USESHOWWINDOW   |   STARTF_USESTDHANDLES;
+    //关键步骤，CreateProcess函数参数意义请查阅MSDN
+    if   (!CreateProcess(NULL, CommandLine, NULL,NULL,TRUE,NULL,NULL,NULL,&si,&pi))
+    {
+        return   FALSE;
+    }
+    CloseHandle(hWrite);
+
+    char   buffer[4096]   =   {0};
+    DWORD   bytesRead;
+    while(true)
+    {
+        memset(buffer,0,strlen(buffer));
+        if(ReadFile(hRead,buffer,4095,&bytesRead,NULL)==NULL)
+            break;
+        //buffer中就是执行的结果，可以保存到文本，也可以直接输出
+        //printf(buffer);//这行注释掉就可以了
+        Sleep(100);
+    }
+    return   TRUE;
+}
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -17,6 +61,24 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     qDebug()<<"current applicationDirPath: "<<QCoreApplication::applicationDirPath();
     qDebug()<<"current currentPath: "<<QDir::currentPath();
+
+    default_WorkDir = QCoreApplication::applicationDirPath() + "\\temp\\";
+    default_AudioTestDir = QCoreApplication::applicationDirPath() + "\\temp\\test";
+    current_WorkDir = default_WorkDir;
+    current_AudioTestDir = default_AudioTestDir;
+
+    ui->lineEdit4WavDir->setText(default_AudioTestDir);
+
+    QDir dir;
+    if(!dir.exists(default_WorkDir)){
+        dir.mkdir(default_WorkDir);
+    }
+    if(!dir.exists(default_AudioTestDir)){
+        dir.mkdir(default_AudioTestDir);
+    }
+
+    ui->lineEdit4WavDir->setText(default_AudioTestDir);
+
 
     // Config
     bool hasConf = QFile::exists(QCoreApplication::applicationDirPath()
@@ -36,6 +98,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Test
     connect(this, &MainWindow::startAutoProcess, this, &MainWindow::autoProcess);
+    connect(this, &MainWindow::startTestAudio, this, &MainWindow::testAudio);
+    connect(this, &MainWindow::audioTestFinished, this, &MainWindow::onAudioTestFinished);
 //    connect(this, &MainWindow::startTesting, this, &MainWindow::);
 
     // Todo:
@@ -230,14 +294,7 @@ void MainWindow::autoProcess()
     delaymsec(m_AutoTestDelay);
 
     // 录制
-
-    // 测试 音频
-}
-
-void MainWindow::testAudio()
-{
-
-    // 测试 音频
+    emit startRecording(2000);
 }
 
 void MainWindow::onCodeReaderReceiveBarcode(QString barcode)
@@ -302,11 +359,11 @@ void MainWindow::on_btnStartTest_clicked()
         log.warn("未指定wav文件存放目录！");
         return;
     }
-    if(QFile::exists(wavL)){
+    if(!QFile::exists(wavL)){
         log.warn("指定目录下 \"L.wav\" 文件不存在！");
         return;
     }
-    if(QFile::exists(wavR)){
+    if(!QFile::exists(wavR)){
         log.warn("指定目录下 \"R.wav\" 文件不存在！");
         return;
     }
@@ -314,6 +371,82 @@ void MainWindow::on_btnStartTest_clicked()
 
     // call test dll
     emit startTestAudio();
+}
+
+void MainWindow::testAudio()
+{
+    // ConsoleAppAudioTest.exe
+    QString app = QCoreApplication::applicationDirPath() + "\\AudioTest\\ConsoleAppAudioTest.exe";
+    QString cmd = app + " " + current_AudioTestDir + " 2>NUL 1>NUL ";
+    qDebug() << app;
+    qDebug() << cmd;
+
+//    system(cmd.toLatin1());
+    system_hide((char*)cmd.toLatin1().data());
+
+    emit audioTestFinished();
+}
+
+void MainWindow::onAudioTestFinished()
+{
+    QString csv_file = current_AudioTestDir + "\\test.csv";
+    qDebug() << csv_file;
+
+    if(!QFile::exists(csv_file)){
+      log.warn("测试目录下无测试结果文件！测试失败！");
+    }
+
+    // 读取csv文件, 输出结果
+    QFile f{csv_file};
+
+    if (!f.open(QIODevice::ReadOnly)) {
+        log.warn("测试结果文件读取失败！");
+    }
+
+    QString line_l, line_r;
+    QTextStream in{&f};
+    if(!in.atEnd())
+        line_l = in.readLine();
+    if(!in.atEnd())
+        line_r = in.readLine();
+
+    if(line_l.isEmpty() || line_r.isEmpty()){
+        log.warn("测试结果文件异常！");
+    }
+
+    QStringList L_data= line_l.split(',');
+    QStringList R_data= line_r.split(',');
+    // 判断 Pass | Fail
+    qDebug() << "----------result----------\n";
+    QString result_l, result_r;
+    for(size_t i=0 ; i <L_data.length();++i){
+        result_l += L_data.at(i) + "  ";
+    }
+    for(size_t i=0 ; i <R_data.length();++i){
+        result_r += R_data.at(i) + "  ";
+    }
+    qDebug() << result_l;
+    qDebug() << result_r;
+
+    // pitch
+    double lpitch1, rpitch1, lpitch2, rpitch2;
+    lpitch1 = L_data.at(2).toDouble();
+    rpitch1 = R_data.at(2).toDouble();
+    lpitch2 = L_data.at(4).toDouble();
+    rpitch2 = R_data.at(4).toDouble();
+
+
+
+    //
+
+    double llevel1, rlevel1, llevel2, rlevel2;
+    llevel1 = L_data.at(1).toDouble();
+    rlevel1 = R_data.at(1).toDouble();
+    llevel2 = L_data.at(3).toDouble();
+    rlevel2 = R_data.at(3).toDouble();
+
+
+
 }
 
 

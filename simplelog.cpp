@@ -1,6 +1,6 @@
 ﻿#include "simplelog.h"
 
-#define LINELIMIT 200
+#define LINELIMIT 100
 
 SimpleLog::SimpleLog()
 {
@@ -55,6 +55,13 @@ void SimpleLog::clear()
 void SimpleLog::printWithColor(QString s, QString color)
 {
     checkOutput();
+    QString num = QString::number(line_count);
+    if(line_count < 10){
+        num.prepend(" ");
+    }
+    s.prepend("[" + num +"]:");
+    line_count++;
+
     QString qHtmlText(QString("<p style='color:%1'>").arg(color));
     qHtmlText.append(s);
     qHtmlText.append("</p>");
@@ -66,5 +73,6 @@ void SimpleLog::checkOutput()
     if(output->blockCount() > LINELIMIT)
     {
         output->clear();
+        line_count = 0;
     }
 }
