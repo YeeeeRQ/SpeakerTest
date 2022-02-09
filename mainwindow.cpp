@@ -16,6 +16,15 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    QApplication::setStyle(QStyleFactory::create("Fusion"));               // 更改风格
+    QApplication::setPalette(QApplication::style()->standardPalette());     // 使用风格默认的颜色
+
+    QPalette palette;
+    palette.setColor(QPalette::Background,QColor(250,250,250));
+    //palette.setBrush(QPalette::Background,QBrush(QPixmap(":/background.png")));
+    this->setPalette(palette);
+
     qDebug()<<"current applicationDirPath: "<<QCoreApplication::applicationDirPath();
     qDebug()<<"current currentPath: "<<QDir::currentPath();
 
@@ -23,8 +32,6 @@ MainWindow::MainWindow(QWidget *parent)
     default_AudioTestDir = QCoreApplication::applicationDirPath() + "\\temp\\test";
     current_WorkDir = default_WorkDir;
     current_AudioTestDir = default_AudioTestDir;
-
-    ui->lineEdit4WavDir->setText(default_AudioTestDir);
 
     QDir dir;
     if(!dir.exists(default_WorkDir)){
@@ -35,6 +42,7 @@ MainWindow::MainWindow(QWidget *parent)
     }
 
     ui->lineEdit4WavDir->setText(default_AudioTestDir);
+    ui->lineEdit4WavDir->setToolTip(default_AudioTestDir);
 
 
     // Config
@@ -294,6 +302,7 @@ void MainWindow::on_btnLoadWavDir_clicked()
 {
     this->wavDir = QFileDialog::getExistingDirectory();
     ui->lineEdit4WavDir->setText(wavDir);
+    ui->lineEdit4WavDir->setToolTip(wavDir);
     log.warn(wavDir);
 }
 
