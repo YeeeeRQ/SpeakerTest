@@ -20,10 +20,10 @@ void RecordWorker::doWork(quint64 duration)
     recordDuration = duration;
 
     qDebug() << "RecordWorker doWork.";
-    qDebug() << "Count : " << recorder->audioInputs().count();
 
-    foreach (const QString &device, recorder->audioInputs())
-        qDebug() << QThread::currentThreadId()<< device; //音频录入设备
+//    qDebug() << "Count : " << recorder->audioInputs().count();
+//    foreach (const QString &device, recorder->audioInputs())
+//        qDebug() << QThread::currentThreadId()<< device; //音频录入设备
 
     // 检测
     // 1. 设备
@@ -51,21 +51,24 @@ void RecordWorker::record()
     {
         if (outputFile.isEmpty())
         {
-            qDebug() << "错误 << " << "请先设置录音输出文件" << Qt::endl;
+            qDebug() << "RecordWorkder: 错误 << " << "请先设置录音输出文件" << Qt::endl;
             return;
         }
 
         if (QFile::exists(outputFile))
          if (!QFile::remove(outputFile))
          {
-            qDebug() << "错误 << " << "所设置录音输出文件被占用，无法删除" << Qt::endl;
+            qDebug() << "RecordWorkder: 错误 << " << "所设置录音输出文件被占用，无法删除" << Qt::endl;
             return;
          }
         recorder->setOutputLocation(QUrl::fromLocalFile(outputFile));//设置输出文件
     }
-
+    //        ui->comboDevices->addItem(device); //音频录入设备列表
 //    recorder->setAudioInput(recorder->defaultAudioInput()); //设置录入设备
 
+    //Todo: 检测设备是否存在
+
+    recorder->setAudioInput(inputDev); //设置录入设备
 
 
     QAudioEncoderSettings settings; //音频编码设置
@@ -96,6 +99,14 @@ void RecordWorker::setOutputFile(const QString& f)
 
 void RecordWorker::setAudioInput(const QString &dev)
 {
-    recorder->setAudioInput(dev); //设置录入设备
+    inputDev = dev;
+//    qDebug() << "--------------";
+//    qDebug() << "1. "<<dev;
+//    qDebug() << "2. "<<dev.toUtf8();
+//    qDebug() << "3. "<<dev.toLocal8Bit();
+//    qDebug() << "--------------";
+//    foreach (const QString &device, recorder->audioInputs()){
+//        qDebug() << device;
+//    }
+//    recorder->setAudioInput(dev.toUtf8()); //设置录入设备
 }
-

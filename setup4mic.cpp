@@ -2,6 +2,7 @@
 #include "ui_setup4mic.h"
 #include <QDebug>
 
+
 Setup4Mic::Setup4Mic(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::Setup4Mic)
@@ -37,7 +38,7 @@ Setup4Mic::Setup4Mic(QWidget *parent) :
         curDevice0 =deviceList.at(0);
         curDevice1 =deviceList.at(0);
     }
-    if (deviceList.size()==2)
+    if (deviceList.size()>=2)
     {
         ui->comboDevicesL->setCurrentIndex(0); //触发comboDevices的信号currentIndexChanged()
         ui->comboDevicesR->setCurrentIndex(1); //触发comboDevices的信号currentIndexChanged()
@@ -102,6 +103,17 @@ Setup4Mic::~Setup4Mic()
     delete ui;
 }
 
+void Setup4Mic::onLoadDeviceConf(int l_idx, int r_idx)
+{
+    if(l_idx < deviceList.size()){
+        ui->comboDevicesL->setCurrentIndex(l_idx); //触发comboDevices的信号currentIndexChanged()
+        curDevice0 =deviceList.at(l_idx);
+    }
+    if(r_idx < deviceList.size()){
+        ui->comboDevicesR->setCurrentIndex(r_idx); //触发comboDevices的信号currentIndexChanged()
+        curDevice1 =deviceList.at(r_idx);
+    }
+}
 
 void Setup4Mic::on_btnExit_clicked()
 {
@@ -111,11 +123,21 @@ void Setup4Mic::on_btnExit_clicked()
 
 void Setup4Mic::on_btnSave_clicked()
 {
+    QString LMic = ui->comboDevicesL->currentText();
+    QString RMic = ui->comboDevicesR->currentText();
 
-    qDebug() << "L: " << ui->comboDevicesL->currentIndex() << Qt::endl;
-    qDebug() << "R: " << ui->comboDevicesR->currentIndex();
+    int lidx = ui->comboDevicesL->currentIndex();
+    int ridx = ui->comboDevicesR->currentIndex();
+    if(lidx == ridx){
+        QMessageBox::warning(this, "设定失败", "左右麦克风输入不能相同");
+        return;
+    }
 
-    emit setupMic(0, 1);
+    qDebug() << lidx << " : " << LMic;
+    qDebug() << ridx << " : " << RMic;
+
+//    emit setupMic(0, 1);
+    emit setupMic(lidx, LMic, ridx, RMic);
 }
 
 

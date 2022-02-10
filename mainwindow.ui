@@ -264,7 +264,7 @@
                    </spacer>
                   </item>
                   <item>
-                   <widget class="QPushButton" name="btnLoadWavDir_2">
+                   <widget class="QPushButton" name="btnLoadTempWavDir">
                     <property name="font">
                      <font>
                       <pointsize>10</pointsize>
@@ -508,6 +508,12 @@
                    <property name="text">
                     <string>自动</string>
                    </property>
+                   <property name="checkable">
+                    <bool>true</bool>
+                   </property>
+                   <property name="checked">
+                    <bool>false</bool>
+                   </property>
                   </widget>
                  </item>
                  <item>
@@ -517,6 +523,12 @@
                    </property>
                    <property name="text">
                     <string>手动</string>
+                   </property>
+                   <property name="checkable">
+                    <bool>true</bool>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
                    </property>
                   </widget>
                  </item>
@@ -705,7 +717,7 @@
      <x>0</x>
      <y>0</y>
      <width>1024</width>
-     <height>17</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>

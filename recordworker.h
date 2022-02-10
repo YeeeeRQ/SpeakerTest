@@ -19,15 +19,16 @@ class RecordWorker : public QObject
     Q_OBJECT
 public:
     explicit RecordWorker(QObject *parent = nullptr);
-public:
+
+public slots:
     void setOutputFile(const QString& f);
     void setAudioInput(const QString& dev);
-public slots:
     void doWork(quint64 duration);
 
 private:
     QAudioRecorder *recorder;//音频录音
     QString outputFile;
+    QString inputDev;
     quint64 recordDuration;
 
     void record();

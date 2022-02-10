@@ -46,7 +46,10 @@ private:
 
 
 signals:
-    void setupMic(int l_idx, int r_idx);
+//    void setupMic(int l_idx, int r_idx);
+    void setupMic(int l_idx, const QString& lmic, int r_idx, const QString& rmic);
+public slots:
+    void onLoadDeviceConf(int l_idx, int r_idx);
 
 public:
     explicit Setup4Mic(QWidget *parent = nullptr);
