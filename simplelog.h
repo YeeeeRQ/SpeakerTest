@@ -9,9 +9,6 @@ class SimpleLog
 public:
     static SimpleLog& getInstance(QPlainTextEdit * output); // need a QPlainTextEdit
 
-    quint64 line_count = 0;
-
-
 private:
     SimpleLog();
     ~SimpleLog();
@@ -27,6 +24,7 @@ public:
     void red(QString s);
     void gray(QString s);
     void clear();
+    void setupOutput();
 private:
     void checkOutput();
     void printWithColor(QString s, QString color);

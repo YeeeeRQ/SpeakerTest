@@ -113,6 +113,8 @@ void Setup4Mic::onLoadDeviceConf(int l_idx, int r_idx)
         ui->comboDevicesR->setCurrentIndex(r_idx); //触发comboDevices的信号currentIndexChanged()
         curDevice1 =deviceList.at(r_idx);
     }
+
+    this->on_btnSave_clicked();
 }
 
 void Setup4Mic::on_btnExit_clicked()
@@ -136,7 +138,6 @@ void Setup4Mic::on_btnSave_clicked()
     qDebug() << lidx << " : " << LMic;
     qDebug() << ridx << " : " << RMic;
 
-//    emit setupMic(0, 1);
     emit setupMic(lidx, LMic, ridx, RMic);
 }
 

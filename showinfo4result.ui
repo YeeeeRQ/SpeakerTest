@@ -38,7 +38,7 @@
         </font>
        </property>
        <property name="text">
-        <string>0.0s</string>
+        <string>00.000 s </string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>

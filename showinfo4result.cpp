@@ -7,6 +7,7 @@ ShowInfo4Result::ShowInfo4Result(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    // UI 界面设定
     QString qlabel_green_style =
                 "QLabel{"
                 "color:rgb(34, 139, 34)"
@@ -23,6 +24,15 @@ ShowInfo4Result::ShowInfo4Result(QWidget *parent) :
     this->clearAll();
 
     connect(this, &ShowInfo4Result::numberChanged, this, &ShowInfo4Result::onNumberChanged);
+
+
+    // 秒表 计时
+    this->ui->label_Time->setText("00.000s");
+    this->timer = new QTimer;
+    connect(this->timer, &QTimer::timeout, this, &ShowInfo4Result::freshenTime);
+
+
+//    QTime::QTime
 }
 
 ShowInfo4Result::~ShowInfo4Result()
@@ -49,6 +59,42 @@ void ShowInfo4Result::freshen()
     ui->label_OK_number->setText(QString::number(ok_num));
     ui->label_Total_number->setText(QString::number(total_num));
 }
+
+void ShowInfo4Result::freshenTime()
+{
+    QTime  currTime = QTime::currentTime();
+    int t= this->baseTime.msecsTo(currTime);
+    QTime  showTime(0,0,0,0);
+    showTime = showTime.addMSecs(t);
+    this->timeStr = showTime.toString("ss.zzz")+"s";
+    this->ui->label_Time->setText(timeStr);
+
+}
+
+void ShowInfo4Result::startTimer()
+{
+    this->baseTime = this->baseTime.currentTime();
+    this->timer->start(1);
+}
+
+void ShowInfo4Result::stopTimer()
+{
+    if(timer->isActive()){
+        timer->stop();
+    }
+}
+
+void ShowInfo4Result::pointTimer()
+{
+
+}
+
+void ShowInfo4Result::onNumberChanged()
+{
+    total_num = ok_num + ng_num;
+    this->freshen();
+}
+
 
 void ShowInfo4Result::changeStatus2Waiting()
 {
@@ -101,10 +147,3 @@ void ShowInfo4Result::okNumPlusOne()
     ok_num++;
     emit numberChanged();
 }
-
-void ShowInfo4Result::onNumberChanged()
-{
-    total_num = ok_num + ng_num;
-    this->freshen();
-}
-

@@ -68,6 +68,7 @@ void RecordWorker::record()
 
     //Todo: 检测设备是否存在
 
+    qDebug()<<inputDev;
     recorder->setAudioInput(inputDev); //设置录入设备
 
 
@@ -99,7 +100,9 @@ void RecordWorker::setOutputFile(const QString& f)
 
 void RecordWorker::setAudioInput(const QString &dev)
 {
+    qDebug() << "1. "<<dev;
     inputDev = dev;
+
 //    qDebug() << "--------------";
 //    qDebug() << "1. "<<dev;
 //    qDebug() << "2. "<<dev.toUtf8();

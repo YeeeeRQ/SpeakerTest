@@ -12,174 +12,130 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="mainwindow.ui" line="26"/>
+        <location filename="mainwindow.ui" line="20"/>
         <source>MainWindow</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="94"/>
+        <location filename="mainwindow.ui" line="88"/>
         <source>机种选择</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="123"/>
+        <location filename="mainwindow.ui" line="117"/>
         <source>锁定</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="151"/>
+        <location filename="mainwindow.ui" line="145"/>
         <source>测试</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="309"/>
+        <location filename="mainwindow.ui" line="303"/>
         <source>录制时长：</source>
         <oldsource>时长：</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="333"/>
+        <location filename="mainwindow.ui" line="327"/>
         <source>2000</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="345"/>
+        <location filename="mainwindow.ui" line="342"/>
         <source>ms</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="363"/>
+        <location filename="mainwindow.ui" line="360"/>
         <source>开始录制(R)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="425"/>
+        <location filename="mainwindow.ui" line="422"/>
         <source>测试(T)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="458"/>
+        <location filename="mainwindow.ui" line="455"/>
         <source>程序输出</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="470"/>
+        <location filename="mainwindow.ui" line="467"/>
         <source>测试结果</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="574"/>
+        <location filename="mainwindow.ui" line="571"/>
         <source>麦克风输入</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="567"/>
+        <location filename="mainwindow.ui" line="564"/>
         <source>音频测试</source>
         <oldsource>自动测试</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="593"/>
-        <source>主要设备状态</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.ui" line="642"/>
-        <source>外部设备状态</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.ui" line="652"/>
-        <source>ReadEsn</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.ui" line="670"/>
-        <source>AutoLine</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.ui" line="688"/>
-        <source>DCT</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.ui" line="496"/>
+        <location filename="mainwindow.ui" line="493"/>
         <source>运行模式</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="164"/>
+        <location filename="mainwindow.ui" line="158"/>
         <source>产品ID</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="211"/>
+        <location filename="mainwindow.ui" line="205"/>
         <source>WAV目录:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="233"/>
+        <location filename="mainwindow.ui" line="227"/>
         <source>...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="245"/>
+        <location filename="mainwindow.ui" line="239"/>
         <source>载入自定义目录</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="274"/>
+        <location filename="mainwindow.ui" line="268"/>
         <source>载入临时目录</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="509"/>
+        <location filename="mainwindow.ui" line="506"/>
         <source>自动</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="525"/>
+        <location filename="mainwindow.ui" line="522"/>
         <source>手动</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="540"/>
+        <location filename="mainwindow.ui" line="537"/>
         <source>切换</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="552"/>
+        <location filename="mainwindow.ui" line="549"/>
         <source>设定</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="560"/>
+        <location filename="mainwindow.ui" line="557"/>
         <source>机种管理</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="581"/>
+        <location filename="mainwindow.ui" line="578"/>
         <source>外部设备</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.ui" line="603"/>
-        <source>麦克风L</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.ui" line="610"/>
-        <location filename="mainwindow.ui" line="628"/>
-        <location filename="mainwindow.ui" line="659"/>
-        <location filename="mainwindow.ui" line="677"/>
-        <location filename="mainwindow.ui" line="695"/>
-        <source>未连接</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.ui" line="621"/>
-        <source>麦克风R</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -494,7 +450,8 @@
     </message>
     <message>
         <location filename="showinfo4result.ui" line="41"/>
-        <source>0.0s</source>
+        <source>00.000 s </source>
+        <oldsource>0.0s</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -526,6 +483,58 @@
     <message>
         <location filename="showinfo4result.ui" line="202"/>
         <source>Clear</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>TempForm</name>
+    <message>
+        <location filename="TempForm.ui" line="14"/>
+        <source>Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="TempForm.ui" line="29"/>
+        <source>主要设备状态</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="TempForm.ui" line="39"/>
+        <source>麦克风L</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="TempForm.ui" line="46"/>
+        <location filename="TempForm.ui" line="64"/>
+        <location filename="TempForm.ui" line="104"/>
+        <location filename="TempForm.ui" line="122"/>
+        <location filename="TempForm.ui" line="140"/>
+        <source>未连接</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="TempForm.ui" line="57"/>
+        <source>麦克风R</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="TempForm.ui" line="87"/>
+        <source>外部设备状态</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="TempForm.ui" line="97"/>
+        <source>ReadEsn</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="TempForm.ui" line="115"/>
+        <source>AutoLine</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="TempForm.ui" line="133"/>
+        <source>DCT</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

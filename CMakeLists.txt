@@ -40,6 +40,7 @@ set(PROJECT_SOURCES
         simplelog.cpp simplelog.h
 
         MyCommonFun.cpp MyCommonFun.h
+        TempForm.ui
         res.qrc
         ${TS_FILES}
 )

@@ -1,4 +1,5 @@
 ﻿#include "simplelog.h"
+#include <QTime>
 
 #define LINELIMIT 100
 
@@ -52,17 +53,24 @@ void SimpleLog::clear()
     output->clear();
 }
 
+void SimpleLog::setupOutput()
+{
+    if(output){
+        QFont font = QFont("Microsoft YaHei",20,2);
+        output->setFont(font);
+    }
+}
+
 void SimpleLog::printWithColor(QString s, QString color)
 {
     checkOutput();
-    QString num = QString::number(line_count);
-    if(line_count < 10){
-        num.prepend(" ");
-    }
-    s.prepend("[" + num +"]:");
-    line_count++;
+
+    QString currTime = QTime::currentTime().toString("hh:mm:ss zzz");
+    currTime.prepend("[");
+    currTime.append("]:");
 
     QString qHtmlText(QString("<p style='color:%1'>").arg(color));
+    qHtmlText.append(currTime);
     qHtmlText.append(s);
     qHtmlText.append("</p>");
     output->appendHtml(qHtmlText);
@@ -73,6 +81,5 @@ void SimpleLog::checkOutput()
     if(output->blockCount() > LINELIMIT)
     {
         output->clear();
-        line_count = 0;
     }
 }

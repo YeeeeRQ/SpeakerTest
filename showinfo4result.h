@@ -2,6 +2,8 @@
 #define SHOWINFO4RESULT_H
 
 #include <QWidget>
+#include <QTimer>
+#include <QTime>
 
 namespace Ui {
 class ShowInfo4Result;
@@ -23,9 +25,16 @@ private:
 private:
     void clearAll();
     void freshen();
+    void freshenTime();
     quint64 ng_num = 0;
     quint64 ok_num = 0;
     quint64 total_num = 0;
+
+private:
+    QTimer* timer;
+    QTime baseTime;
+    QString timeStr;
+
 signals:
     void numberChanged();
 private slots:
@@ -39,6 +48,10 @@ public:
 
     void ngNumPlusOne();
     void okNumPlusOne();
+
+    void startTimer();
+    void stopTimer();
+    void pointTimer();
 };
 
 #endif // SHOWINFO4RESULT_H

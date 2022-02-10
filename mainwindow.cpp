@@ -208,7 +208,9 @@ MainWindow::~MainWindow()
 void MainWindow::onRecordingOver()
 {
     //录制结束
-    qDebug() << "录制结束";
+    ui->widgetShowInfo->stopTimer();
+    ui->btnStartRecord->setEnabled(true);
+    ui->btnStartTest->setEnabled(true);
     log.blue("录制结束");
 }
 
@@ -365,6 +367,8 @@ void MainWindow::onSetupMic(int l_idx, const QString &lmic, int r_idx, const QSt
     this->m_micIndexR = r_idx;
     this->m_micR = rmic;
 
+    log.warn(lmic);
+    log.warn(rmic);
     emit setRecordInputL(lmic);
     emit setRecordInputR(rmic);
 
@@ -402,23 +406,41 @@ void MainWindow::on_btnStartRecord_clicked()
     //Todo
     // 输入限制, 按钮逻辑
 
-    static quint64 duration = ui->lineEditDurationOfRecord->text().toUInt();
+    quint64 duration = ui->lineEditDurationOfRecord->text().toUInt();
+
+
+    // 输出 当前麦克风
+    log.info(m_micL);
+    log.info(m_micR);
+
+
+    ui->widgetShowInfo->startTimer();
 
     QString wavdir = ui->lineEdit4WavDir->text();
     recWorkerL->setOutputFile(wavdir+ "\\L.wav");
     recWorkerR->setOutputFile(wavdir+ "\\R.wav");
 
-    emit startRecording(duration);
+    ui->btnStartRecord->setEnabled(false);
+    ui->btnStartTest->setEnabled(false);
+
     log.info("开始录制");
+    emit startRecording(duration);
 }
 
 
 void MainWindow::on_btnStartTest_clicked()
 {
     // 载入指定目录下 L.wav R.wav文件
+
+    textedit4log.clear();
+
+    ui->btnStartRecord->setEnabled(false);
+    ui->btnStartTest->setEnabled(false);
+
     QString workdir = ui->lineEdit4WavDir->text().trimmed();
-    QString wavL = workdir + WAV_FILE_L;
-    QString wavR = workdir + WAV_FILE_R;
+    QString wavL =  QDir::toNativeSeparators(workdir + WAV_FILE_L);
+    QString wavR =  QDir::toNativeSeparators(workdir + WAV_FILE_R);
+
 
     if(workdir.isEmpty()){
         log.warn("未指定wav文件存放目录！");
@@ -432,30 +454,39 @@ void MainWindow::on_btnStartTest_clicked()
         log.warn("指定目录下 \"R.wav\" 文件不存在！");
         return;
     }
-    log.info("载入指定目录下 L.wav & R.wav 文件成功.");
+    log.warn("dir: "+workdir);
+    log.warn("file: "+wavL);
+    log.warn("file: "+wavR);
 
+    log.info("载入 L.wav & R.wav 文件成功.");
+
+    log.info("开始测试");
     // call test dll
     emit startTestAudio();
-    log.info("开始测试");
 }
 
 void MainWindow::testAudio()
 {
     //获取CSV测试结果
+    QString target_dir = ui->lineEdit4WavDir->text().trimmed();
 
-    QString app = QCoreApplication::applicationDirPath() + "\\AudioTest\\ConsoleAppAudioTest.exe";
-//    QString cmd = app + " " + current_AudioTestDir + " 2>NUL 1>NUL ";
-    QString cmd = app + " " + ui->lineEdit4WavDir->text().trimmed();
+    QString app = QDir::toNativeSeparators(QCoreApplication::applicationDirPath() + "\\AudioTest\\ConsoleAppAudioTest.exe");
+    QString cmd = app + " " + target_dir;
 
     cmd += " " +  QString::number(setup4autotest->m_duration1);
     cmd += " " +  QString::number(setup4autotest->m_duration2);
 
     qDebug() << app;
     qDebug() << cmd;
+    log.warn(app);
+    log.warn(cmd);
+
 
 //    system(cmd.toLatin1());
     system_hide((char*)cmd.toLatin1().data());
 
+    ui->btnStartRecord->setEnabled(true);
+    ui->btnStartTest->setEnabled(true);
     emit audioTestFinished();
     log.info("...");
 }
@@ -584,17 +615,23 @@ void MainWindow::onAudioTestFinished()
     }
 
 PASS:
+
+    ui->widgetShowInfo->okNumPlusOne();
+    log.info("测试通过");
     return;
 
 ERROR_L:
+    ui->widgetShowInfo->ngNumPlusOne();
     log.warn("异常， 请检查 左侧扬声器！");
     return;
 
 ERROR_R:
+    ui->widgetShowInfo->ngNumPlusOne();
     log.warn("异常， 请检查 右侧扬声器！");
     return;
 
 ERROR_BOTH:
+    ui->widgetShowInfo->ngNumPlusOne();
     log.warn("异常， 请检查 [左+右]两侧扬声器！");
     return;
 
