@@ -10,6 +10,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+// Todo:
+// 程序启动时打开外部设备串口
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     ,log(SimpleLog::getInstance(&textedit4log))
@@ -17,84 +19,26 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    // 主题设定
-    QApplication::setStyle(QStyleFactory::create("Fusion"));               // 更改风格
-    QApplication::setPalette(QApplication::style()->standardPalette());     // 使用风格默认的颜色
-
-    // 背景
-    QPalette palette;
-    palette.setColor(QPalette::Background,QColor(250,250,250));
-    //palette.setBrush(QPalette::Background,QBrush(QPixmap(":/background.png")));
-    this->setPalette(palette);
-
-
-    //
-    qDebug()<<"current applicationDirPath: "<<QCoreApplication::applicationDirPath();
-    qDebug()<<"current currentPath: "<<QDir::currentPath();
-
-    // 目录设定
-    default_WorkDir = QCoreApplication::applicationDirPath() + "\\temp\\";
-    default_AudioTestDir = QCoreApplication::applicationDirPath() + "\\temp\\test";
-    current_WorkDir = default_WorkDir;
-    current_AudioTestDir = default_AudioTestDir;
-
-    QDir dir;
-    if(!dir.exists(default_WorkDir)){
-        dir.mkdir(default_WorkDir);
-    }
-    if(!dir.exists(default_AudioTestDir)){
-        dir.mkdir(default_AudioTestDir);
-    }
-
-    ui->lineEdit4WavDir->setText(default_AudioTestDir);
-    ui->lineEdit4WavDir->setToolTip(default_AudioTestDir);
-
-
-    // Config
-    bool hasConf = QFile::exists(QCoreApplication::applicationDirPath()
-                                 + "\\Config.ini");
-    if(!hasConf) initConfig();
-
-    // AutoLine
-    m_AutoLine = new AutoLine;
-    connect(m_AutoLine, &AutoLine::receiveCmd, this, &MainWindow::onAutoLineReceiveCmd);
-    connect(m_AutoLine, &AutoLine::connectStatusChanged, this, &MainWindow::onAutoLineConnectStatusChanged);
-
-    // 读码器
-    m_CodeReader = new CodeReader;
-    m_CodeReader->setLogger(&log);
-    connect(m_CodeReader, &CodeReader::receiveBarcode, this, &MainWindow::onCodeReaderReceiveBarcode);
-    connect(m_CodeReader, &CodeReader::connectStatusChanged, this, &MainWindow::onCodeReaderConnectStatusChanged);
+    this->themeSetting();
+    this->pathSetting();
+    this->configSetting();
+    this->devicesSetting();
 
     // Test
-    connect(this, &MainWindow::startAutoProcess, this, &MainWindow::autoProcess);
-    connect(this, &MainWindow::startTestAudio, this, &MainWindow::testAudio);
-    connect(this, &MainWindow::audioTestFinished, this, &MainWindow::onAudioTestFinished);
+    connect(this, &MainWindow::sig_startAutoTest, this, &MainWindow::slot_startAutoTest);
+    connect(this, &MainWindow::sig_startTestAudio, this, &MainWindow::slot_testAudio);
+    connect(this, &MainWindow::sig_audioTestFinished, this, &MainWindow::slot_onAudioTestFinished);
 //    connect(this, &MainWindow::startTesting, this, &MainWindow::);
+    connect(this, &MainWindow::sig_autoModeStateChanged, this, &MainWindow::slot_onAutoModeStateChanged);
 
-    // Todo:
-    // 麦克风检测 个数小于2 给警报
-    // 程序启动时打开外部设备串口
-
+    connect(this, &MainWindow::checkAllRecordOver, this, &MainWindow::onCheckAllRecordOver);
+    connect(this, &MainWindow::allRecordOver, this, &MainWindow::startTestAudio);
 
 
     loadConfig();
 
-    init();
-}
+    ui->lineEditDurationOfRecord->setText(QString::number(m_wavDuration));
 
-void MainWindow::init()
-{
-    this->setWindowTitle(tr("双通道扬声器测试"));
-
-    textedit4log.setEnabled(false);
-    textedit4log.verticalScrollBar()->hide();
-
-    QDateTime cur = QDateTime::currentDateTime();
-    ui->statusbar->showMessage("启动时间 : " +
-                               cur.toString("yyyy-MM-dd hh:mm:ss"), 0);
-
-    ui->verticalLayout4log->addWidget(&textedit4log);
 
     // 麦克风数量检测
     QAudioRecorder* recorder = new QAudioRecorder(this);
@@ -107,116 +51,149 @@ void MainWindow::init()
     if(audioInputs.count() < 2){
         log.warn("麦克风数量小于2, 测试无法进行.");
     }else{
-    // -------------------------------------------------------------------------
+        // -------------------------------------------------------------------------
 
-    recWorkerL = new RecordWorker;
-    recWorkerL->moveToThread(&m_recordThread4L);
+        recWorkerL = new RecordWorker;
+        recWorkerL->moveToThread(&m_recordThread4L);
 
 
-    // 录音前提：设定好2个麦克风输入
-    connect(this, SIGNAL(startRecording(quint64)), recWorkerL, SLOT(doWork(quint64)));
-    connect(&m_recordThread4L, &QThread::finished, recWorkerL, &QObject::deleteLater);
-    connect(recWorkerL, SIGNAL(resultReady()), this, SLOT(onRecordingOver()));
+        // 录音前提：设定好2个麦克风输入
+        connect(this, SIGNAL(sig_startRecording(quint64)), recWorkerL, SLOT(doWork(quint64)));
+        connect(&m_recordThread4L, &QThread::finished, recWorkerL, &QObject::deleteLater);
+        connect(recWorkerL, SIGNAL(resultReady()), this, SLOT(slot_onLMicRecordingOver()));
 
-    connect(this, &MainWindow::setRecordInputL, recWorkerL, &RecordWorker::setAudioInput);
-    connect(this, &MainWindow::setRecordOutputL, recWorkerL, &RecordWorker::setOutputFile);
+        connect(this, &MainWindow::sig_setRecordInputL, recWorkerL, &RecordWorker::setAudioInput);
+        connect(this, &MainWindow::sig_setRecordOutputL, recWorkerL, &RecordWorker::setOutputFile);
 
-    recWorkerL->setOutputFile("D:\\Temp\\L.wav");
+        recWorkerL->setOutputFile("D:\\Temp\\L.wav");
 
-    // 启动录制线程
-    m_recordThread4L.start();
+        // 启动录制线程
+        m_recordThread4L.start();
 
-    // -------------------------------------------------------------------------
+        // -------------------------------------------------------------------------
 
-    recWorkerR = new RecordWorker;
-    recWorkerR->moveToThread(&m_recordThread4R);
+        recWorkerR = new RecordWorker;
+        recWorkerR->moveToThread(&m_recordThread4R);
 
-    connect(this, SIGNAL(startRecording(quint64)), recWorkerR, SLOT(doWork(quint64)));
-    connect(&m_recordThread4L, &QThread::finished, recWorkerR, &QObject::deleteLater);
-    connect(recWorkerR, SIGNAL(resultReady()), this, SLOT(onRecordingOver()));
+        connect(this, SIGNAL(sig_startRecording(quint64)), recWorkerR, SLOT(doWork(quint64)));
+        connect(&m_recordThread4L, &QThread::finished, recWorkerR, &QObject::deleteLater);
+        connect(recWorkerR, SIGNAL(resultReady()), this, SLOT(slot_onRMicRecordingOver()));
 
-    connect(this, &MainWindow::setRecordInputR, recWorkerR, &RecordWorker::setAudioInput);
-    connect(this, &MainWindow::setRecordOutputR, recWorkerR, &RecordWorker::setOutputFile);
+        connect(this, &MainWindow::sig_setRecordInputR, recWorkerR, &RecordWorker::setAudioInput);
+        connect(this, &MainWindow::sig_setRecordOutputR, recWorkerR, &RecordWorker::setOutputFile);
 
-    recWorkerR->setOutputFile("D:\\Temp\\R.wav");
-//    recWorkerR->setAudioInput(audioInputs.begin());
+        recWorkerR->setOutputFile("D:\\Temp\\R.wav");
+        //    recWorkerR->setAudioInput(audioInputs.begin());
 
-    // 启动录制线程
-    m_recordThread4R.start();
+        // 启动录制线程
+        m_recordThread4R.start();
 
-    // -------------------------------------------------------------------------
+        // -------------------------------------------------------------------------
     }
-
-    // UI
-//    setup4mic->showNormal();
-//    setup4mic->setWindowState(Qt::WindowActive);
-
-//    this->setWindowState(Qt::WindowMinimized);
-
-
-
-    // todo
-
-//    ui->comboBoxModel->set
-
 
     // UI 麦克风设定
     setup4mic = new Setup4Mic();
 
-    connect(setup4mic, &Setup4Mic::setupMic, this, &MainWindow::onSetupMic);
-    connect(this, &MainWindow::loadMicConf, setup4mic, &Setup4Mic::onLoadDeviceConf);
-
-    emit loadMicConf(m_micIndexL, m_micIndexR);
+    connect(setup4mic, &Setup4Mic::setupMic, this, &MainWindow::slot_onSetupMic);
+    connect(this, &MainWindow::sig_loadMicConf, setup4mic, &Setup4Mic::onLoadDeviceConf);
+    emit sig_loadMicConf(m_micIndexL, m_micIndexR);
 
     // UI 音频测试设定
     setup4autotest = new Setup4AutoTest();
-    connect(setup4autotest, &Setup4AutoTest::autoTestConfigChanged, this, &MainWindow::onAutoTestConfigChanged);
+    connect(setup4autotest, &Setup4AutoTest::autoTestConfigChanged, this, &MainWindow::slot_onAutoTestConfigChanged);
 
 
-    // 主要输出目录检测
-    if(m_outputDir.isEmpty()){
-        log.warn("异常！ 主要输出目录未设定。");
-    }
-    QDir dir(m_outputDir);
-    if(!dir.exists()){
-        bool ismkdir = dir.mkdir(m_outputDir);
-        if(!ismkdir){
-            log.warn("创建"+m_outputDir+"失败!");
-            log.warn("程序无法正确运行");
-        }else{
-            log.info("创建"+m_outputDir+"成功!");
-        }
-    }
+    // UI载入结束
+    connect(this, &MainWindow::uiLoaded, this, &MainWindow::onUILoaded);
 }
 
 MainWindow::~MainWindow()
 {
-
     m_recordThread4L.quit();
     m_recordThread4R.quit();
 
     m_recordThread4L.wait();
     m_recordThread4R.wait();
 
-
     delete setup4mic;
     delete ui;
+}
 
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    QMessageBox::StandardButton result = \
+        QMessageBox::question(this, "确认",  "确认退出！",  \
+        QMessageBox::Yes|QMessageBox::No, QMessageBox::No);
+    if(result == QMessageBox::Yes){
+
+        //程序退出时保存当前设定的延时
+        conf.Set("Audio", "RecordDuration", m_wavDuration);
+        if(setup4autotest) setup4autotest->close();
+        if(setup4mic) setup4mic->close();
+
+        event->accept();
+    }else{
+        event->ignore();
+    }
+}
+
+void MainWindow::emitUILoaded()
+{
+    emit uiLoaded();
+}
+
+void MainWindow::onUILoaded()
+{
+    this->uiInit();
+
+    QString autoline_com = conf.Get("AutoLine", "Com").toString();
+    qint32 autoline_baud = conf.Get("AutoLine", "Baud").toInt();
+
+    QString readesn_com = conf.Get("ReadEsn", "Com").toString();
+    qint32 readesn_baud = conf.Get("ReadEsn", "Baud").toInt();
+
+    // 连接 AutoLine
+    if(m_AutoLine){
+        bool open = m_AutoLine->connectDevice(autoline_com, autoline_baud);
+        if(open){
+            log.info("AutoLine COM 打开.");
+        }else{
+            log.info("AutoLine COM 打开失败.");
+        }
+    }
+
+    // 连接 ReadEsn
+    if(m_CodeReader){
+        bool open = m_CodeReader->connectDevice(readesn_com, readesn_baud);
+        if(open){
+            log.info("ReadEsn COM 打开.");
+        }else{
+            log.info("ReadEsn COM 打开失败.");
+        }
+    }
 }
 
 
-void MainWindow::onRecordingOver()
-{
-    //录制结束
+void MainWindow::slot_onLMicRecordingOver()
+{ //录制结束 L
     ui->widgetShowInfo->stopTimer();
     ui->btnStartRecord->setEnabled(true);
-    ui->btnStartTest->setEnabled(true);
-    log.blue("录制结束");
+    ui->btnTest->setEnabled(true);
+
+    m_recordCount[0] = true;
+    log.blue("录制结束 L");
+    emit checkAllRecordOver();
 }
 
-void MainWindow::onTestStarted()
-{
+void MainWindow::slot_onRMicRecordingOver()
+{ //录制结束 R
+    ui->widgetShowInfo->stopTimer();
+    ui->btnStartRecord->setEnabled(true);
+    ui->btnTest->setEnabled(true);
 
+    m_recordCount[1] = true;
+    log.blue("录制结束 R");
+    emit checkAllRecordOver();
 }
 
 void MainWindow::initConfig()
@@ -254,6 +231,7 @@ void MainWindow::saveConfig()
 void MainWindow::loadConfig()
 {
     m_outputDir = conf.Get("Audio", "Path").toString();
+    m_wavDuration  = conf.Get("Audio", "RecordDuration").toUInt();
 
     m_cmd_start = conf.Get("AutoLine", "StartCmd").toString();
     m_cmd_pass = conf.Get("AutoLine", "PassCmd").toString();
@@ -269,15 +247,15 @@ void MainWindow::loadConfig()
     qDebug() << "Load Device Conf L: " << m_micL;
     qDebug() << "Load Device Conf R: " << m_micR;
 
-    emit loadMicConf(m_micIndexL, m_micIndexR);
+    emit sig_loadMicConf(m_micIndexL, m_micIndexR);
 
     if(!m_micL.isEmpty()){
-        emit setRecordInputL(m_micL);
+        emit sig_setRecordInputL(m_micL);
     }else{
         log.warn("L 左侧麦克风未设定");
     }
     if(!m_micR.isEmpty()){
-        emit setRecordInputR(m_micR);
+        emit sig_setRecordInputR(m_micR);
     }else{
         log.warn("R 右侧麦克风未设定");
     }
@@ -288,6 +266,141 @@ void MainWindow::resetConfig()
 
 }
 
+void MainWindow::onCheckAllRecordOver()
+{
+    if(m_recordCount[0] == true &&
+       m_recordCount[1] == true){
+        log.warn("录制流程结束.");
+        emit allRecordOver(); //开始自动测试
+    }
+}
+
+// 注意安全
+bool MainWindow::setAutoMode(bool mode)
+{
+    emit sig_autoModeStateChanged(mode);
+    return this->m_autoMode = mode;
+}
+
+bool MainWindow::isAutoMode()
+{
+    return this->m_autoMode;
+}
+
+void MainWindow::slot_onAutoModeStateChanged(bool mode)
+{
+    if(mode == true){
+        //自动模式
+
+        // 禁用界面上测试模块
+        const static bool enable = false;
+        ui->groupBox4AppSetting->setEnabled(enable);
+        ui->groupBox4SelectModel->setEnabled(enable);
+        ui->groupBox4Test->setEnabled(enable);
+    }else{
+        //手动模式
+
+        // 启用界面上测试模块
+        const static bool enable = true;
+        ui->groupBox4AppSetting->setEnabled(enable);
+        ui->groupBox4SelectModel->setEnabled(enable);
+        ui->groupBox4Test->setEnabled(enable);
+    }
+}
+
+void MainWindow::themeSetting()
+{
+    // 主题设定
+    QApplication::setStyle(QStyleFactory::create("Fusion"));               // 更改风格
+    QApplication::setPalette(QApplication::style()->standardPalette());     // 使用风格默认的颜色
+
+    // 背景
+    QPalette palette;
+    palette.setColor(QPalette::Background,QColor(250,250,250));
+    //palette.setBrush(QPalette::Background,QBrush(QPixmap(":/background.png")));
+    this->setPalette(palette);
+
+    //
+    qDebug()<<"current applicationDirPath: "<<QCoreApplication::applicationDirPath();
+    qDebug()<<"current currentPath: "<<QDir::currentPath();
+}
+
+void MainWindow::pathSetting()
+{
+    // 目录设定
+    default_WorkDir = QCoreApplication::applicationDirPath() + "\\temp\\";
+    default_AudioTestDir = QCoreApplication::applicationDirPath() + "\\temp\\test";
+    current_WorkDir = default_WorkDir;
+    current_AudioTestDir = default_AudioTestDir;
+
+    QDir dir;
+    if(!dir.exists(default_WorkDir)){
+        dir.mkdir(default_WorkDir);
+    }
+    if(!dir.exists(default_AudioTestDir)){
+        dir.mkdir(default_AudioTestDir);
+    }
+
+    ui->lineEdit4WavDir->setText(default_AudioTestDir);
+    ui->lineEdit4WavDir->setToolTip(default_AudioTestDir);
+
+    // 主要输出目录检测 m_outputDir
+    if(m_outputDir.isEmpty()){
+        log.warn("异常！ 主要输出目录未设定。");
+    }
+    QDir outdir(m_outputDir);
+    if(!outdir.exists()){
+        bool ismkdir = outdir.mkdir(m_outputDir);
+        if(!ismkdir){
+            log.warn("创建"+m_outputDir+"失败!");
+            log.warn("程序无法正确运行");
+        }else{
+            log.info("创建"+m_outputDir+"成功!");
+        }
+    }
+}
+
+void MainWindow::configSetting()
+{
+    // Config
+    bool hasConf = QFile::exists(QCoreApplication::applicationDirPath()
+                                 + "\\Config.ini");
+    if(!hasConf) initConfig();
+}
+
+void MainWindow::devicesSetting()
+{
+    // 外部设备连接  1. AutoLine 2. 读码器
+    // AutoLine
+    m_AutoLine = new AutoLine;
+    connect(m_AutoLine, &AutoLine::receiveCmd, this, &MainWindow::slot_onAutoLineReceiveCmd);
+    connect(m_AutoLine, &AutoLine::connectStatusChanged, this, &MainWindow::slot_onAutoLineConnectStatusChanged);
+
+    // 读码器
+    m_CodeReader = new CodeReader;
+    m_CodeReader->setLogger(&log);
+    connect(m_CodeReader, &CodeReader::receiveBarcode, this, &MainWindow::slot_onCodeReaderReceiveBarcode);
+    connect(m_CodeReader, &CodeReader::connectStatusChanged, this, &MainWindow::slot_onCodeReaderConnectStatusChanged);
+
+}
+
+void MainWindow::uiInit()
+{
+    // 设定程序窗口标题
+    this->setWindowTitle(tr("双通道扬声器测试"));
+
+    // 打印启动时间
+    QDateTime cur = QDateTime::currentDateTime();
+    ui->statusbar->showMessage("启动时间 : " +
+                               cur.toString("yyyy-MM-dd hh:mm:ss"), 0);
+
+    // TextEdit log 输出设定
+    textedit4log.setEnabled(false);
+    textedit4log.verticalScrollBar()->hide();
+    ui->verticalLayout4log->addWidget(&textedit4log);
+}
+
+///////////////////////////////////////////////////////////////////
 /*
 1. 机种名 XMXXXAFED
 2. 日期  2022-02-01
@@ -297,68 +410,79 @@ void MainWindow::resetConfig()
 * 匿名产品 ID
 
 */
-void MainWindow::autoProcess()
+///////////////////////////////////////////////////////////////////
+void MainWindow::slot_startAutoTest()
 {
+
     QString model_name = ui->comboBoxModelName->currentText();
     QString product_id = ui->lineEdit4ProductID->text();
 
     QString curDate = QDate::currentDate().toString("yyyy-MM-dd");
     QString curTime = QTime::currentTime().toString("hh:mm:ss");
 
-    QString testResult;  // OK | NG
+//    QString testResult;  // OK | NG
 
     // 延时
     delaymsec(m_AutoTestDelay);
 
-    //Todo 设置录音输出
-
-
     // 录制
-    quint64 duration = ui->lineEditDurationOfRecord->text().toUInt();
+    m_wavDuration = ui->lineEditDurationOfRecord->text().toUInt();
 
-    // Todo: 输入限制
-    emit startRecording(duration);
+    log.info("开始录制");
+
+    ui->widgetShowInfo->startTimer();
+    emit sig_startRecording(m_wavDuration);
 }
 
-void MainWindow::onCodeReaderReceiveBarcode(QString barcode)
+
+void MainWindow::slot_onCodeReaderReceiveBarcode(QString barcode)
 {
-
+    log.info("Received Barcode: "+barcode);
+    ui->lineEdit4ProductID->setText(barcode);
 }
 
-void MainWindow::onCodeReaderConnectStatusChanged()
-{
-
-}
-
-void MainWindow::onAutoLineReceiveCmd(QString rev_cmd)
+void MainWindow::slot_onAutoLineReceiveCmd(QString rev_cmd)
 {
     qDebug() << "Received Command: " << rev_cmd;
+    log.info("Received Command: "+rev_cmd);
 
-    if(rev_cmd == m_cmd_start){
-         emit startAutoProcess();
+    if(!this->isAutoMode()){
+        log.info("当前模式: 手动");
+        return ;
+    }else{
+        if(rev_cmd == m_cmd_start){
+            // 开始自动测试流程
+            log.warn("[AutoMode]: 开始测试流程.");
+            emit sig_startAutoTest();
+        }
     }
 }
 
-void MainWindow::onAutoLineConnectStatusChanged()
-{
-
-}
-
-void MainWindow::onAutoTestConfigChanged()
+void MainWindow::slot_onAutoTestConfigChanged()
 {// 自动测试设定变更
     if(!setup4autotest){
         qDebug() << "UI (Setup4AutoTest) 未载入！";
         return ;
     }
-//    setup4autotest->m_duration1;
-//    setup4autotest->m_duration2;
-//    setup4autotest->m_recordDelay;
-//    setup4autotest->m_mainWorkDir;
-
     // do nothing
 }
 
-void MainWindow::onSetupMic(int l_idx, const QString &lmic, int r_idx, const QString &rmic)
+void MainWindow::slot_onAutoLineConnectStatusChanged()
+{
+    if(!m_AutoLine->isConnected()){
+        QMessageBox::warning(this, "警告", "AutoLine连接断开", QMessageBox::Ok);
+    }
+}
+
+void MainWindow::slot_onCodeReaderConnectStatusChanged()
+{
+
+    if(!m_CodeReader->isConnected()){
+        QMessageBox::warning(this, "警告", "ReadEsn连接断开", QMessageBox::Ok);
+    }
+}
+
+void MainWindow::slot_onSetupMic(int l_idx, const QString &lmic, int r_idx, const QString &rmic)
 {
     // 设置立即生效
     this->m_micIndexL = l_idx;
@@ -369,15 +493,14 @@ void MainWindow::onSetupMic(int l_idx, const QString &lmic, int r_idx, const QSt
 
     log.warn(lmic);
     log.warn(rmic);
-    emit setRecordInputL(lmic);
-    emit setRecordInputR(rmic);
+    emit sig_setRecordInputL(lmic);
+    emit sig_setRecordInputR(rmic);
 
     // Todo 保存至配置文件
-   conf.Set("Mic", "L", lmic);
-   conf.Set("Mic", "L_idx", l_idx);
-   conf.Set("Mic", "R", rmic);
-   conf.Set("Mic", "R_idx", r_idx);
-
+    conf.Set("Mic", "L", lmic);
+    conf.Set("Mic", "L_idx", l_idx);
+    conf.Set("Mic", "R", rmic);
+    conf.Set("Mic", "R_idx", r_idx);
 }
 
 
@@ -387,60 +510,47 @@ void MainWindow::on_btnLockOption4Model_clicked()
 }
 
 
-void MainWindow::on_btnSetting4Mic_clicked()
-{
-    setup4mic->show();
-}
 
 void MainWindow::on_btnLoadWavDir_clicked()
 {
-    this->wavDir = QFileDialog::getExistingDirectory();
-    ui->lineEdit4WavDir->setText(wavDir);
-    ui->lineEdit4WavDir->setToolTip(wavDir);
-    log.warn(wavDir);
+    this->m_wavDir = QFileDialog::getExistingDirectory();
+    ui->lineEdit4WavDir->setText(m_wavDir);
+    ui->lineEdit4WavDir->setToolTip(m_wavDir);
+    log.warn(m_wavDir);
 }
-
 
 void MainWindow::on_btnStartRecord_clicked()
 {//Start Record
-    //Todo
-    // 输入限制, 按钮逻辑
-
-    quint64 duration = ui->lineEditDurationOfRecord->text().toUInt();
-
-
     // 输出 当前麦克风
     log.info(m_micL);
     log.info(m_micR);
-
-
-    ui->widgetShowInfo->startTimer();
-
     QString wavdir = ui->lineEdit4WavDir->text();
     recWorkerL->setOutputFile(wavdir+ "\\L.wav");
     recWorkerR->setOutputFile(wavdir+ "\\R.wav");
 
+    // Start Record
+    m_wavDuration = ui->lineEditDurationOfRecord->text().toUInt();
+
     ui->btnStartRecord->setEnabled(false);
-    ui->btnStartTest->setEnabled(false);
+    ui->btnTest->setEnabled(false);
 
     log.info("开始录制");
-    emit startRecording(duration);
+    ui->widgetShowInfo->startTimer();
+    emit sig_startRecording(m_wavDuration);
 }
-
-
-void MainWindow::on_btnStartTest_clicked()
+void MainWindow::startTestAudio()
 {
+
     // 载入指定目录下 L.wav R.wav文件
 
     textedit4log.clear();
 
     ui->btnStartRecord->setEnabled(false);
-    ui->btnStartTest->setEnabled(false);
+    ui->btnTest->setEnabled(false);
 
     QString workdir = ui->lineEdit4WavDir->text().trimmed();
     QString wavL =  QDir::toNativeSeparators(workdir + WAV_FILE_L);
     QString wavR =  QDir::toNativeSeparators(workdir + WAV_FILE_R);
-
 
     if(workdir.isEmpty()){
         log.warn("未指定wav文件存放目录！");
@@ -461,11 +571,11 @@ void MainWindow::on_btnStartTest_clicked()
     log.info("载入 L.wav & R.wav 文件成功.");
 
     log.info("开始测试");
-    // call test dll
-    emit startTestAudio();
+
+    emit sig_startTestAudio();
 }
 
-void MainWindow::testAudio()
+void MainWindow::slot_testAudio()
 {
     //获取CSV测试结果
     QString target_dir = ui->lineEdit4WavDir->text().trimmed();
@@ -481,17 +591,16 @@ void MainWindow::testAudio()
     log.warn(app);
     log.warn(cmd);
 
-
 //    system(cmd.toLatin1());
     system_hide((char*)cmd.toLatin1().data());
 
     ui->btnStartRecord->setEnabled(true);
-    ui->btnStartTest->setEnabled(true);
-    emit audioTestFinished();
+    ui->btnTest->setEnabled(true);
+    emit sig_audioTestFinished();
     log.info("...");
 }
 
-void MainWindow::onAudioTestFinished()
+void MainWindow::slot_onAudioTestFinished()
 {
     //已获取CSV测试结果， 开始判断
 
@@ -615,26 +724,35 @@ void MainWindow::onAudioTestFinished()
     }
 
 PASS:
-
-    ui->widgetShowInfo->okNumPlusOne();
-    log.info("测试通过");
+    printResult(true, "测试通过!");
     return;
 
 ERROR_L:
-    ui->widgetShowInfo->ngNumPlusOne();
-    log.warn("异常， 请检查 左侧扬声器！");
+    printResult(false, "异常， 请检查 左侧扬声器！");
     return;
 
 ERROR_R:
-    ui->widgetShowInfo->ngNumPlusOne();
-    log.warn("异常， 请检查 右侧扬声器！");
+    printResult(false, "异常， 请检查 右侧扬声器！");
     return;
 
 ERROR_BOTH:
-    ui->widgetShowInfo->ngNumPlusOne();
-    log.warn("异常， 请检查 [左+右]两侧扬声器！");
+    printResult(false, "异常， 请检查 [左+右]两侧扬声器！");
     return;
+}
 
+void MainWindow::printResult(bool isOk, const QString& msg)
+{
+    qDebug() << "pass:"<<m_cmd_pass;
+    qDebug() << "fail:"<<m_cmd_fail;
+    if(isOk){
+        ui->widgetShowInfo->okNumPlusOne();
+        m_AutoLine->sendCmd(m_cmd_pass);
+        log.info(msg);
+    }else{
+        ui->widgetShowInfo->ngNumPlusOne();
+        m_AutoLine->sendCmd(m_cmd_fail);
+        log.warn(msg);
+    }
 }
 
 
@@ -651,9 +769,19 @@ void MainWindow::on_btnSetting4AutoTest_clicked()
         qDebug() << "UI (Setup4AutoTest) 未载入！";
         return ;
     }
+    setup4autotest->setHidden(true);
     setup4autotest->show();
 }
 
+void MainWindow::on_btnSetting4Mic_clicked()
+{
+    if(!setup4mic){
+        qDebug() << "UI (Setup4Mic) 未载入！";
+        return ;
+    }
+    setup4mic->setHidden(true);
+    setup4mic->show();
+}
 
 void MainWindow::on_btnLoadTempWavDir_clicked()
 {
@@ -666,9 +794,17 @@ void MainWindow::on_btnLoadTempWavDir_clicked()
 void MainWindow::on_btnSwitchRunningMode_clicked()
 {
     if(ui->radioButton_autoMode->isChecked()){
+        setAutoMode(false);
         ui->radioButton_manualMode->setChecked(true);
     }else{
+        setAutoMode(true);
         ui->radioButton_autoMode->setChecked(true);
     }
+}
+
+
+void MainWindow::on_btnTest_clicked()
+{
+    this->startTestAudio();
 }
 

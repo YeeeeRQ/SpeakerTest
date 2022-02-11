@@ -40,6 +40,7 @@ void AutoLine::sendCmd(const QString &send_cmd, quint64 delay, quint64 send_coun
     }
 }
 
+// 串口读取数据
 void AutoLine::onSerialPort_readRead()
 {
     QByteArray buffer = serial->readAll();
@@ -56,23 +57,27 @@ void AutoLine::onSerialPort_readRead()
     qDebug() << buffer;
     qDebug() << temp;
 
-    //拼接收到的字符
-    receive_cmd->append(buffer);
+    emit receiveCmd(buffer);
 
-    // 判断后两个字节是否为 0x0D 0x0A
-    if((quint8)buffer.at(buffer.size()-1) == 0x0A &&
-       (quint8)buffer.at(buffer.size()-2) == 0x0D)
-    {
-        qDebug() << "CodeReader: " << *receive_cmd;
+//拼接收到的字符
+//    receive_cmd->append(buffer);
+//	emit receiveCmd(*receive_cmd);
+//	this->receive_cmd->clear();
 
-        receive_cmd->chop(2);
-        emit receiveCmd(*receive_cmd);
+// 判断后两个字节是否为 0x0D 0x0A
+//    if((quint8)buffer.at(buffer.size()-1) == 0x0A &&
+//       (quint8)buffer.at(buffer.size()-2) == 0x0D)
+//    {
+//        qDebug() << "CodeReader: " << *receive_cmd;
 
-        this->receive_cmd->clear();
-    }
+//        receive_cmd->chop(2);
+//        emit receiveCmd(*receive_cmd);
+
+//        this->receive_cmd->clear();
+//    }
 }
 
-bool AutoLine::connectDevice(QString port_name, QSerialPort::BaudRate baud)
+bool AutoLine::connectDevice(QString port_name, qint32 baud)
 {
     if(serial->isOpen()) return true;
 
@@ -83,7 +88,6 @@ bool AutoLine::connectDevice(QString port_name, QSerialPort::BaudRate baud)
     serial->setParity(QSerialPort::NoParity);
     serial->setStopBits(QSerialPort::OneStop);
     serial->setFlowControl(QSerialPort::NoFlowControl);
-
 
     if(serial->open(QIODevice::ReadWrite)){
         emit connectStatusChanged();

@@ -15,7 +15,7 @@ public:
     CodeReader();
     ~CodeReader();
     void setLogger(SimpleLog* log); //for debug
-    bool connectDevice(QString port_name, QSerialPort::BaudRate baud);
+    bool connectDevice(QString port_name, qint32 baud);
     void disconnectDevice();
     bool isConnected();
 

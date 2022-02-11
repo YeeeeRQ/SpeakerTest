@@ -5,8 +5,6 @@
 #include <QSerialPortInfo>
 #include <QDebug>
 
-#include <QEventLoop>
-#include <QTimer>
 
 #include "MyCommonFun.h"
 
@@ -19,7 +17,7 @@ public:
     AutoLine();
     ~AutoLine();
 
-    bool connectDevice(QString port_name, QSerialPort::BaudRate baud);
+    bool connectDevice(QString port_name, qint32 baud);
     void disconnectDevice();
     bool isConnected();
 

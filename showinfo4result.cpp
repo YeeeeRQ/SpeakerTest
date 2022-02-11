@@ -27,7 +27,7 @@ ShowInfo4Result::ShowInfo4Result(QWidget *parent) :
 
 
     // 秒表 计时
-    this->ui->label_Time->setText("00.000s");
+    this->ui->label_Time->setText("00:00.000s");
     this->timer = new QTimer;
     connect(this->timer, &QTimer::timeout, this, &ShowInfo4Result::freshenTime);
 
@@ -66,7 +66,7 @@ void ShowInfo4Result::freshenTime()
     int t= this->baseTime.msecsTo(currTime);
     QTime  showTime(0,0,0,0);
     showTime = showTime.addMSecs(t);
-    this->timeStr = showTime.toString("ss.zzz")+"s";
+    this->timeStr = showTime.toString("mm:ss.zzz")+"s";
     this->ui->label_Time->setText(timeStr);
 
 }

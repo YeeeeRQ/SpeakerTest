@@ -20,7 +20,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout_11">
+   <layout class="QVBoxLayout" name="verticalLayout_6">
     <item>
      <widget class="QSplitter" name="splitter_2">
       <property name="orientation">
@@ -32,38 +32,6 @@
        </property>
        <widget class="QWidget" name="layoutWidget">
         <layout class="QHBoxLayout" name="horizontalLayout_7">
-         <item>
-          <layout class="QVBoxLayout" name="verticalLayout_6">
-           <item>
-            <widget class="QGraphicsView" name="graphicsView4WaveL"/>
-           </item>
-           <item>
-            <spacer name="verticalSpacer">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeType">
-              <enum>QSizePolicy::Fixed</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <widget class="QGraphicsView" name="graphicsView4WaveR">
-             <property name="font">
-              <font>
-               <pointsize>14</pointsize>
-              </font>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
          <item>
           <spacer name="horizontalSpacer">
            <property name="orientation">
@@ -83,7 +51,7 @@
          <item>
           <layout class="QVBoxLayout" name="verticalLayout_7" stretch="1,1,4">
            <item>
-            <widget class="QGroupBox" name="groupBox_3">
+            <widget class="QGroupBox" name="groupBox4SelectModel">
              <property name="title">
               <string>机种选择</string>
              </property>
@@ -140,7 +108,7 @@
             </spacer>
            </item>
            <item>
-            <widget class="QGroupBox" name="groupBox_5">
+            <widget class="QGroupBox" name="groupBox4Test">
              <property name="title">
               <string>测试</string>
              </property>
@@ -394,7 +362,7 @@
                    </spacer>
                   </item>
                   <item>
-                   <widget class="QPushButton" name="btnStartTest">
+                   <widget class="QPushButton" name="btnTest">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                       <horstretch>0</horstretch>
@@ -448,7 +416,7 @@
         </layout>
        </widget>
        <widget class="QWidget" name="layoutWidget">
-        <layout class="QHBoxLayout" name="horizontalLayout_8" stretch="6,4">
+        <layout class="QHBoxLayout" name="horizontalLayout_8" stretch="7,3">
          <item>
           <widget class="QGroupBox" name="groupBox4log">
            <property name="title">
@@ -544,7 +512,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QGroupBox" name="groupBox_6">
+           <widget class="QGroupBox" name="groupBox4AppSetting">
             <property name="title">
              <string>设定</string>
             </property>

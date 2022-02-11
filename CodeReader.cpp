@@ -17,7 +17,7 @@ void CodeReader::setLogger(SimpleLog *log)
     this->log = log;
 }
 
-bool CodeReader::connectDevice(QString port_name, QSerialPort::BaudRate baud)
+bool CodeReader::connectDevice(QString port_name, qint32 baud)
 {
     if(serial->isOpen()) return true;
 
@@ -66,21 +66,37 @@ void CodeReader::onSerialPort_readRead()
         temp.append(" ");
     }
     temp.remove(temp.size()-1, 1);
-    log->info(buffer);
-    log->info(temp);
+    qDebug() << buffer;
+    qDebug() << temp;
 
-    //拼接收到的字符
-    code->append(buffer);
+    emit receiveBarcode(buffer);
 
-    // 判断后两个字节是否为 0x0D 0x0A
-    if((quint8)buffer.at(buffer.size()-1) == 0x0A &&
-       (quint8)buffer.at(buffer.size()-2) == 0x0D)
-    {
-        qDebug() << "CodeReader: " << *code;
+//    QByteArray buffer = serial->readAll();
 
-        code->chop(2);
-        emit receiveBarcode(*code);
+//    QString temp;
+//    qDebug() << "buffer size : " << buffer.size();
+//    for(int i = 0; i< buffer.size(); ++i){
+//        quint8 c = (quint8)buffer.at(i);
+//        if(c < 0x0F) temp.append("0");
+//        temp.append(QString::number(c, 16).toUpper());
+//        temp.append(" ");
+//    }
+//    temp.remove(temp.size()-1, 1);
+//    log->info(buffer);
+//    log->info(temp);
 
-        this->code->clear();
-    }
+//    //拼接收到的字符
+//    code->append(buffer);
+
+//    // 判断后两个字节是否为 0x0D 0x0A
+//    if((quint8)buffer.at(buffer.size()-1) == 0x0A &&
+//       (quint8)buffer.at(buffer.size()-2) == 0x0D)
+//    {
+//        qDebug() << "CodeReader: " << *code;
+
+//        code->chop(2);
+//        emit receiveBarcode(*code);
+
+//        this->code->clear();
+//    }
 }
