@@ -19,6 +19,10 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    // 载入 自动测试流程
+    this->loadAutoProcess();
+    return;
+
     this->themeSetting();
     this->pathSetting();
     this->configSetting();
@@ -53,36 +57,36 @@ MainWindow::MainWindow(QWidget *parent)
     }else{
         // -------------------------------------------------------------------------
 
-        recWorkerL = new RecordWorker;
-        recWorkerL->moveToThread(&m_recordThread4L);
+        m_pRecWorkerL = new RecordWorker;
+        m_pRecWorkerL->moveToThread(&m_recordThread4L);
 
 
         // 录音前提：设定好2个麦克风输入
-        connect(this, SIGNAL(sig_startRecording(quint64)), recWorkerL, SLOT(doWork(quint64)));
-        connect(&m_recordThread4L, &QThread::finished, recWorkerL, &QObject::deleteLater);
-        connect(recWorkerL, SIGNAL(resultReady()), this, SLOT(slot_onLMicRecordingOver()));
+        connect(this, SIGNAL(sig_startRecording(quint64)), m_pRecWorkerL, SLOT(doWork(quint64)));
+        connect(&m_recordThread4L, &QThread::finished, m_pRecWorkerL, &QObject::deleteLater);
+        connect(m_pRecWorkerL, SIGNAL(resultReady()), this, SLOT(slot_onLMicRecordingOver()));
 
-        connect(this, &MainWindow::sig_setRecordInputL, recWorkerL, &RecordWorker::setAudioInput);
-        connect(this, &MainWindow::sig_setRecordOutputL, recWorkerL, &RecordWorker::setOutputFile);
+        connect(this, &MainWindow::sig_setRecordInputL, m_pRecWorkerL, &RecordWorker::setAudioInput);
+        connect(this, &MainWindow::sig_setRecordOutputL, m_pRecWorkerL, &RecordWorker::setOutputFile);
 
-        recWorkerL->setOutputFile("D:\\Temp\\L.wav");
+        m_pRecWorkerL->setOutputFile("D:\\Temp\\L.wav");
 
         // 启动录制线程
         m_recordThread4L.start();
 
         // -------------------------------------------------------------------------
 
-        recWorkerR = new RecordWorker;
-        recWorkerR->moveToThread(&m_recordThread4R);
+        m_pRecWorkerR = new RecordWorker;
+        m_pRecWorkerR->moveToThread(&m_recordThread4R);
 
-        connect(this, SIGNAL(sig_startRecording(quint64)), recWorkerR, SLOT(doWork(quint64)));
-        connect(&m_recordThread4L, &QThread::finished, recWorkerR, &QObject::deleteLater);
-        connect(recWorkerR, SIGNAL(resultReady()), this, SLOT(slot_onRMicRecordingOver()));
+        connect(this, SIGNAL(sig_startRecording(quint64)), m_pRecWorkerR, SLOT(doWork(quint64)));
+        connect(&m_recordThread4L, &QThread::finished, m_pRecWorkerR, &QObject::deleteLater);
+        connect(m_pRecWorkerR, SIGNAL(resultReady()), this, SLOT(slot_onRMicRecordingOver()));
 
-        connect(this, &MainWindow::sig_setRecordInputR, recWorkerR, &RecordWorker::setAudioInput);
-        connect(this, &MainWindow::sig_setRecordOutputR, recWorkerR, &RecordWorker::setOutputFile);
+        connect(this, &MainWindow::sig_setRecordInputR, m_pRecWorkerR, &RecordWorker::setAudioInput);
+        connect(this, &MainWindow::sig_setRecordOutputR, m_pRecWorkerR, &RecordWorker::setOutputFile);
 
-        recWorkerR->setOutputFile("D:\\Temp\\R.wav");
+        m_pRecWorkerR->setOutputFile("D:\\Temp\\R.wav");
         //    recWorkerR->setAudioInput(audioInputs.begin());
 
         // 启动录制线程
@@ -171,6 +175,7 @@ void MainWindow::onUILoaded()
             log.info("ReadEsn COM 打开失败.");
         }
     }
+
 }
 
 
@@ -264,6 +269,87 @@ void MainWindow::loadConfig()
 void MainWindow::resetConfig()
 {
 
+}
+
+void MainWindow::loadAutoProcess()
+{
+    QString process_file = QCoreApplication::applicationDirPath() + "\\process.xls";
+    QFileInfo fi(process_file);
+    if(!fi.isFile()){
+        log.warn("process.xls 文件不存在！");
+        return;
+    }
+
+    log.warn("载入测试流程.");
+
+    m_processTable = loadExcel("Sheet1");
+    QVector<QString>row0 = m_processTable[0];
+    m_processTable_rows = m_processTable.size();
+    m_processTable_cols =  row0.size();
+    qDebug() << "Table rows:"<< m_processTable_rows;
+    qDebug() << "Table cols:"<< m_processTable_cols;
+
+    return ;
+
+    // Todo：
+    // 1. 参数校验
+    // 3. 测试流程
+    // 2. parser
+
+    // 未知指令？
+    // 参数过少？
+    //
+
+    // PC <--> tester <--> master
+    // Speaker
+    // Mic
+    // PG
+    // MNT监视器
+
+    // 时间单位统一 : ms
+    // 频率单位统一 : Hz
+
+    // PC 控制端指令
+    // sleep 500    -- PC暂停测试流程，延时等待500ms
+    // record 500   -- PC左+右两麦克风开始录制，录制时长500ms,(注意：录制过程中测试流程暂停，不进行下一步操作)
+
+    // set_order L R  -- 告知 左右扬声器播放顺序 先左后右(默认)
+    // set_order R L  -- 告知 左右扬声器播放顺序 先右后左
+
+    //                         时刻指针 时刻±范围  频率  频率误差±
+    // get_audio_info 1  1500    200     1000   200    --  立即开始获取音频信息，读取工作目录下L1.wav+R1.wav文件 1500ms±200 时段提取音频信息, 结果存放在内存中 ,包含强度level 频率pitch
+    // get_audio_info 2  2000    300     2500   300    -- 立即开始获取音频信息 ，读取工作目录下L2.wav+R2.wav文件 2000ms±300 时段提取音频信息, 结果存放在内存中 ,包含强度level 频率pitch
+
+    // autotest_start // 默认第一条, 保留，可不写
+    // autotest_end   // 测试流程结束
+    // 根据内存中已存储的数据在界面给出结果，并发送pass|fail给AutoLine
+    // 测试规则固定。 根据 1. 指定的扬声器播放顺序 2. 强度信息（4个） 3. 频率信息（4个）， 判断扬声器状态 , 两扬声器正常 pass，否则fail
+    // (备注，务必保证该指令前已经获取了L1.wav+R1.wav L2.wav+R2.wav 的信息)
+
+    // sendcmd2pg "RUN PATTERN 103;"  -- 指令由用户自定义, 双引号包围
+
+    // sendcmd2mnt "RUN PATTERN 103;"
+
+
+
+
+//    for(int row=1; row<rows;++row){
+//        for(int col=1; col<rows;++col){
+            // parse
+//        }
+//    }
+
+    // parser
+    QString cmd;
+    if(cmd=="sleep"){
+        // do sleep
+    }
+    if(cmd=="record"){
+        // do record
+    }
+
+
+    // 解析
 }
 
 void MainWindow::onCheckAllRecordOver()
@@ -363,9 +449,8 @@ void MainWindow::pathSetting()
 void MainWindow::configSetting()
 {
     // Config
-    bool hasConf = QFile::exists(QCoreApplication::applicationDirPath()
-                                 + "\\Config.ini");
-    if(!hasConf) initConfig();
+    QFileInfo fi(QCoreApplication::applicationDirPath() + "\\Config.ini");
+    if(!fi.isFile()) initConfig();
 }
 
 void MainWindow::devicesSetting()
@@ -525,8 +610,8 @@ void MainWindow::on_btnStartRecord_clicked()
     log.info(m_micL);
     log.info(m_micR);
     QString wavdir = ui->lineEdit4WavDir->text();
-    recWorkerL->setOutputFile(wavdir+ "\\L.wav");
-    recWorkerR->setOutputFile(wavdir+ "\\R.wav");
+    m_pRecWorkerL->setOutputFile(wavdir+ "\\L.wav");
+    m_pRecWorkerR->setOutputFile(wavdir+ "\\R.wav");
 
     // Start Record
     m_wavDuration = ui->lineEditDurationOfRecord->text().toUInt();
@@ -808,3 +893,63 @@ void MainWindow::on_btnTest_clicked()
     this->startTestAudio();
 }
 
+QVector<QVector<QString>> loadExcel(QString strSheetName)
+{
+    QVector<QVector<QString>> vecDatas;//获取所有数据
+
+    if(strSheetName.contains(".xls")){//兼容老版本
+        strSheetName = strSheetName.left(strSheetName.length()-4);
+    }
+
+    QString strPath = QCoreApplication::applicationDirPath() + "/process.xls";
+    QFile file(strPath);
+    if(!file.exists()){
+        qWarning() << "CExcelTool::loadExcel 路径错误，或文件不存在,路径为"<<strPath;
+        return vecDatas;
+    }
+
+    QAxObject *excel = new QAxObject("Excel.Application");//excel应用程序
+    excel->dynamicCall("SetVisible(bool)", false); //true 表示操作文件时可见，false表示为不可见
+    QAxObject *workbooks = excel->querySubObject("WorkBooks");//所有excel文件
+    QAxObject *workbook = workbooks->querySubObject("Open(QString&)", strPath);//按照路径获取文件
+    QAxObject * worksheets = workbook->querySubObject("WorkSheets");//获取文件的所有sheet页
+    QAxObject * worksheet = worksheets->querySubObject("Item(QString)", strSheetName);//获取文件sheet页
+    if(nullptr == worksheet){
+        qWarning()<<strSheetName<<"Sheet页不存在。";
+        return vecDatas;
+    }
+    QAxObject * usedrange = worksheet->querySubObject("UsedRange");//有数据的矩形区域
+
+    //获取行数
+    QAxObject * rows = usedrange->querySubObject("Rows");
+    int nRows = rows->property("Count").toInt();
+    if(nRows <= 1){
+        qWarning()<<"无数据，跳过该文件";
+        return vecDatas;
+    }
+
+    //获取列数
+    QAxObject * columns = usedrange->querySubObject("Columns");
+    int nColumns = columns->property("Count").toInt();
+
+
+    QVariant var = usedrange->dynamicCall("Value");
+    foreach(QVariant varRow,var.toList()){
+        QVector<QString> vecDataRow;
+        foreach(QVariant var,varRow.toList()){
+            vecDataRow.push_back(var.toString());
+        }
+        vecDatas.push_back(vecDataRow);
+    }
+
+    //关闭文件
+    workbook->dynamicCall("Close()");
+    excel->dynamicCall("Quit()");
+    if (excel)
+    {
+        delete excel;
+        excel = NULL;
+    }
+
+    return vecDatas;
+}

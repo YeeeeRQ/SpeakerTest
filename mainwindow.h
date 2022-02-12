@@ -11,6 +11,7 @@
 #include <QFile>
 #include <QTime>
 #include <QDate>
+#include <ActiveQt/QAxObject>
 
 #include "CodeReader.h"
 #include "AutoLine.h"
@@ -29,6 +30,8 @@
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
+
+QVector<QVector<QString>> loadExcel(QString strSheetName);
 
 ////////////////////////////////////////////////////////////////////////////////
 class MainWindow : public QMainWindow
@@ -69,8 +72,8 @@ private: // config
 private: // Test
     QThread m_recordThread4L; //左侧录制线程
     QThread m_recordThread4R; //右侧录制线程
-    RecordWorker * recWorkerL;
-    RecordWorker * recWorkerR;
+    RecordWorker * m_pRecWorkerL;
+    RecordWorker * m_pRecWorkerR;
 
     int m_micIndexL;       // 左麦克风序号
     int m_micIndexR;       // 右麦克风序号
@@ -80,12 +83,25 @@ private: // Test
     QString m_wavDir;      // 录制文件保存目录
     quint64 m_wavDuration; // 录制时长
 
-
     QString default_WorkDir;
     QString default_AudioTestDir;
 
     QString current_WorkDir;
     QString current_AudioTestDir;
+
+private: // 启动时载入自定义流程 process.xlsx
+    QVector<QVector<QString>> m_processTable;
+    int m_processTable_rows;
+    int m_processTable_cols;
+    void loadAutoProcess();
+    void processCmdParser(QString cmd);
+    // 参数检测 过少报警
+
+
+
+
+
+
 
 private:
     bool m_recordCount[2]; // 0->L | 1->R

@@ -18,6 +18,8 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Charts REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS SerialPort REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Network REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Sql REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS AxContainer REQUIRED)
+
 
 set(TS_FILES SpeakersTest_zh_CN.ts)
 
@@ -33,6 +35,7 @@ set(PROJECT_SOURCES
         showinfo4result.h showinfo4result.cpp showinfo4result.ui
 
         qmydisplaydevice.cpp qmydisplaydevice.h
+
         RecordWorker.h RecordWorker.cpp
         AutoLine.h AutoLine.cpp
         CodeReader.cpp CodeReader.h
@@ -85,9 +88,8 @@ target_link_libraries(SpeakersTest PRIVATE
     Qt${QT_VERSION_MAJOR}::SerialPort
     Qt${QT_VERSION_MAJOR}::Network
     Qt${QT_VERSION_MAJOR}::Sql
+    Qt${QT_VERSION_MAJOR}::AxContainer
 )
-
-
 
 set_target_properties(SpeakersTest PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
