@@ -1,6 +1,7 @@
 ﻿#include <QDateTime>
 #include <QScrollBar>
 #include <numeric>
+#include <typeinfo>
 
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
@@ -36,7 +37,14 @@ MainWindow::MainWindow(QWidget *parent)
     connect(this, &MainWindow::sig_autoModeStateChanged, this, &MainWindow::slot_onAutoModeStateChanged);
 
     connect(this, &MainWindow::checkAllRecordOver, this, &MainWindow::onCheckAllRecordOver);
-    connect(this, &MainWindow::allRecordOver, this, &MainWindow::startTestAudio);
+
+//    connect(this, &MainWindow::allRecordOver, this, &MainWindow::startTestAudio);
+
+    // 自定义测试流程
+    connect(this, &MainWindow::custom_cmd_done, this, &MainWindow::customTestAudio);
+
+    // 自定义测试流程 录制结束动作
+    connect(this, &MainWindow::allRecordOver, this, &MainWindow::custom_do_record_done);
 
 
     loadConfig();
@@ -204,7 +212,7 @@ void MainWindow::slot_onRMicRecordingOver()
 void MainWindow::initConfig()
 {
     // AutoLine
-    conf.Set("AutoLine","Com","COM2");
+    conf.Set("AutoLine","Com","COM1");
     conf.Set("AutoLine","Baud",9600);
     conf.Set("AutoLine","Delay",100);
     conf.Set("AutoLine","StartCmd","START");
@@ -214,8 +222,18 @@ void MainWindow::initConfig()
     conf.Set("AutoLine","SendSpanTime",200);
 
     // ReadEsn
-    conf.Set("ReadEsn","Com","COM1");
+    conf.Set("ReadEsn","Com","COM2");
     conf.Set("ReadEsn","Baud",9600);
+
+    // PG
+    conf.Set("PG","Enable",true);
+    conf.Set("PG","Com","COM3");
+    conf.Set("PG","Baud",9600);
+
+    // MNT
+//    conf.Set("MNT","Enable",true);
+//    conf.Set("MNT","Com","COM3");
+//    conf.Set("MNT","Baud",9600);
 
     // DCT
     conf.Set("DCT","Enable",true);
@@ -280,14 +298,13 @@ void MainWindow::loadAutoProcess()
         return;
     }
 
-    log.warn("载入测试流程.");
-
     m_processTable = loadExcel("Sheet1");
     QVector<QString>row0 = m_processTable[0];
     m_processTable_rows = m_processTable.size();
     m_processTable_cols =  row0.size();
     qDebug() << "Table rows:"<< m_processTable_rows;
     qDebug() << "Table cols:"<< m_processTable_cols;
+    log.warn("载入测试流程文件 成功");
 
     return ;
 
@@ -298,13 +315,14 @@ void MainWindow::loadAutoProcess()
 
     // 未知指令？
     // 参数过少？
+    // 参数类型? 整型， 字符串
     //
 
     // PC <--> tester <--> master
     // Speaker
     // Mic
-    // PG
-    // MNT监视器
+    // PG  信号生成器
+    // MNT 监视器
 
     // 时间单位统一 : ms
     // 频率单位统一 : Hz
@@ -316,8 +334,8 @@ void MainWindow::loadAutoProcess()
     // set_order L R  -- 告知 左右扬声器播放顺序 先左后右(默认)
     // set_order R L  -- 告知 左右扬声器播放顺序 先右后左
 
-    //                         时刻指针 时刻±范围  频率  频率误差±
-    // get_audio_info 1  1500    200     1000   200    --  立即开始获取音频信息，读取工作目录下L1.wav+R1.wav文件 1500ms±200 时段提取音频信息, 结果存放在内存中 ,包含强度level 频率pitch
+    //                  时刻指针 时刻±范围  频率  频率误差±
+    // get_audio_info 1  1500    200     1000   200    -- 立即开始获取音频信息 ，读取工作目录下L1.wav+R1.wav文件 1500ms±200 时段提取音频信息, 结果存放在内存中 ,包含强度level 频率pitch
     // get_audio_info 2  2000    300     2500   300    -- 立即开始获取音频信息 ，读取工作目录下L2.wav+R2.wav文件 2000ms±300 时段提取音频信息, 结果存放在内存中 ,包含强度level 频率pitch
 
     // autotest_start // 默认第一条, 保留，可不写
@@ -352,12 +370,181 @@ void MainWindow::loadAutoProcess()
     // 解析
 }
 
+bool MainWindow::checkCustomTestProcess()
+{
+
+    // Todo:
+
+    // check
+    // * 不含未知指令
+    // * 录制次数 === 2
+    // * 必要设定
+        // * set_order
+        // * get_audio_info 1
+        // * get_audio_info 2
+    // * get_audio_info 时刻指针 不能越界
+
+
+//    sleep
+//    record
+//    sendcmd2pg
+//    sendcmd2mnt
+//    set_order
+//    get_audio_info
+//    autotest_start
+//    autotest_end
+
+
+
+
+
+
+    this->m_customTestProcessIsOK = true;
+
+    return this->m_customTestProcessIsOK;
+}
+
+void MainWindow::startCustomTestAudio()
+{
+    if(!this->m_customTestProcessIsOK){
+        log.warn("错误！自定义流程配置有误.");
+        log.warn("无法进行测试!");
+        return ;
+    }
+
+
+
+
+}
+
+void MainWindow::custom_do_sleep(quint64 duration)
+{
+        delaymsec(duration);
+        emit custom_cmd_done();
+}
+
+void MainWindow::custom_do_record(quint64 duration)
+{
+    emit sig_startRecording(duration);
+}
+
+void MainWindow::custom_do_sendcmd2pg(const QString &cmd)
+{
+    if(m_SigGenerator){
+        m_SigGenerator->sendCmd(cmd);
+    }
+    emit custom_cmd_done();
+}
+
+void MainWindow::custom_do_sendcmd2mnt(const QString &cmd)
+{
+    emit custom_cmd_done();
+}
+
+void MainWindow::custom_do_set_order(const QString & first_speaker)
+{
+    if(first_speaker == "L"){
+        m_firstSpeaker = "L";
+    }else{
+        m_firstSpeaker = "R";
+    }
+    emit custom_cmd_done();
+}
+
+void MainWindow::custom_do_get_audio_info(int order, quint64 tick, quint64 tick_range, quint64 freq, quint64 freq_range)
+{
+    if(1 == order){
+
+    }else if(2 == order){
+
+    }else{
+        //error
+    }
+}
+
+void MainWindow::custom_do_record_done()
+{
+    emit custom_cmd_done();
+}
+
+
+
+void MainWindow::custom_do_autotest_end()
+{
+    // 判断并输出结果
+}
+
+void MainWindow::customTestAudio()
+{
+    static quint64 step = 1;
+    static QString cmd;
+    static QList<QString> cmd_args;
+
+    if(step < m_processTable_rows){
+
+        // 读取自定义测试指令
+        cmd = m_processTable.at(step).at(1);
+        // 读取自定义测试指令参数
+        cmd_args.clear();
+        for(int i = 2; i<m_processTable_cols ;++i){
+            QString arg = m_processTable.at(step).at(i);
+            if(arg.isEmpty()) break;
+            cmd_args.append(arg);
+        }
+
+        // 解析并执行自定义指令
+        emit parseCmd(cmd, cmd_args);
+
+        ++step;
+    }
+}
+
+void MainWindow::customCmdParser(const QString& cmd, const QList<QString>&cmd_args)
+{
+
+    if(cmd == "sleep"){
+        quint64 duration = cmd_args.at(0).toUInt();
+        custom_do_sleep(duration);
+    }else if(cmd == "record"){
+        quint64 duration = cmd_args.at(0).toUInt();
+        custom_do_record(duration);
+    }else if(cmd == "set_order"){
+        custom_do_set_order(cmd_args.at(0));
+    }else if(cmd == "get_audio_info"){
+
+        custom_do_get_audio_info(
+                    cmd_args.at(0).toInt(),
+                    cmd_args.at(1).toUInt(),
+                    cmd_args.at(2).toUInt(),
+                    cmd_args.at(3).toUInt(),
+                    cmd_args.at(4).toUInt()
+                    );
+
+    }else if(cmd == "sendcmd2pg"){
+        custom_do_sendcmd2mnt(cmd_args.at(0));
+    }else if(cmd == "sendcmd2mnt"){
+        custom_do_sendcmd2mnt(cmd_args.at(0));
+    }else if(cmd == "autotest_start"){
+        // do nothing
+    }else if(cmd == "autotest_end"){
+
+        // 假定参数设定完毕， 音频录制完毕
+        // 判断并输出结果
+        custom_do_autotest_end();
+    }else{
+        qDebug() << "未知指令";
+        log.warn("未知指令");
+    }
+}
+
+
+// 两麦克风都录制结束时
 void MainWindow::onCheckAllRecordOver()
 {
     if(m_recordCount[0] == true &&
        m_recordCount[1] == true){
         log.warn("录制流程结束.");
-        emit allRecordOver(); //开始自动测试
+        emit allRecordOver();
     }
 }
 
@@ -467,6 +654,11 @@ void MainWindow::devicesSetting()
     connect(m_CodeReader, &CodeReader::receiveBarcode, this, &MainWindow::slot_onCodeReaderReceiveBarcode);
     connect(m_CodeReader, &CodeReader::connectStatusChanged, this, &MainWindow::slot_onCodeReaderConnectStatusChanged);
 
+
+    // PG
+    m_SigGenerator = new AutoLine;
+    connect(m_SigGenerator, &AutoLine::connectStatusChanged, this, &MainWindow::slot_onAutoLineConnectStatusChanged);
+
 }
 
 void MainWindow::uiInit()
@@ -556,6 +748,13 @@ void MainWindow::slot_onAutoLineConnectStatusChanged()
 {
     if(!m_AutoLine->isConnected()){
         QMessageBox::warning(this, "警告", "AutoLine连接断开", QMessageBox::Ok);
+    }
+}
+
+void MainWindow::slot_onSigGeneratorConnectStatusChanged()
+{
+    if(!m_AutoLine->isConnected()){
+        QMessageBox::warning(this, "警告", "SigGenerator连接断开", QMessageBox::Ok);
     }
 }
 
@@ -659,6 +858,7 @@ void MainWindow::startTestAudio()
 
     emit sig_startTestAudio();
 }
+
 
 void MainWindow::slot_testAudio()
 {

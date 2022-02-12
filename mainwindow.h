@@ -75,6 +75,8 @@ private: // Test
     RecordWorker * m_pRecWorkerL;
     RecordWorker * m_pRecWorkerR;
 
+    QString m_firstSpeaker;
+
     int m_micIndexL;       // 左麦克风序号
     int m_micIndexR;       // 右麦克风序号
     QString m_micL;        // 左麦克风
@@ -95,10 +97,31 @@ private: // 启动时载入自定义流程 process.xlsx
     int m_processTable_cols;
     void loadAutoProcess();
     void processCmdParser(QString cmd);
-    // 参数检测 过少报警
+
+    //
+    bool m_customTestProcessIsOK = false;
+    bool checkCustomTestProcess(); //检测自定义流程
+    void startCustomTestAudio();
+
+    void custom_do_sleep(quint64 duration);
+    void custom_do_record(quint64 duration);
+    void custom_do_sendcmd2pg(const QString& cmd);
+    void custom_do_sendcmd2mnt(const QString& cmd);
+    void custom_do_set_order(const QString & first_speaker);
+
+    void custom_do_get_audio_info(int order, quint64 tick, quint64 tick_range, quint64 freq,quint64 freq_range);
+    void custom_do_autotest_end();
+    //
+private slots:
+    void custom_do_record_done();
 
 
-
+signals:
+    void parseCmd(const QString& cmd, const QList<QString>&cmd_args);
+    void custom_cmd_done();
+private slots:
+    void customTestAudio();
+    void customCmdParser(const QString& cmd, const QList<QString>&cmd_args);
 
 
 
@@ -127,6 +150,7 @@ private slots:
 private: // device
     CodeReader* m_CodeReader;
     AutoLine* m_AutoLine;
+    AutoLine* m_SigGenerator;
 
 private: // UI
     Ui::MainWindow *ui;
@@ -139,7 +163,9 @@ private: // UI
     void devicesSetting();
     void uiInit();
 
-    void startTestAudio();///////////////////////
+    ///////////////////////////////////////////////////
+    void startTestAudio();      ///////////////////////
+    //////////////////////////////////////////////////
 
 signals:
     void sig_startAutoTest(); //已接收到读卡器开始指令 自动测试流程开始
@@ -164,6 +190,7 @@ private slots:
     void slot_onCodeReaderConnectStatusChanged();
     void slot_onAutoLineReceiveCmd(QString rev_cmd);
     void slot_onAutoLineConnectStatusChanged();
+    void slot_onSigGeneratorConnectStatusChanged();
     void slot_onAutoTestConfigChanged();
 
     //-------------------------------------
@@ -185,3 +212,4 @@ private slots:
     void on_btnTest_clicked();
 };
 #endif // MAINWINDOW_H
+
