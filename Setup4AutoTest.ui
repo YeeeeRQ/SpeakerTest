@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>687</width>
-    <height>519</height>
+    <height>575</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -397,6 +397,9 @@
           <layout class="QVBoxLayout" name="verticalLayout_6">
            <item>
             <widget class="QGroupBox" name="groupBox_4">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="title">
               <string>录音延时设定</string>
              </property>

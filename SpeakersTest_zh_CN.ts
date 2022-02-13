@@ -139,7 +139,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="609"/>
+        <location filename="mainwindow.cpp" line="622"/>
         <source>双通道扬声器测试</source>
         <translation type="unfinished"></translation>
     </message>
@@ -167,17 +167,17 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Setup4AutoTest.ui" line="445"/>
+        <location filename="Setup4AutoTest.ui" line="448"/>
         <source>播放顺序</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Setup4AutoTest.ui" line="453"/>
+        <location filename="Setup4AutoTest.ui" line="456"/>
         <source>左侧先响</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Setup4AutoTest.ui" line="463"/>
+        <location filename="Setup4AutoTest.ui" line="466"/>
         <source>右侧先响</source>
         <translation type="unfinished"></translation>
     </message>
@@ -274,22 +274,22 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Setup4AutoTest.ui" line="401"/>
+        <location filename="Setup4AutoTest.ui" line="404"/>
         <source>录音延时设定</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Setup4AutoTest.ui" line="409"/>
+        <location filename="Setup4AutoTest.ui" line="412"/>
         <source>录音延时 ： </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Setup4AutoTest.ui" line="416"/>
+        <location filename="Setup4AutoTest.ui" line="419"/>
         <source>0</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Setup4AutoTest.ui" line="423"/>
+        <location filename="Setup4AutoTest.ui" line="426"/>
         <source>ms</source>
         <translation type="unfinished"></translation>
     </message>
@@ -297,7 +297,7 @@
         <location filename="Setup4AutoTest.ui" line="143"/>
         <location filename="Setup4AutoTest.ui" line="262"/>
         <location filename="Setup4AutoTest.ui" line="383"/>
-        <location filename="Setup4AutoTest.ui" line="432"/>
+        <location filename="Setup4AutoTest.ui" line="435"/>
         <source>应用</source>
         <translation type="unfinished"></translation>
     </message>

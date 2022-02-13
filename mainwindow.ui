@@ -106,7 +106,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QGroupBox" name="groupBox">
+              <widget class="QGroupBox" name="groupBox4ProductID">
                <property name="title">
                 <string>产品ID</string>
                </property>
@@ -252,7 +252,7 @@
                    <widget class="QPushButton" name="btnLoadWavDir">
                     <property name="minimumSize">
                      <size>
-                      <width>100</width>
+                      <width>150</width>
                       <height>0</height>
                      </size>
                     </property>
@@ -287,7 +287,7 @@
                    <widget class="QPushButton" name="btnLoadTempWavDir">
                     <property name="minimumSize">
                      <size>
-                      <width>100</width>
+                      <width>150</width>
                       <height>0</height>
                      </size>
                     </property>

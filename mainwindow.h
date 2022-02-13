@@ -102,10 +102,9 @@ private:
     void loadAutoProcess();
 
     bool checkCustomTestProcess(); //检测自定义流程
-    void startCustomTestAudio();
 
     void custom_do_sleep(quint64 duration);
-    void custom_do_record(quint64 duration);
+    void custom_do_record(quint64 order,quint64 duration);
     void custom_do_sendcmd2pg(const QString& cmd);
     void custom_do_sendcmd2mnt(const QString& cmd);
     void custom_do_set_order(const QString & first_speaker);
@@ -119,11 +118,12 @@ signals:
     void allRecordOver();
 
     void parseCmd(const QString& cmd, const QList<QString>&cmd_args);
-    void custom_cmd_done(bool has_err);
+
+    void custom_cmd_done(const QString& ctl);
 
 private slots:
     void custom_do_record_done();
-    void customTestAudio(bool has_err);
+    void customTestAudio(const QString& ctl);
     void customCmdParser(const QString& cmd, const QList<QString>&cmd_args);
 //    void processCmdParser(QString cmd);
     void onCheckAllRecordOver();
@@ -199,6 +199,8 @@ private slots:
 
     void slot_getAudioInfo();
 
+private:
+    void fordebug();
 // -- 主界面日志输出
 private:
     SimpleLog& log;
@@ -222,7 +224,6 @@ private slots:
 
 // -- UI界面 槽函数
 private slots:
-    void on_btnLockOption4Model_clicked();
     void on_btnSetting4Mic_clicked();
     void on_btnLoadWavDir_clicked();
     void on_btnStartRecord_clicked();
@@ -231,6 +232,7 @@ private slots:
     void on_btnLoadTempWavDir_clicked();
     void on_btnSwitchRunningMode_clicked();
     void on_btnTest_clicked();
+    void on_btnLockOption4Model_clicked();
 };
 #endif // MAINWINDOW_H
 

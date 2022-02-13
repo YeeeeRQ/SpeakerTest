@@ -42,7 +42,7 @@ void Setup4AutoTest::on_btnMainWorkDirApply_clicked()
     m_mainWorkDir = QFileDialog::getExistingDirectory();
     ui->lineEdit_mainWorkDir->setText(m_mainWorkDir);
     ui->lineEdit_mainWorkDir->setToolTip(m_mainWorkDir);
-    conf.Set("AutoTest", "MainWorkDir", m_mainWorkDir);
+    conf.Set("Audio", "Path", m_mainWorkDir);
     emit autoTestConfigChanged();
 }
 

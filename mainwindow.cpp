@@ -9,10 +9,17 @@
 #define WAV_FILE_L  "/L.wav"
 #define WAV_FILE_R  "/R.wav"
 
-// Todo:
-// 程序启动时打开外部设备串口
 
 // --------------------------------------------------------------------------
+
+void MainWindow::fordebug()
+{
+    ui->comboBoxModelName->addItem("TEST_01");
+    ui->comboBoxModelName->addItem("TEST_02");
+    ui->comboBoxModelName->addItem("TEST_03");
+    ui->comboBoxModelName->addItem("TEST_04");
+
+}
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -20,6 +27,8 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    fordebug();
 
 //    return;
 
@@ -302,7 +311,6 @@ void MainWindow::loadAutoProcess()
 
     return ;
 
-    // Todo：
     // 1. 参数校验
     // 3. 测试流程
     // 2. parser
@@ -372,32 +380,33 @@ bool MainWindow::checkCustomTestProcess()
     return this->m_customTestProcessIsOK;
 }
 
-void MainWindow::startCustomTestAudio()
-{
-    if(!this->m_customTestProcessIsOK){
-        log.warn("错误！自定义流程配置有误.");
-        log.warn("无法进行测试!");
-        return ;
-    }
-
-    // Start
-    emit custom_cmd_done(false);
-}
 
 void MainWindow::custom_do_sleep(quint64 duration)
 {
         delaymsec(duration);
-        emit custom_cmd_done(false);
+        emit custom_cmd_done("OK");
 }
 
-void MainWindow::custom_do_record(quint64 duration)
+void MainWindow::custom_do_record(quint64 order,quint64 duration)
 {
+    // 设定录制名称
+    QString wavdir = ui->lineEdit4WavDir->text();
+    if(order == 1){
+        m_pRecWorkerL->setOutputFile(wavdir+ "\\1L.wav");
+        m_pRecWorkerR->setOutputFile(wavdir+ "\\1R.wav");
+    }else if(order == 2){
+        m_pRecWorkerL->setOutputFile(wavdir+ "\\2L.wav");
+        m_pRecWorkerR->setOutputFile(wavdir+ "\\2R.wav");
+    }else{
+        log.warn("录制不能次数>2");
+        emit custom_cmd_done("ERROR");
+    }
     emit sig_startRecording(duration);
 }
 
 void MainWindow::custom_do_record_done()
 {
-    emit custom_cmd_done(false);
+    emit custom_cmd_done("OK");
 }
 
 void MainWindow::custom_do_sendcmd2pg(const QString &cmd)
@@ -405,12 +414,12 @@ void MainWindow::custom_do_sendcmd2pg(const QString &cmd)
     if(m_SigGenerator){
         m_SigGenerator->sendCmd(cmd);
     }
-    emit custom_cmd_done(false);
+    emit custom_cmd_done("OK");
 }
 
 void MainWindow::custom_do_sendcmd2mnt(const QString &cmd)
 {
-    emit custom_cmd_done(false);
+    emit custom_cmd_done("OK");
 }
 
 void MainWindow::custom_do_set_order(const QString & first_speaker)
@@ -425,7 +434,7 @@ void MainWindow::custom_do_set_order(const QString & first_speaker)
     }
     log.warn("首次发声麦克风 : " + m_firstSpeaker);
 
-    emit custom_cmd_done(false);
+    emit custom_cmd_done("OK");
 }
 
 void MainWindow::custom_do_get_audio_info(int order, quint64 tick, quint64 tick_range, quint64 freq, quint64 freq_range)
@@ -450,7 +459,7 @@ void MainWindow::custom_do_get_audio_info(int order, quint64 tick, quint64 tick_
         m_accept_pitch1[0]  = f1;
         m_accept_pitch1[1]  = f2;
 
-        emit custom_cmd_done(false); //参数设定成功
+        emit custom_cmd_done("OK"); //参数设定成功
 
     }else if(2 == order){
         //校验
@@ -464,14 +473,14 @@ void MainWindow::custom_do_get_audio_info(int order, quint64 tick, quint64 tick_
         m_testTime2[1] = t2;
         m_accept_pitch2[0]  = f1;
         m_accept_pitch2[1]  = f2;
-        emit custom_cmd_done(false); //参数设定成功
+        emit custom_cmd_done("OK"); //参数设定成功
 
     }else{
         //error
         log.warn("get audio info error!");
         log.warn("不存在指定次序录制的音频!");
 
-        emit custom_cmd_done(true); //参数设定失败
+        emit custom_cmd_done("ERROR"); //参数设定失败
     }
 }
 
@@ -486,25 +495,35 @@ void MainWindow::custom_do_autotest_end()
     slot_getAudioInfo();
 
     // 告知结束流程
-    emit custom_cmd_done(true); //测试流程结束
+    emit custom_cmd_done("END"); //测试流程结束
 }
 
-void MainWindow::customTestAudio(bool has_err)
+void MainWindow::customTestAudio(const QString& ctl)
 {
     static quint64 step = 1;
     static QString cmd;
     static QList<QString> cmd_args;
 
     // 发生错误， 步骤置1
-    if(has_err){
+    if(ctl == "ERROR"){
         step = 1;
         return;
+    }
+
+    if(ctl == "END"){
+        step = 1;
+        return;
+    }
+
+    if(ctl == "START"){
+        step = 1;
     }
 
     if(step < m_processTable_rows){
 
         // 读取 自定义测试指令
         cmd = m_processTable.at(step).at(1);
+
         // 读取 自定义测试指令参数
         cmd_args.clear();
         for(int i = 2; i<m_processTable_cols ;++i){
@@ -513,14 +532,18 @@ void MainWindow::customTestAudio(bool has_err)
             cmd_args.append(arg);
         }
 
+        if(cmd.isEmpty()){
+            return;
+        }
+
+        if(cmd_args.isEmpty()){
+            return;
+        }
+
         // 解析并执行自定义指令
         emit parseCmd(cmd, cmd_args);
 
         ++step;
-    }else{
-        cmd.clear();
-        cmd_args.clear();
-        step = 1; //置为初始位置
     }
 }
 
@@ -528,17 +551,19 @@ void MainWindow::customCmdParser(const QString& cmd, const QList<QString>&cmd_ar
 {
     // 解析 指令 + 参数 并执行.
 
+    static quint64 record_order = 0;
+
     if(cmd == "autotest_start"){
-        // do nothing
+        record_order = 0;
     }else if(cmd == "sleep"){
 
         quint64 duration = cmd_args.at(0).toUInt();
         custom_do_sleep(duration);
 
     }else if(cmd == "record"){
-
+        record_order++;
         quint64 duration = cmd_args.at(0).toUInt();
-        custom_do_record(duration);
+        custom_do_record(record_order,duration);
 
     }else if(cmd == "sendcmd2pg"){
 
@@ -564,15 +589,14 @@ void MainWindow::customCmdParser(const QString& cmd, const QList<QString>&cmd_ar
 
     }else if(cmd == "autotest_end"){
 
+        record_order = 0;
         // 假定参数设定完毕， 音频录制完毕
         // 判断并输出结果
         custom_do_autotest_end();
 
     }else{
-
         qDebug() << "未知指令";
         log.warn("未知指令");
-
     }
 }
 
@@ -581,23 +605,12 @@ void MainWindow::customCmdParser(const QString& cmd, const QList<QString>&cmd_ar
 
 void MainWindow::slot_onAutoModeStateChanged(bool mode)
 {
-    if(mode == true){
-        //自动模式
+    bool enable = mode?false:true;
 
-        // 禁用界面上测试模块
-        const static bool enable = false;
-        ui->groupBox4AppSetting->setEnabled(enable);
-        ui->groupBox4SelectModel->setEnabled(enable);
-        ui->groupBox4Test->setEnabled(enable);
-    }else{
-        //手动模式
-
-        // 启用界面上测试模块
-        const static bool enable = true;
-        ui->groupBox4AppSetting->setEnabled(enable);
-        ui->groupBox4SelectModel->setEnabled(enable);
-        ui->groupBox4Test->setEnabled(enable);
-    }
+    ui->groupBox4AppSetting->setEnabled(enable);
+    ui->groupBox4SelectModel->setEnabled(enable);
+    ui->groupBox4Test->setEnabled(enable);
+    ui->groupBox4ProductID->setEnabled(enable);
 }
 
 
@@ -666,9 +679,19 @@ void MainWindow::slot_startAutoTest()
 
 void MainWindow::slot_startCustomAutoTest()
 {
-    emit custom_cmd_done(true);
-}
+    if(!this->m_customTestProcessIsOK){
+        log.warn("错误！自定义流程配置有误.");
+        log.warn("无法进行测试!");
+        return ;
+    }
 
+    // Todo:
+    // 工作目录设定
+
+
+
+    emit custom_cmd_done("START");
+}
 
 // --------------------------------------------------------------------------
 
@@ -702,6 +725,9 @@ void MainWindow::slot_onAutoTestConfigChanged()
         qDebug() << "UI (Setup4AutoTest) 未载入！";
         return ;
     }
+
+    // 载入主目录
+    m_outputDir = conf.Get("Audio", "Path").toString();
     // do nothing
 }
 
@@ -741,18 +767,12 @@ void MainWindow::slot_onSetupMic(int l_idx, const QString &lmic, int r_idx, cons
     emit sig_setRecordInputL(lmic);
     emit sig_setRecordInputR(rmic);
 
-    // Todo 保存至配置文件
     conf.Set("Mic", "L", lmic);
     conf.Set("Mic", "L_idx", l_idx);
     conf.Set("Mic", "R", rmic);
     conf.Set("Mic", "R_idx", r_idx);
 }
 
-
-void MainWindow::on_btnLockOption4Model_clicked()
-{
-    log.blue("hello");
-}
 
 
 
@@ -908,6 +928,7 @@ void MainWindow::slot_getAudioInfo()
     emit sig_audioTestFinished();
     log.info("...");
 }
+
 
 void MainWindow::slot_onAudioTestFinished()
 {
@@ -1324,3 +1345,21 @@ QVector<QVector<QString>> loadExcel(QString strSheetName)
 }
 
 // --------------------------------------------------------------------------
+
+void MainWindow::on_btnLockOption4Model_clicked()
+{
+    static bool lock = false;
+
+    lock = !lock;
+    ui->comboBoxModelName->setEnabled(!lock);
+
+    if(lock){
+        ui->btnLockOption4Model->setText("解锁");
+    }else{
+        ui->btnLockOption4Model->setText("锁定");
+
+    //Todo:
+    //保存最后一次机种名
+    }
+}
+
