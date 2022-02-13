@@ -501,6 +501,7 @@ void MainWindow::customTestAudio()
 
 void MainWindow::customCmdParser(const QString& cmd, const QList<QString>&cmd_args)
 {
+    // 解析 指令 + 参数 并执行.
 
     if(cmd == "sleep"){
         quint64 duration = cmd_args.at(0).toUInt();
@@ -685,7 +686,6 @@ void MainWindow::uiInit()
 
 * 匿名机种 类型 anonymous
 * 匿名产品 ID
-
 */
 ///////////////////////////////////////////////////////////////////
 void MainWindow::slot_startAutoTest()
