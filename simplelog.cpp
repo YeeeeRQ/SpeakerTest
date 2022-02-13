@@ -69,7 +69,7 @@ void SimpleLog::printWithColor(QString s, QString color)
     currTime.prepend("[");
     currTime.append("]:");
 
-    QString qHtmlText(QString("<p style='color:%1'>").arg(color));
+    QString qHtmlText(QString("<p style='color:%1;font-family:Source Han Sans K Regular;font-size:19px;'>").arg(color));
     qHtmlText.append(currTime);
     qHtmlText.append(s);
     qHtmlText.append("</p>");

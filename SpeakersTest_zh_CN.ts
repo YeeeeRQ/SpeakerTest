@@ -152,152 +152,152 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Setup4AutoTest.ui" line="22"/>
+        <location filename="Setup4AutoTest.ui" line="37"/>
         <source>主目录设定</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Setup4AutoTest.ui" line="32"/>
+        <location filename="Setup4AutoTest.ui" line="47"/>
         <source>文件保存目录 ： </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Setup4AutoTest.ui" line="42"/>
+        <location filename="Setup4AutoTest.ui" line="57"/>
         <source>D:\AudioTest</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Setup4AutoTest.ui" line="448"/>
+        <location filename="Setup4AutoTest.ui" line="463"/>
         <source>播放顺序</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Setup4AutoTest.ui" line="456"/>
+        <location filename="Setup4AutoTest.ui" line="471"/>
         <source>左侧先响</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Setup4AutoTest.ui" line="466"/>
+        <location filename="Setup4AutoTest.ui" line="481"/>
         <source>右侧先响</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Setup4AutoTest.ui" line="72"/>
+        <location filename="Setup4AutoTest.ui" line="87"/>
         <source>频率设定</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Setup4AutoTest.ui" line="51"/>
+        <location filename="Setup4AutoTest.ui" line="66"/>
         <source>载入</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Setup4AutoTest.ui" line="80"/>
+        <location filename="Setup4AutoTest.ui" line="95"/>
         <source>时段1 : </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Setup4AutoTest.ui" line="87"/>
+        <location filename="Setup4AutoTest.ui" line="102"/>
         <source>1000</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Setup4AutoTest.ui" line="94"/>
-        <location filename="Setup4AutoTest.ui" line="119"/>
+        <location filename="Setup4AutoTest.ui" line="109"/>
+        <location filename="Setup4AutoTest.ui" line="134"/>
         <source> Hz </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Setup4AutoTest.ui" line="105"/>
+        <location filename="Setup4AutoTest.ui" line="120"/>
         <source>时段2 : </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Setup4AutoTest.ui" line="112"/>
+        <location filename="Setup4AutoTest.ui" line="127"/>
         <source>2000</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Setup4AutoTest.ui" line="155"/>
+        <location filename="Setup4AutoTest.ui" line="170"/>
         <source>时段1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Setup4AutoTest.ui" line="165"/>
-        <location filename="Setup4AutoTest.ui" line="286"/>
+        <location filename="Setup4AutoTest.ui" line="180"/>
+        <location filename="Setup4AutoTest.ui" line="301"/>
         <source>时刻 : </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Setup4AutoTest.ui" line="172"/>
-        <location filename="Setup4AutoTest.ui" line="293"/>
+        <location filename="Setup4AutoTest.ui" line="187"/>
+        <location filename="Setup4AutoTest.ui" line="308"/>
         <source>250</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Setup4AutoTest.ui" line="179"/>
-        <location filename="Setup4AutoTest.ui" line="207"/>
-        <location filename="Setup4AutoTest.ui" line="242"/>
-        <location filename="Setup4AutoTest.ui" line="300"/>
-        <location filename="Setup4AutoTest.ui" line="328"/>
-        <location filename="Setup4AutoTest.ui" line="363"/>
+        <location filename="Setup4AutoTest.ui" line="194"/>
+        <location filename="Setup4AutoTest.ui" line="222"/>
+        <location filename="Setup4AutoTest.ui" line="257"/>
+        <location filename="Setup4AutoTest.ui" line="315"/>
+        <location filename="Setup4AutoTest.ui" line="343"/>
+        <location filename="Setup4AutoTest.ui" line="378"/>
         <source> ms </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Setup4AutoTest.ui" line="190"/>
-        <location filename="Setup4AutoTest.ui" line="311"/>
+        <location filename="Setup4AutoTest.ui" line="205"/>
+        <location filename="Setup4AutoTest.ui" line="326"/>
         <source>  ±     </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Setup4AutoTest.ui" line="200"/>
-        <location filename="Setup4AutoTest.ui" line="321"/>
+        <location filename="Setup4AutoTest.ui" line="215"/>
+        <location filename="Setup4AutoTest.ui" line="336"/>
         <source>100</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Setup4AutoTest.ui" line="223"/>
-        <location filename="Setup4AutoTest.ui" line="344"/>
+        <location filename="Setup4AutoTest.ui" line="238"/>
+        <location filename="Setup4AutoTest.ui" line="359"/>
         <source>时段 : </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Setup4AutoTest.ui" line="235"/>
-        <location filename="Setup4AutoTest.ui" line="356"/>
+        <location filename="Setup4AutoTest.ui" line="250"/>
+        <location filename="Setup4AutoTest.ui" line="371"/>
         <source>150-350</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Setup4AutoTest.ui" line="276"/>
+        <location filename="Setup4AutoTest.ui" line="291"/>
         <source>时段2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Setup4AutoTest.ui" line="404"/>
+        <location filename="Setup4AutoTest.ui" line="419"/>
         <source>录音延时设定</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Setup4AutoTest.ui" line="412"/>
+        <location filename="Setup4AutoTest.ui" line="427"/>
         <source>录音延时 ： </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Setup4AutoTest.ui" line="419"/>
+        <location filename="Setup4AutoTest.ui" line="434"/>
         <source>0</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Setup4AutoTest.ui" line="426"/>
+        <location filename="Setup4AutoTest.ui" line="441"/>
         <source>ms</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Setup4AutoTest.ui" line="143"/>
-        <location filename="Setup4AutoTest.ui" line="262"/>
-        <location filename="Setup4AutoTest.ui" line="383"/>
-        <location filename="Setup4AutoTest.ui" line="435"/>
+        <location filename="Setup4AutoTest.ui" line="158"/>
+        <location filename="Setup4AutoTest.ui" line="277"/>
+        <location filename="Setup4AutoTest.ui" line="398"/>
+        <location filename="Setup4AutoTest.ui" line="450"/>
         <source>应用</source>
         <translation type="unfinished"></translation>
     </message>
@@ -369,40 +369,40 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="setup4mic.ui" line="26"/>
+        <location filename="setup4mic.ui" line="41"/>
         <source>左侧输入</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="setup4mic.ui" line="49"/>
-        <location filename="setup4mic.ui" line="147"/>
+        <location filename="setup4mic.ui" line="64"/>
+        <location filename="setup4mic.ui" line="162"/>
         <source>麦克风</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="setup4mic.ui" line="78"/>
-        <location filename="setup4mic.ui" line="176"/>
+        <location filename="setup4mic.ui" line="93"/>
+        <location filename="setup4mic.ui" line="191"/>
         <source>开始</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="setup4mic.ui" line="88"/>
-        <location filename="setup4mic.ui" line="186"/>
+        <location filename="setup4mic.ui" line="103"/>
+        <location filename="setup4mic.ui" line="201"/>
         <source>停止</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="setup4mic.ui" line="127"/>
+        <location filename="setup4mic.ui" line="142"/>
         <source>右侧输入</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="setup4mic.ui" line="244"/>
+        <location filename="setup4mic.ui" line="259"/>
         <source>退出</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="setup4mic.ui" line="264"/>
+        <location filename="setup4mic.ui" line="279"/>
         <source>保存</source>
         <translation type="unfinished"></translation>
     </message>

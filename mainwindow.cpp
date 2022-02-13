@@ -1126,6 +1126,7 @@ void MainWindow::Setting4Theme()
 //    this->resize(QSize(1280,800));
     this->setMinimumSize(QSize(1440,900));
     this->resize(QSize(1440,900));
+    this->setMaximumSize(QSize(1440,900));
     // 主题设定
     QApplication::setStyle(QStyleFactory::create("Fusion"));               // 更改风格
     QApplication::setPalette(QApplication::style()->standardPalette());     // 使用风格默认的颜色

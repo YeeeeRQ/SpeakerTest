@@ -19,6 +19,21 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">QLabel,
+QLineEdit,
+QRadioButton,
+QComboBox,
+QCheckBox,
+QPushButton,
+QGroupBox,
+QTableView,
+QTableWidget,
+QHeaderView::section/*表头样式*/
+{
+  font-family: &quot;Source Han Sans K Regular&quot;;
+}</string>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout_5">
    <item>
     <widget class="QGroupBox" name="groupBox">
