@@ -43,6 +43,7 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     void closeEvent(QCloseEvent *event); //
+    void resizeEvent(QResizeEvent* event);
 
 // -- 音频测试流程
 private:

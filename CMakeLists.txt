@@ -45,6 +45,8 @@ set(PROJECT_SOURCES
         MyCommonFun.cpp MyCommonFun.h
         TempForm.ui
         res.qrc
+
+        ./font/SourceHanSansK-Regular.ttf
         ${TS_FILES}
 )
 

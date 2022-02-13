@@ -7,7 +7,8 @@ Setup4AutoTest::Setup4AutoTest(QWidget *parent) :
     ui(new Ui::Setup4AutoTest)
 {
     ui->setupUi(this);
-    loadConfig4AutoTest();
+    this->setWindowTitle("音频测试设定");
+    this->loadConfig4AutoTest();
 }
 
 Setup4AutoTest::~Setup4AutoTest()

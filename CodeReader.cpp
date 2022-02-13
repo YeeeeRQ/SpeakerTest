@@ -31,10 +31,9 @@ bool CodeReader::connectDevice(QString port_name, qint32 baud)
 
     if(serial->open(QIODevice::ReadWrite)){
         emit connectStatusChanged();
-        log->info("打开成功");
+//        log->info("打开成功");
     }else{
-
-        log->warn("打开失败");
+//        log->warn("打开失败");
     }
     return serial->isOpen();
 }

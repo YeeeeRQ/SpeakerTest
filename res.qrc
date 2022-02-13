@@ -4,5 +4,6 @@
         <file>images/stop_icon.bmp</file>
         <file>images/volumn.bmp</file>
         <file>images/Wave Sound.ico</file>
+        <file>font/SourceHanSansK-Regular.ttf</file>
     </qresource>
 </RCC>

@@ -130,7 +130,12 @@ void Setup4Mic::on_btnSave_clicked()
 
     int lidx = ui->comboDevicesL->currentIndex();
     int ridx = ui->comboDevicesR->currentIndex();
-    if(lidx == ridx){
+
+    if(LMic.isEmpty()||RMic.isEmpty()){
+        QMessageBox::warning(this, "设定失败", "系统没有麦克风设备");
+        return;
+    }
+    if(LMic == RMic){
         QMessageBox::warning(this, "设定失败", "左右麦克风输入不能相同");
         return;
     }

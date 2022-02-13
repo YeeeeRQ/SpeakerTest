@@ -91,9 +91,9 @@ bool AutoLine::connectDevice(QString port_name, qint32 baud)
 
     if(serial->open(QIODevice::ReadWrite)){
         emit connectStatusChanged();
-        qDebug() << "打开成功";
+//        qDebug() << "打开成功";
     }else{
-        qDebug() << "打开失败";
+//        qDebug() << "打开失败";
     }
     return serial->isOpen();
 }

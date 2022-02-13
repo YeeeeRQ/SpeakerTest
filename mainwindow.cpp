@@ -32,8 +32,8 @@ MainWindow::MainWindow(QWidget *parent)
 
 //    return;
 
-    this->Setting4Path();
     this->Setting4Config();
+    this->Setting4Path();
     this->Setting4Theme();
     this->Setting4Devices();  // 外部设备连接
     this->loadAutoProcess(); // 依据配置文件载入自动测试流程
@@ -111,6 +111,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     if(result == QMessageBox::Yes){
 
         //程序退出时保存当前设定的延时
+        m_wavDuration = ui->lineEditDurationOfRecord->text().toUInt();
         conf.Set("Audio", "RecordDuration", m_wavDuration);
         if(setup4autotest) setup4autotest->close();
         if(setup4mic) setup4mic->close();
@@ -119,6 +120,12 @@ void MainWindow::closeEvent(QCloseEvent *event)
     }else{
         event->ignore();
     }
+}
+
+void MainWindow::resizeEvent(QResizeEvent *event)
+{
+    qDebug() << "w:" << this->width() << " h:" << this->height();
+//    event->ignore();
 }
 
 // --------------------------------------------------------------------------
@@ -632,6 +639,15 @@ void MainWindow::Setting4MainWindow()
     textedit4log.setMinimumWidth(400);
     ui->verticalLayout4log->addWidget(&textedit4log);
 
+    //无边框
+    textedit4log.setFrameShape(QFrame::NoFrame);
+    //透明
+    textedit4log.setStyleSheet(
+                "QPlainTextEdit{"
+                "background-color:rgba(255,255,200, 0)"
+                "}"
+                );
+
     // 初始化默认录制时长
     ui->lineEditDurationOfRecord->setText(QString::number(m_wavDuration));
 
@@ -813,10 +829,11 @@ void MainWindow::startTestAudio()
         return ;
     }
 
+    bool fileIsOK= true;
+
     // 载入指定目录下 L.wav R.wav文件
     log.clear();
-    ui->btnStartRecord->setEnabled(false);
-    ui->btnTest->setEnabled(false);
+
 
     QString workdir = ui->lineEdit4WavDir->text().trimmed();
     QString wavL =  QDir::toNativeSeparators(workdir + WAV_FILE_L);
@@ -824,25 +841,28 @@ void MainWindow::startTestAudio()
 
     if(workdir.isEmpty()){
         log.warn("未指定wav文件存放目录！");
-        return;
+        fileIsOK = false;
     }
     if(!QFile::exists(wavL)){
         log.warn("指定目录下 \"L.wav\" 文件不存在！");
-        return;
+        fileIsOK = false;
     }
     if(!QFile::exists(wavR)){
         log.warn("指定目录下 \"R.wav\" 文件不存在！");
-        return;
+        fileIsOK = false;
     }
-    log.warn("dir: "+workdir);
-    log.warn("file: "+wavL);
-    log.warn("file: "+wavR);
 
-    log.info("载入 L.wav & R.wav 文件成功.");
-
-    log.info("开始测试");
-
-    emit sig_startTestAudio();
+    if(fileIsOK){
+        log.info("载入 L.wav & R.wav 文件成功.");
+        log.info("开始测试");
+        ui->btnStartRecord->setEnabled(false);
+        ui->btnTest->setEnabled(false);
+        emit sig_startTestAudio();
+    }else{
+        log.warn("dir: "+workdir);
+        log.warn("file: "+wavL);
+        log.warn("file: "+wavR);
+    }
 }
 
 // 自定义测试流程 1 开始音频测试 音频载入前检测
@@ -1103,6 +1123,9 @@ void MainWindow::printResult(bool isOk, const QString& msg)
 
 void MainWindow::Setting4Theme()
 {
+//    this->resize(QSize(1280,800));
+    this->setMinimumSize(QSize(1440,900));
+    this->resize(QSize(1440,900));
     // 主题设定
     QApplication::setStyle(QStyleFactory::create("Fusion"));               // 更改风格
     QApplication::setPalette(QApplication::style()->standardPalette());     // 使用风格默认的颜色
@@ -1137,10 +1160,22 @@ void MainWindow::Setting4Path()
     ui->lineEdit4WavDir->setText(default_AudioTestDir);
     ui->lineEdit4WavDir->setToolTip(default_AudioTestDir);
 
+}
+
+void MainWindow::Setting4Config()
+{
+    // Config
+    QFileInfo fi(QCoreApplication::applicationDirPath() + "\\Config.ini");
+    if(!fi.isFile()) initConfig();
+    this->loadConfig();
+
     // 主要输出目录检测 m_outputDir
     if(m_outputDir.isEmpty()){
         log.warn("异常！ 主要输出目录未设定。");
+    }else{
+        log.info("主目录:"+m_outputDir);
     }
+
     QDir outdir(m_outputDir);
     if(!outdir.exists()){
         bool ismkdir = outdir.mkdir(m_outputDir);
@@ -1151,14 +1186,6 @@ void MainWindow::Setting4Path()
             log.info("创建"+m_outputDir+"成功!");
         }
     }
-}
-
-void MainWindow::Setting4Config()
-{
-    // Config
-    QFileInfo fi(QCoreApplication::applicationDirPath() + "\\Config.ini");
-    if(!fi.isFile()) initConfig();
-    this->loadConfig();
 }
 
 void MainWindow::Setting4Devices()
@@ -1189,6 +1216,7 @@ void MainWindow::Setting4Devices()
 
         if(audioInputs.count() < 2){
             log.warn("麦克风数量小于2, 测试无法进行.");
+            ui->btnStartRecord->setEnabled(false); //关闭录制按钮
         }else{
 
             m_pRecWorkerL = new RecordWorker;
