@@ -32,6 +32,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Test
     connect(this, &MainWindow::sig_startAutoTest, this, &MainWindow::slot_startAutoTest);
+
     connect(this, &MainWindow::sig_startTestAudio, this, &MainWindow::slot_testAudio);
     connect(this, &MainWindow::sig_audioTestFinished, this, &MainWindow::slot_onAudioTestFinished);
 //    connect(this, &MainWindow::startTesting, this, &MainWindow::);
@@ -834,9 +835,10 @@ void MainWindow::slot_onAutoLineReceiveCmd(QString rev_cmd)
         return ;
     }else{
         if(rev_cmd == m_cmd_start){
-            // 开始自动测试流程
+            // 开始自动测试流程(流程自定义)
             log.warn("[AutoMode]: 开始测试流程.");
             emit sig_startAutoTest();
+
         }
     }
 }
@@ -931,13 +933,11 @@ void MainWindow::on_btnStartRecord_clicked()
 
 // --------------------------------------------------------------------------
 
+// 手动模式下开始测试
 void MainWindow::startTestAudio()
 {
-
     // 载入指定目录下 L.wav R.wav文件
-
     textedit4log.clear();
-
     ui->btnStartRecord->setEnabled(false);
     ui->btnTest->setEnabled(false);
 
@@ -968,17 +968,48 @@ void MainWindow::startTestAudio()
     emit sig_startTestAudio();
 }
 
+// 自动模式下开始测试
+void MainWindow::startTestAudioInAutoMode()
+{
+    textedit4log.clear();
+    QString workdir = ui->lineEdit4WavDir->text().trimmed();
+
+    QString wav1L =  QDir::toNativeSeparators(workdir + "1L.wav");
+    QString wav1R =  QDir::toNativeSeparators(workdir + "1R.wav");
+
+    QString wav2L =  QDir::toNativeSeparators(workdir + "2L.wav");
+    QString wav2R =  QDir::toNativeSeparators(workdir + "2R.wav");
+
+    if(workdir.isEmpty()){
+        log.warn("未指定音频存放目录！");
+        return;
+    }
+    if(!QFile::exists(wav1L) || !QFile::exists(wav1R)){
+        log.warn("指定目录下时段1的音频不存在！");
+        return;
+    }
+    if(!QFile::exists(wav2L) || !QFile::exists(wav2R)){
+        log.warn("指定目录下时段2的音频不存在！");
+        return;
+    }
+
+    log.info("载入音频成功.");
+    log.info("开始测试");
+
+//    emit sig_startTestAudio();
+}
 
 // --------------------------------------------------------------------------
 
+// 手动模式下开始测试->获取音频信息
 void MainWindow::slot_testAudio()
 {
-    //获取CSV测试结果
+    //调用ConsoleAppAudioTest.exe 输出CSV测试结果
     QString target_dir = ui->lineEdit4WavDir->text().trimmed();
 
     QString app = QDir::toNativeSeparators(QCoreApplication::applicationDirPath() + "\\AudioTest\\ConsoleAppAudioTest.exe");
-    QString cmd = app + " " + target_dir;
 
+    QString cmd = app + " " + target_dir;
     cmd += " " +  QString::number(setup4autotest->m_duration1);
     cmd += " " +  QString::number(setup4autotest->m_duration2);
 
@@ -987,11 +1018,37 @@ void MainWindow::slot_testAudio()
     log.warn(app);
     log.warn(cmd);
 
-//    system(cmd.toLatin1());
+    // system(cmd.toLatin1());
     system_hide((char*)cmd.toLatin1().data());
 
     ui->btnStartRecord->setEnabled(true);
     ui->btnTest->setEnabled(true);
+    emit sig_audioTestFinished();
+    log.info("...");
+}
+
+// 自动模式下开始测试->获取音频信息
+void MainWindow::slot_testAudioInAutoMode()
+{
+    //调用ConsoleAppAudioTest.exe 输出CSV测试结果
+    QString target_dir = ui->lineEdit4WavDir->text().trimmed();
+
+    QString app = QDir::toNativeSeparators(QCoreApplication::applicationDirPath() + "\\AudioTest\\ConsoleAppAudioTest.exe");
+
+    QString cmd = app + " -a " + target_dir;
+    cmd += " " +  QString::number(m_testTime1[0]);
+    cmd += " " +  QString::number(m_testTime1[1]);
+    cmd += " " +  QString::number(m_testTime2[0]);
+    cmd += " " +  QString::number(m_testTime2[1]);
+
+    qDebug() << app;
+    qDebug() << cmd;
+    log.warn(app);
+    log.warn(cmd);
+
+    // system(cmd.toLatin1());
+    system_hide((char*)cmd.toLatin1().data());
+
     emit sig_audioTestFinished();
     log.info("...");
 }
@@ -1025,13 +1082,18 @@ void MainWindow::slot_onAudioTestFinished()
 
     if(line_l.isEmpty() || line_r.isEmpty()){
         log.warn("测试结果文件异常！");
+        log.info("请检查目标目录下test.csv文件");
     }
 
     QStringList L_data= line_l.split(',');
     QStringList R_data= line_r.split(',');
     // 判断 Pass | Fail
+
+    // Todo: 输出好看点
+
     qDebug() << "----------result----------\n";
     log.blue("----------result----------");
+
     QString result_l, result_r;
     for(size_t i=0 ; i <L_data.length();++i){
         result_l += L_data.at(i) + "  ";
@@ -1059,69 +1121,73 @@ void MainWindow::slot_onAudioTestFinished()
     /*
      * 1. 有无不响的情况
      * 2. 有无左右放置错误的情况
-     *
-     * 时段1，2 的频率分别是多少？
-     * 左侧和右侧哪个先响?
-    // 前提先左响， 后右响
-
-    // 播放顺序是否正常， 根据频率判断
-    // 时段1 频率是不是 1K, 是则正常
-    lpitch1 == rpitch1 == 10000;
-
-    // 时段2 频率是不是 2K, 是则正常
-    lpitch2 == rpitch2 == 20000;
-
-
-    // 左右是否正常放置
-
-    //时段1,左侧强度>右侧强度, 大于则正常
-    llevel1 > rlevel1;
-
-    //时段2,左侧强度<右侧强度, 小于则正常
-    llevel2 < rlevel2;
     */
 
-//    quint64 accept_pitch1[2] = {900,1100};
-//    quint64 accept_pitch2[2] = {1900,2100};
+    /*
+     *  时段1 频率
+     *  时段2 频率
+     *
+     *  时段1 强度等级
+     *  时段2 强度等级
+     */
 
-    // 左侧 时段1
+    log.info("时段1: ");
+    // 时段1 左侧
     if(lpitch1 > m_accept_pitch1[0] && lpitch1 < m_accept_pitch1[1]){
-        log.info("左侧频率 时段1 正常");
+        log.info("左侧频率正常");
     }else{
         goto ERROR_L;
     }
-    // 左侧 时段2
-    if(lpitch2 > m_accept_pitch2[0] && lpitch2 < m_accept_pitch2[1]){
-        log.info("左侧频率 时段2 正常");
-    }else{
-        goto ERROR_L;
-    }
-    // 右侧 时段1
+
+    // 时段1 右侧
     if(rpitch1 > m_accept_pitch1[0] && rpitch1 < m_accept_pitch1[1]){
-        log.info("右侧频率 时段1 正常");
+        log.info("右侧频率正常");
     }else{
-        goto ERROR_R;
+        goto ERROR_L;
     }
-    // 右侧 时段2
+
+    log.info("时段2: ");
+    // 时段2左侧
+    if(lpitch2 > m_accept_pitch2[0] && lpitch2 < m_accept_pitch2[1]){
+        log.info("左侧频率正常");
+    }else{
+        goto ERROR_L;
+    }
+    // 时段2右侧
     if(rpitch2 > m_accept_pitch2[0] && rpitch2 < m_accept_pitch2[1]){
-        log.info("右侧频率 时段2 正常");
+        log.info("右侧频率正常");
     }else{
         goto ERROR_R;
     }
 
-    if(llevel1 > rlevel1){// 1K
-        log.info("时段1 左侧强度>右侧强度 正常");
-    }else{
+    if(m_firstSpeaker == "L"){//左侧第一个响
+        if(llevel1 > rlevel1){
+            log.info("时段1 左侧强 > 右侧弱 正常");
+        }else{
         goto ERROR_BOTH;
+        }
+        if(llevel2 < rlevel2){
+            log.info("时段2 左侧弱 < 右侧强 正常");
+        }else{
+        goto ERROR_BOTH;
+        }
     }
-    if(llevel2 < rlevel2){// 2K
-        log.info("时段2 左侧强度<右侧强度 正常");
-    }else{
-        goto ERROR_BOTH;
+
+    if(m_firstSpeaker == "R"){//右侧第一个响
+        if(llevel1 < rlevel1){
+            log.info("时段1 左侧弱 < 右侧强 正常");
+        }else{
+            goto ERROR_BOTH;
+        }
+        if(llevel2 > rlevel2){
+            log.info("时段2 左侧强 > 右侧弱 正常");
+        }else{
+            goto ERROR_BOTH;
+        }
     }
 
 PASS:
-    printResult(true, "测试通过!");
+    printResult(true , "正常,  测试通过!");
     return;
 
 ERROR_L:
@@ -1143,6 +1209,7 @@ void MainWindow::printResult(bool isOk, const QString& msg)
 {
     qDebug() << "pass:"<<m_cmd_pass;
     qDebug() << "fail:"<<m_cmd_fail;
+
     if(isOk){
         ui->widgetShowInfo->okNumPlusOne();
         m_AutoLine->sendCmd(m_cmd_pass);
@@ -1207,7 +1274,9 @@ void MainWindow::on_btnSwitchRunningMode_clicked()
 void MainWindow::on_btnTest_clicked()
 {
     this->startTestAudio();
-}// --------------------------------------------------------------------------
+}
+
+// --------------------------------------------------------------------------
 
 QVector<QVector<QString>> loadExcel(QString strSheetName)
 {

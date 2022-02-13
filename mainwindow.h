@@ -87,8 +87,8 @@ private:
     int m_micIndexL;       // 左麦克风序号
     int m_micIndexR;       // 右麦克风序号
 
-    QString m_outputDir;   //音频录制存放目录
-    QString m_wavDir;      // 录制文件保存目录
+    QString m_outputDir;   // 音频录制存放目录 ??
+    QString m_wavDir;      // 录制文件保存目录 ??
 
     // 左右麦克风录制完毕标记 值为1时表示录制结束
     bool m_recordCount[2]; // 0->L | 1->R
@@ -108,6 +108,10 @@ private:
     quint64 m_accept_pitch2[2]; // 接受频率范围
     quint64 m_testTime1[2]; // 测试时段
     quint64 m_testTime2[2]; // 测试时段
+
+
+    void startTestAudio();
+    void startTestAudioInAutoMode();
 
 // 启动时载入自定义流程 关联文件:process.xlsx
 private:
@@ -189,12 +193,11 @@ private: // UI
     void devicesSetting();
     void uiInit();
 
-    void startTestAudio();
 
 signals:
     void sig_startAutoTest(); //已接收到读卡器开始指令 自动测试流程开始
     void sig_startRecording(quint64 duration); // 目录+时长以确定，开始录音
-    void sig_startTestAudio(); //录音文件已就绪， 开始测试
+    void sig_startTestAudio(); // 手动模式 录音文件已就绪， 开始测试
     void sig_audioTestFinished();
 
     void sig_setRecordOutputL(const QString& out);
@@ -219,6 +222,8 @@ private slots:
     void slot_startAutoTest();  // 自动测试流程
     void slot_testAudio();    // for startTestAudio
     void slot_onAudioTestFinished(); //音频检测后根据csv判断结果
+
+    void slot_testAudioInAutoMode();
 
 // -- UI界面 槽函数
 private slots:
