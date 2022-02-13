@@ -9,10 +9,11 @@
 #define WAV_FILE_L  "/L.wav"
 #define WAV_FILE_R  "/R.wav"
 
-////////////////////////////////////////////////////////////////////////////////
-
 // Todo:
 // 程序启动时打开外部设备串口
+
+// --------------------------------------------------------------------------
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     ,log(SimpleLog::getInstance(&textedit4log))
@@ -45,6 +46,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     // 自定义测试流程 录制结束动作
     connect(this, &MainWindow::allRecordOver, this, &MainWindow::custom_do_record_done);
+
+    connect(this, &MainWindow::parseCmd, this, &MainWindow::customCmdParser);
 
 
     loadConfig();
@@ -131,6 +134,8 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+// --------------------------------------------------------------------------
+
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     QMessageBox::StandardButton result = \
@@ -149,6 +154,8 @@ void MainWindow::closeEvent(QCloseEvent *event)
     }
 }
 
+// --------------------------------------------------------------------------
+
 void MainWindow::emitUILoaded()
 {
     emit uiLoaded();
@@ -156,13 +163,18 @@ void MainWindow::emitUILoaded()
 
 void MainWindow::onUILoaded()
 {
-    this->uiInit();
+    this->uiInit(); //
 
     QString autoline_com = conf.Get("AutoLine", "Com").toString();
     qint32 autoline_baud = conf.Get("AutoLine", "Baud").toInt();
 
     QString readesn_com = conf.Get("ReadEsn", "Com").toString();
     qint32 readesn_baud = conf.Get("ReadEsn", "Baud").toInt();
+
+    QString siggen_com = conf.Get("PG", "Com").toString();
+    qint32 siggen_baud = conf.Get("PG", "Baud").toInt();
+
+// 连接外部设备
 
     // 连接 AutoLine
     if(m_AutoLine){
@@ -184,9 +196,30 @@ void MainWindow::onUILoaded()
         }
     }
 
+    // 连接 SigGenerator
+    if(m_SigGenerator){
+        bool open = m_SigGenerator->connectDevice(siggen_com, siggen_baud);
+        if(open){
+            log.info("SigGeneratro COM 打开.");
+        }else{
+            log.info("SigGeneratro COM 打开失败.");
+        }
+    }
 }
 
+// 运行模式 （手动|自动）-------------------------------------------------------
+bool MainWindow::setAutoMode(bool mode)
+{
+    emit sig_autoModeStateChanged(mode);
+    return this->m_autoMode = mode;
+}
 
+bool MainWindow::isAutoMode()
+{
+    return this->m_autoMode;
+}
+
+// --------------------------------------------------------------------------
 void MainWindow::slot_onLMicRecordingOver()
 { //录制结束 L
     ui->widgetShowInfo->stopTimer();
@@ -208,6 +241,19 @@ void MainWindow::slot_onRMicRecordingOver()
     log.blue("录制结束 R");
     emit checkAllRecordOver();
 }
+
+// 两麦克风都录制结束时
+void MainWindow::onCheckAllRecordOver()
+{
+    if(m_recordCount[0] == true &&
+       m_recordCount[1] == true){
+        log.warn("录制流程结束.");
+        emit allRecordOver();
+    }
+}
+
+
+// --------------------------------------------------------------------------
 
 void MainWindow::initConfig()
 {
@@ -289,6 +335,7 @@ void MainWindow::resetConfig()
 
 }
 
+// --------------------------------------------------------------------------
 void MainWindow::loadAutoProcess()
 {
     QString process_file = QCoreApplication::applicationDirPath() + "\\process.xls";
@@ -412,15 +459,14 @@ void MainWindow::startCustomTestAudio()
         return ;
     }
 
-
-
-
+    // Start
+    emit custom_cmd_done(false);
 }
 
 void MainWindow::custom_do_sleep(quint64 duration)
 {
         delaymsec(duration);
-        emit custom_cmd_done();
+        emit custom_cmd_done(false);
 }
 
 void MainWindow::custom_do_record(quint64 duration)
@@ -428,57 +474,110 @@ void MainWindow::custom_do_record(quint64 duration)
     emit sig_startRecording(duration);
 }
 
+void MainWindow::custom_do_record_done()
+{
+    emit custom_cmd_done(false);
+}
+
 void MainWindow::custom_do_sendcmd2pg(const QString &cmd)
 {
     if(m_SigGenerator){
         m_SigGenerator->sendCmd(cmd);
     }
-    emit custom_cmd_done();
+    emit custom_cmd_done(false);
 }
 
 void MainWindow::custom_do_sendcmd2mnt(const QString &cmd)
 {
-    emit custom_cmd_done();
+    emit custom_cmd_done(false);
 }
 
 void MainWindow::custom_do_set_order(const QString & first_speaker)
 {
     if(first_speaker == "L"){
         m_firstSpeaker = "L";
-    }else{
+    }else if(first_speaker == "R"){
         m_firstSpeaker = "R";
+    }else{
+        m_firstSpeaker = "L";
+        log.warn("Custom Cmd [set order] ERROR");
     }
-    emit custom_cmd_done();
+    log.warn("首次发声麦克风 : " + m_firstSpeaker);
+
+    emit custom_cmd_done(false);
 }
 
 void MainWindow::custom_do_get_audio_info(int order, quint64 tick, quint64 tick_range, quint64 freq, quint64 freq_range)
 {
+
+    qint64 f1 = freq-freq_range;
+    qint64 f2 = freq+freq_range;
+
+    qint64 t1 = tick-tick_range;
+    qint64 t2 = tick+tick_range;
+
     if(1 == order){
+        //校验
+        if(t1<0 || t2>m_recordDuration1){
+            //error
+            log.warn("get audio info error!");
+            log.warn("取样时间范围大于或小于录制时间！");
+        }
+
+        m_testTime1[0] = t1;
+        m_testTime1[1] = t2;
+        m_accept_pitch1[0]  = f1;
+        m_accept_pitch1[1]  = f2;
+
+        emit custom_cmd_done(false); //参数设定成功
 
     }else if(2 == order){
+        //校验
+        if(t1<0 || t2>m_recordDuration2){
+            //error
+            log.warn("get audio info error!");
+            log.warn("取样时间范围大于或小于录制时间！");
+        }
+
+        m_testTime2[0] = t1;
+        m_testTime2[1] = t2;
+        m_accept_pitch2[0]  = f1;
+        m_accept_pitch2[1]  = f2;
+        emit custom_cmd_done(false); //参数设定成功
 
     }else{
         //error
+        log.warn("get audio info error!");
+        log.warn("不存在指定次序录制的音频!");
+
+        emit custom_cmd_done(true); //参数设定失败
     }
 }
 
-void MainWindow::custom_do_record_done()
-{
-    emit custom_cmd_done();
-}
-
-
-
 void MainWindow::custom_do_autotest_end()
 {
+
+    // 载入音频
+    // 载入csv
+
     // 判断并输出结果
+
+    // 告知结束流程
+
+    emit custom_cmd_done(false); //测试流程结束
 }
 
-void MainWindow::customTestAudio()
+void MainWindow::customTestAudio(bool has_err)
 {
     static quint64 step = 1;
     static QString cmd;
     static QList<QString> cmd_args;
+
+    // 发生错误， 步骤置1
+    if(has_err){
+        step = 1;
+        return;
+    }
 
     if(step < m_processTable_rows){
 
@@ -496,6 +595,10 @@ void MainWindow::customTestAudio()
         emit parseCmd(cmd, cmd_args);
 
         ++step;
+    }else{
+        cmd.clear();
+        cmd_args.clear();
+        step = 1; //置为初始位置
     }
 }
 
@@ -503,14 +606,31 @@ void MainWindow::customCmdParser(const QString& cmd, const QList<QString>&cmd_ar
 {
     // 解析 指令 + 参数 并执行.
 
-    if(cmd == "sleep"){
+    if(cmd == "autotest_start"){
+        // do nothing
+
+    }else if(cmd == "sleep"){
+
         quint64 duration = cmd_args.at(0).toUInt();
         custom_do_sleep(duration);
+
     }else if(cmd == "record"){
+
         quint64 duration = cmd_args.at(0).toUInt();
         custom_do_record(duration);
+
+    }else if(cmd == "sendcmd2pg"){
+
+        custom_do_sendcmd2pg(cmd_args.at(0));
+
+    }else if(cmd == "sendcmd2mnt"){
+
+        custom_do_sendcmd2mnt(cmd_args.at(0));
+
     }else if(cmd == "set_order"){
+
         custom_do_set_order(cmd_args.at(0));
+
     }else if(cmd == "get_audio_info"){
 
         custom_do_get_audio_info(
@@ -521,45 +641,22 @@ void MainWindow::customCmdParser(const QString& cmd, const QList<QString>&cmd_ar
                     cmd_args.at(4).toUInt()
                     );
 
-    }else if(cmd == "sendcmd2pg"){
-        custom_do_sendcmd2mnt(cmd_args.at(0));
-    }else if(cmd == "sendcmd2mnt"){
-        custom_do_sendcmd2mnt(cmd_args.at(0));
-    }else if(cmd == "autotest_start"){
-        // do nothing
     }else if(cmd == "autotest_end"){
 
         // 假定参数设定完毕， 音频录制完毕
         // 判断并输出结果
         custom_do_autotest_end();
+
     }else{
+
         qDebug() << "未知指令";
         log.warn("未知指令");
+
     }
 }
 
+// --------------------------------------------------------------------------
 
-// 两麦克风都录制结束时
-void MainWindow::onCheckAllRecordOver()
-{
-    if(m_recordCount[0] == true &&
-       m_recordCount[1] == true){
-        log.warn("录制流程结束.");
-        emit allRecordOver();
-    }
-}
-
-// 注意安全
-bool MainWindow::setAutoMode(bool mode)
-{
-    emit sig_autoModeStateChanged(mode);
-    return this->m_autoMode = mode;
-}
-
-bool MainWindow::isAutoMode()
-{
-    return this->m_autoMode;
-}
 
 void MainWindow::slot_onAutoModeStateChanged(bool mode)
 {
@@ -582,6 +679,8 @@ void MainWindow::slot_onAutoModeStateChanged(bool mode)
     }
 }
 
+
+// --------------------------------------------------------------------------
 void MainWindow::themeSetting()
 {
     // 主题设定
@@ -598,6 +697,7 @@ void MainWindow::themeSetting()
     qDebug()<<"current applicationDirPath: "<<QCoreApplication::applicationDirPath();
     qDebug()<<"current currentPath: "<<QDir::currentPath();
 }
+
 
 void MainWindow::pathSetting()
 {
@@ -659,8 +759,10 @@ void MainWindow::devicesSetting()
     // PG
     m_SigGenerator = new AutoLine;
     connect(m_SigGenerator, &AutoLine::connectStatusChanged, this, &MainWindow::slot_onAutoLineConnectStatusChanged);
-
 }
+
+
+// --------------------------------------------------------------------------
 
 void MainWindow::uiInit()
 {
@@ -677,6 +779,8 @@ void MainWindow::uiInit()
     textedit4log.verticalScrollBar()->hide();
     ui->verticalLayout4log->addWidget(&textedit4log);
 }
+
+// --------------------------------------------------------------------------
 
 ///////////////////////////////////////////////////////////////////
 /*
@@ -711,6 +815,8 @@ void MainWindow::slot_startAutoTest()
     emit sig_startRecording(m_wavDuration);
 }
 
+
+// --------------------------------------------------------------------------
 
 void MainWindow::slot_onCodeReaderReceiveBarcode(QString barcode)
 {
@@ -822,6 +928,9 @@ void MainWindow::on_btnStartRecord_clicked()
     ui->widgetShowInfo->startTimer();
     emit sig_startRecording(m_wavDuration);
 }
+
+// --------------------------------------------------------------------------
+
 void MainWindow::startTestAudio()
 {
 
@@ -859,6 +968,8 @@ void MainWindow::startTestAudio()
     emit sig_startTestAudio();
 }
 
+
+// --------------------------------------------------------------------------
 
 void MainWindow::slot_testAudio()
 {
@@ -969,29 +1080,30 @@ void MainWindow::slot_onAudioTestFinished()
     //时段2,左侧强度<右侧强度, 小于则正常
     llevel2 < rlevel2;
     */
-    quint64 accept_pitch1[2] = {900,1100};
-    quint64 accept_pitch2[2] = {1900,2100};
+
+//    quint64 accept_pitch1[2] = {900,1100};
+//    quint64 accept_pitch2[2] = {1900,2100};
 
     // 左侧 时段1
-    if(lpitch1 > accept_pitch1[0] && lpitch1 < accept_pitch1[1]){
+    if(lpitch1 > m_accept_pitch1[0] && lpitch1 < m_accept_pitch1[1]){
         log.info("左侧频率 时段1 正常");
     }else{
         goto ERROR_L;
     }
     // 左侧 时段2
-    if(lpitch2 > accept_pitch2[0] && lpitch2 < accept_pitch2[1]){
+    if(lpitch2 > m_accept_pitch2[0] && lpitch2 < m_accept_pitch2[1]){
         log.info("左侧频率 时段2 正常");
     }else{
         goto ERROR_L;
     }
     // 右侧 时段1
-    if(rpitch1 > accept_pitch1[0] && rpitch1 < accept_pitch1[1]){
+    if(rpitch1 > m_accept_pitch1[0] && rpitch1 < m_accept_pitch1[1]){
         log.info("右侧频率 时段1 正常");
     }else{
         goto ERROR_R;
     }
     // 右侧 时段2
-    if(rpitch2 > accept_pitch2[0] && rpitch2 < accept_pitch2[1]){
+    if(rpitch2 > m_accept_pitch2[0] && rpitch2 < m_accept_pitch2[1]){
         log.info("右侧频率 时段2 正常");
     }else{
         goto ERROR_R;
@@ -1025,6 +1137,8 @@ ERROR_BOTH:
     return;
 }
 
+// --------------------------------------------------------------------------
+
 void MainWindow::printResult(bool isOk, const QString& msg)
 {
     qDebug() << "pass:"<<m_cmd_pass;
@@ -1040,6 +1154,8 @@ void MainWindow::printResult(bool isOk, const QString& msg)
     }
 }
 
+
+// --------------------------------------------------------------------------
 
 void MainWindow::on_btnSetting4Model_clicked()
 {//机种管理
@@ -1091,7 +1207,7 @@ void MainWindow::on_btnSwitchRunningMode_clicked()
 void MainWindow::on_btnTest_clicked()
 {
     this->startTestAudio();
-}
+}// --------------------------------------------------------------------------
 
 QVector<QVector<QString>> loadExcel(QString strSheetName)
 {
@@ -1153,3 +1269,5 @@ QVector<QVector<QString>> loadExcel(QString strSheetName)
 
     return vecDatas;
 }
+
+// --------------------------------------------------------------------------

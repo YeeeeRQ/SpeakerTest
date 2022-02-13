@@ -31,9 +31,10 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
+
 QVector<QVector<QString>> loadExcel(QString strSheetName);
 
-////////////////////////////////////////////////////////////////////////////////
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -43,6 +44,7 @@ public:
     ~MainWindow();
     void closeEvent(QCloseEvent *event); //
 
+// -- 界面载入后，进行初始化
 signals:
     void uiLoaded();
 public:
@@ -50,56 +52,74 @@ public:
 private slots:
     void onUILoaded();
 
-private: // log
+// -- 主界面日志输出
+private:
     SimpleLog& log;
     QPlainTextEdit textedit4log;
 
-private: // config
+// -- 配置相关
+private:
     Config& conf = Config::getInstance();
     void initConfig();
     void saveConfig();  // 保存配置文件
     void loadConfig();  // 载入配置文件
     void resetConfig(); // 恢复默认配置
-//    QButtonGroup* mRadioGroup_runningmode;
-    QString m_outputDir; //音频录制存放目录
 
-    // AutoLine 相关指令
-    quint64 m_AutoTestDelay = 0;
-    QString m_cmd_start; // 接收到则开始自动测试流程
-    QString m_cmd_pass;  // 测试成功发送
-    QString m_cmd_fail;  // 测试失败发送
 
-private: // Test
-    QThread m_recordThread4L; //左侧录制线程
-    QThread m_recordThread4R; //右侧录制线程
-    RecordWorker * m_pRecWorkerL;
-    RecordWorker * m_pRecWorkerR;
-
-    QString m_firstSpeaker;
-
-    int m_micIndexL;       // 左麦克风序号
-    int m_micIndexR;       // 右麦克风序号
-    QString m_micL;        // 左麦克风
-    QString m_micR;        // 右麦克风
-
-    QString m_wavDir;      // 录制文件保存目录
-    quint64 m_wavDuration; // 录制时长
-
+// -- 音频测试流程
+private:
+    // 工作目录
     QString default_WorkDir;
     QString default_AudioTestDir;
 
     QString current_WorkDir;
     QString current_AudioTestDir;
 
-private: // 启动时载入自定义流程 process.xlsx
+    // Mic Device
+    RecordWorker * m_pRecWorkerL;
+    RecordWorker * m_pRecWorkerR;
+
+    QThread m_recordThread4L; //左侧录制线程
+    QThread m_recordThread4R; //右侧录制线程
+
+    QString m_micL;        // 左麦克风
+    QString m_micR;        // 右麦克风
+    int m_micIndexL;       // 左麦克风序号
+    int m_micIndexR;       // 右麦克风序号
+
+    QString m_outputDir;   //音频录制存放目录
+    QString m_wavDir;      // 录制文件保存目录
+
+    // 左右麦克风录制完毕标记 值为1时表示录制结束
+    bool m_recordCount[2]; // 0->L | 1->R
+
+// 手动测试
+    quint64 m_wavDuration; // 手动测试下单一录制时长
+
+// 自动测试
+    // 自动测试 首次发生麦克风
+    QString m_firstSpeaker; //首次发生麦克风
+
+    // 自动测试录制时长
+    quint64 m_recordDuration1;  //第1次录制时长
+    quint64 m_recordDuration2;  //第2次录制时长
+
+    quint64 m_accept_pitch1[2]; // 接受频率范围
+    quint64 m_accept_pitch2[2]; // 接受频率范围
+    quint64 m_testTime1[2]; // 测试时段
+    quint64 m_testTime2[2]; // 测试时段
+
+// 启动时载入自定义流程 关联文件:process.xlsx
+private:
     QVector<QVector<QString>> m_processTable;
     int m_processTable_rows;
     int m_processTable_cols;
+
+    bool m_customTestProcessIsOK = false;
+
     void loadAutoProcess();
     void processCmdParser(QString cmd);
 
-    //
-    bool m_customTestProcessIsOK = false;
     bool checkCustomTestProcess(); //检测自定义流程
     void startCustomTestAudio();
 
@@ -111,32 +131,26 @@ private: // 启动时载入自定义流程 process.xlsx
 
     void custom_do_get_audio_info(int order, quint64 tick, quint64 tick_range, quint64 freq,quint64 freq_range);
     void custom_do_autotest_end();
-    //
-private slots:
-    void custom_do_record_done();
 
-
-signals:
-    void parseCmd(const QString& cmd, const QList<QString>&cmd_args);
-    void custom_cmd_done();
-private slots:
-    void customTestAudio();
-    void customCmdParser(const QString& cmd, const QList<QString>&cmd_args);
-
-
-
-
-private:
-    bool m_recordCount[2]; // 0->L | 1->R
     void printResult(bool isOk, const QString& msg);
+
+
 signals:
     void checkAllRecordOver();
     void allRecordOver();
+
+    void parseCmd(const QString& cmd, const QList<QString>&cmd_args);
+    void custom_cmd_done(bool has_err);
+
 private slots:
+    void custom_do_record_done();
+    void customTestAudio(bool has_err);
+    void customCmdParser(const QString& cmd, const QList<QString>&cmd_args);
     void onCheckAllRecordOver();
 
-///////////////////////////////////////////
-// 测试模式 (手动|自动)
+
+
+// -- 测试模式 (手动|自动)
 private:
     bool m_autoMode = false;  // 自己保证安全
     bool setAutoMode(bool mode);
@@ -145,12 +159,24 @@ signals:
     void sig_autoModeStateChanged(bool mode);
 private slots:
     void slot_onAutoModeStateChanged(bool mode);
-///////////////////////////////////////////
 
-private: // device
-    CodeReader* m_CodeReader;
+
+// -- 外部设备
+private:
+
+    // AutoLine
     AutoLine* m_AutoLine;
+    quint64 m_AutoTestDelay = 0;
+    QString m_cmd_start; // 接收到则开始自动测试流程
+    QString m_cmd_pass;  // 测试成功发送
+    QString m_cmd_fail;  // 测试失败发送
+
+    // CodeReader
+    CodeReader* m_CodeReader;
+
+    // SigGenerator
     AutoLine* m_SigGenerator;
+
 
 private: // UI
     Ui::MainWindow *ui;
@@ -163,9 +189,7 @@ private: // UI
     void devicesSetting();
     void uiInit();
 
-    ///////////////////////////////////////////////////
-    void startTestAudio();      ///////////////////////
-    //////////////////////////////////////////////////
+    void startTestAudio();
 
 signals:
     void sig_startAutoTest(); //已接收到读卡器开始指令 自动测试流程开始
@@ -185,7 +209,6 @@ private slots:
     void slot_onLMicRecordingOver(); //左侧Mic录制结束
     void slot_onRMicRecordingOver(); //右侧Mic录制结束
 
-private slots:
     void slot_onCodeReaderReceiveBarcode(QString barcode);
     void slot_onCodeReaderConnectStatusChanged();
     void slot_onAutoLineReceiveCmd(QString rev_cmd);
@@ -193,13 +216,11 @@ private slots:
     void slot_onSigGeneratorConnectStatusChanged();
     void slot_onAutoTestConfigChanged();
 
-    //-------------------------------------
     void slot_startAutoTest();  // 自动测试流程
-
     void slot_testAudio();    // for startTestAudio
     void slot_onAudioTestFinished(); //音频检测后根据csv判断结果
-    //-------------------------------------
 
+// -- UI界面 槽函数
 private slots:
     void on_btnLockOption4Model_clicked();
     void on_btnSetting4Mic_clicked();
