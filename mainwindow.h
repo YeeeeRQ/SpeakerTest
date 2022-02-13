@@ -97,8 +97,8 @@ private:
     quint64 m_wavDuration; // 手动测试下单一录制时长
 
 // 自动测试
-    // 自动测试 首次发生麦克风
-    QString m_firstSpeaker; //首次发生麦克风
+    // 自动测试 首次发声麦克风
+    QString m_firstSpeaker; //首次发声的麦克风
 
     // 自动测试录制时长
     quint64 m_recordDuration1;  //第1次录制时长
@@ -122,7 +122,6 @@ private:
     bool m_customTestProcessIsOK = false;
 
     void loadAutoProcess();
-    void processCmdParser(QString cmd);
 
     bool checkCustomTestProcess(); //检测自定义流程
     void startCustomTestAudio();
@@ -132,12 +131,10 @@ private:
     void custom_do_sendcmd2pg(const QString& cmd);
     void custom_do_sendcmd2mnt(const QString& cmd);
     void custom_do_set_order(const QString & first_speaker);
-
     void custom_do_get_audio_info(int order, quint64 tick, quint64 tick_range, quint64 freq,quint64 freq_range);
     void custom_do_autotest_end();
 
     void printResult(bool isOk, const QString& msg);
-
 
 signals:
     void checkAllRecordOver();
@@ -150,6 +147,7 @@ private slots:
     void custom_do_record_done();
     void customTestAudio(bool has_err);
     void customCmdParser(const QString& cmd, const QList<QString>&cmd_args);
+//    void processCmdParser(QString cmd);
     void onCheckAllRecordOver();
 
 
@@ -167,10 +165,8 @@ private slots:
 
 // -- 外部设备
 private:
-
     // AutoLine
     AutoLine* m_AutoLine;
-    quint64 m_AutoTestDelay = 0;
     QString m_cmd_start; // 接收到则开始自动测试流程
     QString m_cmd_pass;  // 测试成功发送
     QString m_cmd_fail;  // 测试失败发送
@@ -180,7 +176,6 @@ private:
 
     // SigGenerator
     AutoLine* m_SigGenerator;
-
 
 private: // UI
     Ui::MainWindow *ui;
@@ -195,7 +190,7 @@ private: // UI
 
 
 signals:
-    void sig_startAutoTest(); //已接收到读卡器开始指令 自动测试流程开始
+    void sig_startAutoTest(); //已接收到读卡器开始指令 自动测试流程开始信号
     void sig_startRecording(quint64 duration); // 目录+时长以确定，开始录音
     void sig_startTestAudio(); // 手动模式 录音文件已就绪， 开始测试
     void sig_audioTestFinished();
@@ -219,11 +214,12 @@ private slots:
     void slot_onSigGeneratorConnectStatusChanged();
     void slot_onAutoTestConfigChanged();
 
-    void slot_startAutoTest();  // 自动测试流程
+    void slot_startAutoTest();  // 自动测试流程 (废弃)
+    void slot_startCustomAutoTest();  // 自动测试流程 (现用)
     void slot_testAudio();    // for startTestAudio
     void slot_onAudioTestFinished(); //音频检测后根据csv判断结果
 
-    void slot_testAudioInAutoMode();
+    void slot_getAudioInfo();
 
 // -- UI界面 槽函数
 private slots:
