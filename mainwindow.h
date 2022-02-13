@@ -44,28 +44,6 @@ public:
     ~MainWindow();
     void closeEvent(QCloseEvent *event); //
 
-// -- 界面载入后，进行初始化
-signals:
-    void uiLoaded();
-public:
-    void emitUILoaded();
-private slots:
-    void onUILoaded();
-
-// -- 主界面日志输出
-private:
-    SimpleLog& log;
-    QPlainTextEdit textedit4log;
-
-// -- 配置相关
-private:
-    Config& conf = Config::getInstance();
-    void initConfig();
-    void saveConfig();  // 保存配置文件
-    void loadConfig();  // 载入配置文件
-    void resetConfig(); // 恢复默认配置
-
-
 // -- 音频测试流程
 private:
     // 工作目录
@@ -182,11 +160,11 @@ private: // UI
     Setup4Mic * setup4mic = nullptr;
     Setup4AutoTest* setup4autotest = nullptr;
 
-    void themeSetting();
-    void pathSetting();
-    void configSetting();
-    void devicesSetting();
-    void uiInit();
+    void Setting4Theme();
+    void Setting4Path();
+    void Setting4Config();
+    void Setting4Devices();
+    void Setting4MainWindow(); // 界面载入后的设定
 
 
 signals:
@@ -220,6 +198,27 @@ private slots:
     void slot_onAudioTestFinished(); //音频检测后根据csv判断结果
 
     void slot_getAudioInfo();
+
+// -- 主界面日志输出
+private:
+    SimpleLog& log;
+    QPlainTextEdit textedit4log;
+
+// -- 配置相关
+private:
+    Config& conf = Config::getInstance();
+    void initConfig();  // 初始化配置文件
+    void loadConfig();  // 载入配置文件
+//    void saveConfig();  // 保存配置文件
+//    void resetConfig(); // 恢复默认配置
+
+// -- 界面载入后，进行初始化
+signals:
+    void MainWindowLoaded();
+public:
+    void emitMainWindowLoaded();
+private slots:
+    void onMainWindowLoaded();
 
 // -- UI界面 槽函数
 private slots:
