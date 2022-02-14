@@ -43,6 +43,11 @@ void SimpleLog::red(QString s)
     printWithColor(s, "red");
 }
 
+void SimpleLog::green(QString s)
+{
+    printWithColor(s, "green");
+}
+
 void SimpleLog::gray(QString s)
 {
     printWithColor(s, "gray");
@@ -56,8 +61,8 @@ void SimpleLog::clear()
 void SimpleLog::setupOutput()
 {
     if(output){
-        QFont font = QFont("Microsoft YaHei",20,2);
-        output->setFont(font);
+//        QFont font = QFont("Microsoft YaHei",20,2);
+//        output->setFont(font);
     }
 }
 

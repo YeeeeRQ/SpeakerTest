@@ -12,6 +12,8 @@
 #include <QTime>
 #include <QDate>
 #include <ActiveQt/QAxObject>
+#include <QMediaPlayer>
+#include <QMediaPlaylist>
 
 #include "CodeReader.h"
 #include "AutoLine.h"
@@ -51,10 +53,11 @@ private:
     QString default_WorkDir;
     QString default_AudioTestDir;
 
-    QString current_WorkDir;
-    QString current_AudioTestDir;
+    QString m_outputDir;   // 音频录制存放(主目录)
+    QString m_wavDir;      // 录制文件保存目录 (主目录->机种->日期时间)
 
     // Mic Device
+    QSet<QString> audioInputs;
     RecordWorker * m_pRecWorkerL;
     RecordWorker * m_pRecWorkerR;
 
@@ -66,8 +69,6 @@ private:
     int m_micIndexL;       // 左麦克风序号
     int m_micIndexR;       // 右麦克风序号
 
-    QString m_outputDir;   // 音频录制存放目录 ??
-    QString m_wavDir;      // 录制文件保存目录 ??
 
     // 左右麦克风录制完毕标记 值为1时表示录制结束
     bool m_recordCount[2]; // 0->L | 1->R
@@ -234,6 +235,7 @@ private slots:
     void on_btnSwitchRunningMode_clicked();
     void on_btnTest_clicked();
     void on_btnLockOption4Model_clicked();
+    void on_btnDebug_clicked();
 };
 #endif // MAINWINDOW_H
 

@@ -25,17 +25,9 @@ int main(int argc, char *argv[])
 
     qDebug() << "Thread ID(Main): " << QThread::currentThreadId() << Qt::endl;
 
-//    QString ttf_file = QCoreApplication::applicationDirPath() + "font/"+"SourceHanSansK-Medium.ttf";
-//    onLoadFont(a,"黑体");
-
     //根据添加时id打印字体名
     int id =QFontDatabase::addApplicationFont("://font/SourceHanSansK-Regular.ttf");
-    qDebug()<<"family"<<QFontDatabase::applicationFontFamilies(id);
-
-    //使用方式和普通字体一样
-//    QFont font;
-//    font.setFamily("Source Han Sans K Regular");
-//    font.setPixelSize(30);
+//    qDebug()<<"family"<<QFontDatabase::applicationFontFamilies(id);
 
     MainWindow w;
     w.show();

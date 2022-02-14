@@ -22,6 +22,7 @@ public:
     void warn(QString s);
     void blue(QString s);
     void red(QString s);
+    void green(QString s);
     void gray(QString s);
     void clear();
     void setupOutput();

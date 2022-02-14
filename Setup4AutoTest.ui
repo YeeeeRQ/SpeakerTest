@@ -183,6 +183,12 @@ QHeaderView::section/*表头样式*/
                   </item>
                   <item>
                    <widget class="QLineEdit" name="lineEdit_duration1">
+                    <property name="minimumSize">
+                     <size>
+                      <width>200</width>
+                      <height>0</height>
+                     </size>
+                    </property>
                     <property name="text">
                      <string>250</string>
                     </property>
@@ -210,6 +216,12 @@ QHeaderView::section/*表头样式*/
                    <widget class="QLineEdit" name="lineEdit_durationRange1">
                     <property name="enabled">
                      <bool>false</bool>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>200</width>
+                      <height>0</height>
+                     </size>
                     </property>
                     <property name="text">
                      <string>100</string>
@@ -304,6 +316,12 @@ QHeaderView::section/*表头样式*/
                   </item>
                   <item>
                    <widget class="QLineEdit" name="lineEdit_duration2">
+                    <property name="minimumSize">
+                     <size>
+                      <width>200</width>
+                      <height>0</height>
+                     </size>
+                    </property>
                     <property name="text">
                      <string>250</string>
                     </property>
@@ -331,6 +349,12 @@ QHeaderView::section/*表头样式*/
                    <widget class="QLineEdit" name="lineEdit_durationRange2">
                     <property name="enabled">
                      <bool>false</bool>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>200</width>
+                      <height>0</height>
+                     </size>
                     </property>
                     <property name="text">
                      <string>100</string>
