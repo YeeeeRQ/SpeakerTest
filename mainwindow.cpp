@@ -2,6 +2,7 @@
 #include <QScrollBar>
 #include <numeric>
 #include <typeinfo>
+#include <QMessageBox>
 
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
@@ -17,17 +18,12 @@
 
 void MainWindow::fordebug()
 {
-    ui->comboBoxModelName->addItem("TEST_01");
-    ui->comboBoxModelName->addItem("TEST_02");
-    ui->comboBoxModelName->addItem("TEST_03");
-    ui->comboBoxModelName->addItem("TEST_04");
-
 }
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     ,log(SimpleLog::getInstance(&textedit4log))
-    , ui(new Ui::MainWindow)
+    ,ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
@@ -46,6 +42,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     // 模式切换 （自动|手动）
     connect(this, &MainWindow::sig_autoModeStateChanged, this, &MainWindow::slot_onAutoModeStateChanged);
+
+    // 载入机种
+    connect(this, &MainWindow::sig_loadModel, this, &MainWindow::loadModel);
 
 
 // Test --------------------------------------------------------------------------------------------
@@ -696,6 +695,17 @@ void MainWindow::slot_onAutoModeStateChanged(bool mode)
 
 void MainWindow::Setting4MainWindow()
 {
+
+    // 机种载入 数据库文件检测
+    QString s_dbfile = QCoreApplication::applicationDirPath() + "\\Model.db";
+    QFileInfo dbfile(s_dbfile);
+    if(!dbfile.isFile()){
+        QMessageBox::critical(this,"文件缺失", "机种数据库文件不存在", QMessageBox::Ok);
+
+    }else{
+        emit sig_loadModel(s_dbfile);
+    }
+
     // 设定程序窗口标题
     this->setWindowTitle(tr("双通道扬声器测试"));
 
@@ -707,6 +717,7 @@ void MainWindow::Setting4MainWindow()
 // QPlainTextEdit log 输出设定
 //    textedit4log.setEnabled(false);
 //    textedit4log.verticalScrollBar()->hide();
+    textedit4log.setReadOnly(true);
     textedit4log.setMinimumWidth(400);
     ui->verticalLayout4log->addWidget(&textedit4log);
 
@@ -737,6 +748,8 @@ void MainWindow::Setting4MainWindow()
 // UI界面 音频测试设定
     setup4autotest = new Setup4AutoTest();
     connect(setup4autotest, &Setup4AutoTest::autoTestConfigChanged, this, &MainWindow::slot_onAutoTestConfigChanged);
+
+    setup4model = new Setup4Model();
 }
 
 // --------------------------------------------------------------------------
@@ -1066,6 +1079,38 @@ void MainWindow::slot_getAudioInfo()
     log.info("...");
 }
 
+void MainWindow::loadModel(const QString &dbfile)
+{
+
+    // 读取指定数据库文件
+    // Table : ModelTable
+    // col   : ModelName
+
+
+    QSqlDatabase db;
+
+    if(dbfile.isEmpty())  //选择SQL Lite数据库文件
+       return;
+
+    db=QSqlDatabase::addDatabase("QSQLITE"); //添加 SQL LITE数据库驱动
+    db.setDatabaseName(dbfile); //设置数据库名称
+
+    if (!db.open())   //打开数据库
+    {
+        QMessageBox::warning(this, "错误", "打开数据库失败",
+                                 QMessageBox::Ok,QMessageBox::NoButton);
+        return;
+    }
+    ui->comboBoxModelName->clear();
+    QSqlQuery query(QString("select ModelName from ModelTable"));
+    if (query.next())
+    {
+        QString item = query.value(0).toString();
+        ui->comboBoxModelName->addItem(item);
+    }
+    db.close();
+}
+
 
 void MainWindow::slot_onAudioTestFinished()
 {
@@ -1337,6 +1382,7 @@ void MainWindow::Setting4Config()
             log.info("创建"+m_outputDir+"成功!");
         }
     }
+
 }
 
 void MainWindow::Setting4Devices()
@@ -1411,6 +1457,8 @@ void MainWindow::Setting4Devices()
 void MainWindow::on_btnSetting4Model_clicked()
 {//机种管理
 
+    setup4model->setHidden(true);
+    setup4model->show();
 
 }
 

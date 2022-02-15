@@ -154,7 +154,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="700"/>
+        <location filename="mainwindow.cpp" line="709"/>
         <source>双通道扬声器测试</source>
         <translation type="unfinished"></translation>
     </message>
@@ -440,13 +440,18 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="setup4model.ui" line="38"/>
-        <source>删除</source>
+        <location filename="setup4model.ui" line="61"/>
+        <source>保存</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="setup4model.ui" line="58"/>
-        <source>退出</source>
+        <location filename="setup4model.ui" line="71"/>
+        <source>取消</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="setup4model.ui" line="38"/>
+        <source>删除</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

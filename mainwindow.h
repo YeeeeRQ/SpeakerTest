@@ -162,6 +162,7 @@ private: // UI
     Ui::MainWindow *ui;
     Setup4Mic * setup4mic = nullptr;
     Setup4AutoTest* setup4autotest = nullptr;
+    Setup4Model* setup4model= nullptr;
 
     void Setting4Theme();
     void Setting4Path();
@@ -182,6 +183,7 @@ signals:
     void sig_setRecordInputR(const QString& dev);
 
     void sig_loadMicConf(int l_idx, int r_idx);
+    void sig_loadModel(const QString& dbfile);
 
 private slots:
     void slot_onSetupMic(int l_idx, const QString& lmic, int r_idx, const QString& rmic);
@@ -201,6 +203,8 @@ private slots:
     void slot_onAudioTestFinished(); //音频检测后根据csv判断结果
 
     void slot_getAudioInfo();
+
+    void loadModel(const QString & dbfile);
 
 private:
     void fordebug();
