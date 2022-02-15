@@ -35,7 +35,7 @@ QHeaderView::section/*表头样式*/
 }</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout_10">
+   <layout class="QVBoxLayout" name="verticalLayout_11">
     <item>
      <widget class="QSplitter" name="splitter_2">
       <property name="orientation">
@@ -305,6 +305,24 @@ QHeaderView::section/*表头样式*/
                      </size>
                     </property>
                    </spacer>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="btnOpenWithExplorer">
+                    <property name="minimumSize">
+                     <size>
+                      <width>150</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <pointsize>10</pointsize>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>资源管理器中打开</string>
+                    </property>
+                   </widget>
                   </item>
                   <item>
                    <widget class="QPushButton" name="btnLoadTempWavDir">

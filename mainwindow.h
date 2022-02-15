@@ -89,6 +89,7 @@ private:
     quint64 m_testTime1[2]; // 测试时段
     quint64 m_testTime2[2]; // 测试时段
 
+    void clearFileList();
 
     void startTestAudio();
     void startTestAudioInAutoMode();
@@ -236,6 +237,7 @@ private slots:
     void on_btnTest_clicked();
     void on_btnLockOption4Model_clicked();
     void on_btnDebug_clicked();
+    void on_btnOpenWithExplorer_clicked();
 };
 #endif // MAINWINDOW_H
 
