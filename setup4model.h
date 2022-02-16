@@ -17,8 +17,17 @@ public:
     explicit Setup4Model(QWidget *parent = nullptr);
     ~Setup4Model();
 
+signals:
+    void closeWindow(QString dbfile);
+
+public slots:
+    void openDB(const QString & dbFile);
+
+
 private:
     Ui::Setup4Model *ui;
+    void closeEvent(QCloseEvent *event) override;
+    QString m_dbfile;
 
 
 private:
@@ -37,8 +46,6 @@ private:
 
     void on_currentChanged(const QModelIndex &current, const QModelIndex &previous);
     void on_currentRowChanged(const QModelIndex &current, const QModelIndex &previous);
-private slots:
-    void openDB(const QString & dbFile);
 
 private slots:
     void on_btnNewRecord_clicked();

@@ -47,6 +47,8 @@ public:
     void closeEvent(QCloseEvent *event); //
     void resizeEvent(QResizeEvent* event);
 
+private:
+    QFileInfo fi;
 // -- 音频测试流程
 private:
     // 工作目录
@@ -170,6 +172,7 @@ private: // UI
     void Setting4Devices();
     void Setting4MainWindow(); // 界面载入后的设定
 
+    void setWavDir4UI(const QString &dir);
 
 signals:
     void sig_startAutoTest(); //已接收到读卡器开始指令 自动测试流程开始信号
@@ -184,6 +187,8 @@ signals:
 
     void sig_loadMicConf(int l_idx, int r_idx);
     void sig_loadModel(const QString& dbfile);
+
+    void setup4model_loadDB(QString dbfile);
 
 private slots:
     void slot_onSetupMic(int l_idx, const QString& lmic, int r_idx, const QString& rmic);
@@ -204,7 +209,7 @@ private slots:
 
     void slot_getAudioInfo();
 
-    void loadModel(const QString & dbfile);
+    void loadModel(QString dbfile);
 
 private:
     void fordebug();

@@ -144,8 +144,12 @@ void MainWindow::clearFileList()
     };
     for(int i =0;i<list.size();++i){
         QFile file_temp(m_wavDir + "\\" +list[i]);
-        qDebug() << "Delete:" << file_temp;
-        file_temp.remove();
+
+        fi.setFile(file_temp);
+        if(fi.isFile()){
+            qDebug() << "Delete:" << file_temp;
+            file_temp.remove();
+        }
     }
 
 }
@@ -295,9 +299,15 @@ void MainWindow::initConfig()
 
 void MainWindow::loadConfig()
 {
-    //从配置文件中载入目录设定
-    m_outputDir = conf.Get("Audio", "Path").toString();
-    m_wavDir = m_outputDir + "\\temp";
+    //从配置文件中载入 主目录+wav输出目录 设定
+    QString temp_dir = conf.Get("Audio", "Path").toString();
+    if(QFile::exists(temp_dir)){
+        m_outputDir = conf.Get("Audio", "Path").toString();
+        m_wavDir = m_outputDir + "\\temp";
+    }else{
+        m_outputDir.clear();
+        m_wavDir.clear();
+    }
 
     m_wavDuration  = conf.Get("Audio", "RecordDuration").toUInt();
 
@@ -434,13 +444,24 @@ void MainWindow::custom_do_record(quint64 order,quint64 duration)
     log.info(m_micR);
 
     // 设定录制名称
-    QString wavdir = ui->lineEdit4WavDir->text();
+//    QString wavdir = ui->lineEdit4WavDir->text();
+    static QStringList first_wav{"\\1L.wav", "\\1R.wav"};
+    static QStringList second_wav{"\\2L.wav", "\\2R.wav"};
+
+    fi.setFile(m_wavDir);
+    if(!fi.isDir()){
+        // 输出文件夹不存在
+        log.warn("录制异常：输出文件夹不存在");
+        emit custom_cmd_done("ERROR");
+        return;
+    }
+
     if(order == 1){
-        m_pRecWorkerL->setOutputFile(wavdir+ "\\1L.wav");
-        m_pRecWorkerR->setOutputFile(wavdir+ "\\1R.wav");
+        m_pRecWorkerL->setOutputFile(m_wavDir + first_wav[0]);
+        m_pRecWorkerR->setOutputFile(m_wavDir + first_wav[1]);
     }else if(order == 2){
-        m_pRecWorkerL->setOutputFile(wavdir+ "\\2L.wav");
-        m_pRecWorkerR->setOutputFile(wavdir+ "\\2R.wav");
+        m_pRecWorkerL->setOutputFile(m_wavDir + second_wav[0]);
+        m_pRecWorkerR->setOutputFile(m_wavDir + second_wav[1]);
     }else{
         log.warn("录制不能次数>2");
         emit custom_cmd_done("ERROR");
@@ -749,7 +770,26 @@ void MainWindow::Setting4MainWindow()
     setup4autotest = new Setup4AutoTest();
     connect(setup4autotest, &Setup4AutoTest::autoTestConfigChanged, this, &MainWindow::slot_onAutoTestConfigChanged);
 
+// UI界面 机种管理
     setup4model = new Setup4Model();
+    connect(this, &MainWindow::setup4model_loadDB,setup4model, &Setup4Model::openDB);
+    connect(setup4model, &Setup4Model::closeWindow, this, &MainWindow::loadModel);
+
+}
+
+void MainWindow::setWavDir4UI(const QString & dir)
+{
+    fi.setFile(dir);
+    if(fi.isDir() && fi.exists()){
+        QString new_dir = QDir::toNativeSeparators(dir);
+        ui->lineEdit4WavDir->setText(new_dir);
+        ui->lineEdit4WavDir->setToolTip(new_dir);
+    }else{
+        log.info("WAV输出目录设定有误.");
+        ui->lineEdit4WavDir->setText("");
+        ui->lineEdit4WavDir->setToolTip("");
+    }
+
 }
 
 // --------------------------------------------------------------------------
@@ -901,22 +941,41 @@ void MainWindow::slot_onSetupMic(int l_idx, const QString &lmic, int r_idx, cons
 
 void MainWindow::on_btnLoadWavDir_clicked()
 {
-    this->m_wavDir = QFileDialog::getExistingDirectory();
-    ui->lineEdit4WavDir->setText(m_wavDir);
-    ui->lineEdit4WavDir->setToolTip(m_wavDir);
-    log.warn(m_wavDir);
+    QString temp_dir = QFileDialog::getExistingDirectory();
+    fi.setFile(temp_dir);
+
+    if(fi.isDir()){
+        m_wavDir = temp_dir;
+        setWavDir4UI(m_wavDir);
+    }else{
+        // do nothing
+        log.warn("载入目录为空.");
+    }
 }
 
 void MainWindow::on_btnStartRecord_clicked()
 {//Start Record
     // 输出 当前麦克风
+
+
+
+
+
     this->clearFileList();
 
     log.info(m_micL);
     log.info(m_micR);
-    QString wavdir = ui->lineEdit4WavDir->text();
-    m_pRecWorkerL->setOutputFile(wavdir+ "\\L.wav");
-    m_pRecWorkerR->setOutputFile(wavdir+ "\\R.wav");
+
+
+    // 输出文件夹检测
+    fi.setFile(m_wavDir);
+    if(!fi.isDir()){
+        log.warn("输出目录未指定!");
+        return;
+    }
+
+    m_pRecWorkerL->setOutputFile(QDir::toNativeSeparators(m_wavDir+ "\\L.wav"));
+    m_pRecWorkerR->setOutputFile(QDir::toNativeSeparators(m_wavDir+ "\\R.wav"));
 
     // Start Record
     m_wavDuration = ui->lineEditDurationOfRecord->text().toUInt();
@@ -952,19 +1011,25 @@ void MainWindow::startTestAudio()
 //    log.clear();
 
 
-    QString workdir = ui->lineEdit4WavDir->text().trimmed();
-    QString wavL =  QDir::toNativeSeparators(workdir + WAV_FILE_L);
-    QString wavR =  QDir::toNativeSeparators(workdir + WAV_FILE_R);
+//    QString workdir = ui->lineEdit4WavDir->text().trimmed();
+//    QString workdir = m_wavDir;
 
-    if(workdir.isEmpty()){
+    QString wavL =  QDir::toNativeSeparators(m_wavDir + WAV_FILE_L);
+    QString wavR =  QDir::toNativeSeparators(m_wavDir + WAV_FILE_R);
+
+    fi.setFile(m_wavDir);
+    if(!fi.isDir()){
         log.warn("未指定wav文件存放目录！");
         fileIsOK = false;
     }
-    if(!QFile::exists(wavL)){
+
+    fi.setFile(wavL);
+    if(!fi.isFile()){
         log.warn("指定目录下 \"L.wav\" 文件不存在！");
         fileIsOK = false;
     }
-    if(!QFile::exists(wavR)){
+    fi.setFile(wavR);
+    if(!fi.isFile()){
         log.warn("指定目录下 \"R.wav\" 文件不存在！");
         fileIsOK = false;
     }
@@ -978,7 +1043,8 @@ void MainWindow::startTestAudio()
         emit sig_startTestAudio();
 
     }else{
-        log.warn("dir: "+workdir);
+        log.warn("测试失败!");
+        log.warn("dir: "+m_wavDir);
         log.warn("file: "+wavL);
         log.warn("file: "+wavR);
     }
@@ -987,23 +1053,21 @@ void MainWindow::startTestAudio()
 // 自定义测试流程 1 开始音频测试 音频载入前检测
 void MainWindow::startTestAudioInAutoMode()
 {
-//    textedit4log.clear();
-//    log.clear();
-    QString workdir = ui->lineEdit4WavDir->text().trimmed();
 
-    QString wav1L =  QDir::toNativeSeparators(workdir + "\\1L.wav");
-    QString wav1R =  QDir::toNativeSeparators(workdir + "\\1R.wav");
+    //WAV文件输入检测
+    QString wav1L =  QDir::toNativeSeparators(m_wavDir + "\\1L.wav");
+    QString wav1R =  QDir::toNativeSeparators(m_wavDir + "\\1R.wav");
 
-    QString wav2L =  QDir::toNativeSeparators(workdir + "\\2L.wav");
-    QString wav2R =  QDir::toNativeSeparators(workdir + "\\2R.wav");
+    QString wav2L =  QDir::toNativeSeparators(m_wavDir + "\\2L.wav");
+    QString wav2R =  QDir::toNativeSeparators(m_wavDir + "\\2R.wav");
 
-    qDebug() << "workdir: " << workdir;
+    qDebug() << "workdir: " << m_wavDir;
     qDebug() << "wav1l: " << wav1L;
     qDebug() << "wav1r: " << wav1R;
     qDebug() << "wav2l: " << wav2L;
     qDebug() << "wav2r: " << wav2R;
 
-    if(workdir.isEmpty()){
+    if(m_wavDir.isEmpty()){
         log.warn("未指定音频存放目录！");
         return;
     }
@@ -1026,7 +1090,8 @@ void MainWindow::startTestAudioInAutoMode()
 void MainWindow::slot_testAudio()
 {
     //调用ConsoleAppAudioTest.exe 输出CSV测试结果
-    QString target_dir = ui->lineEdit4WavDir->text().trimmed();
+//    QString target_dir = ui->lineEdit4WavDir->text().trimmed();
+    QString target_dir = m_wavDir;
 
     QString app = QDir::toNativeSeparators(QCoreApplication::applicationDirPath() + "\\AudioTest\\ConsoleAppAudioTest.exe");
 
@@ -1057,7 +1122,8 @@ void MainWindow::slot_testAudio()
 void MainWindow::slot_getAudioInfo()
 {
     //调用ConsoleAppAudioTest.exe 输出CSV测试结果
-    QString target_dir = ui->lineEdit4WavDir->text().trimmed();
+//    QString target_dir = ui->lineEdit4WavDir->text().trimmed();
+    QString target_dir = m_wavDir;
 
     QString app = QDir::toNativeSeparators(QCoreApplication::applicationDirPath() + "\\AudioTest\\ConsoleAppAudioTest.exe");
 
@@ -1079,7 +1145,7 @@ void MainWindow::slot_getAudioInfo()
     log.info("...");
 }
 
-void MainWindow::loadModel(const QString &dbfile)
+void MainWindow::loadModel(QString dbfile)
 {
 
     // 读取指定数据库文件
@@ -1103,12 +1169,15 @@ void MainWindow::loadModel(const QString &dbfile)
     }
     ui->comboBoxModelName->clear();
     QSqlQuery query(QString("select ModelName from ModelTable"));
-    if (query.next())
+    while (query.next())
     {
         QString item = query.value(0).toString();
         ui->comboBoxModelName->addItem(item);
     }
     db.close();
+
+    //setup4model 打开数据库
+
 }
 
 
@@ -1117,7 +1186,8 @@ void MainWindow::slot_onAudioTestFinished()
     //已获取CSV测试结果， 开始判断
 
     //    QString csv_file = current_AudioTestDir + "\\test.csv";
-    QString csv_file = ui->lineEdit4WavDir->text().trimmed() + "\\test.csv";
+//    QString csv_file = ui->lineEdit4WavDir->text().trimmed() + "\\test.csv";
+    QString csv_file = m_wavDir+ "\\test.csv";
     qDebug() << csv_file;
     log.blue(csv_file);
 
@@ -1342,6 +1412,7 @@ void MainWindow::Setting4Path()
     if(!dir.exists(default_WorkDir)){
         dir.mkdir(default_WorkDir);
     }
+
     if(!dir.exists(default_AudioTestDir)){
         dir.mkdir(default_AudioTestDir);
     }
@@ -1349,13 +1420,17 @@ void MainWindow::Setting4Path()
     if(!dir.exists(m_outputDir)){
         dir.mkdir(m_outputDir);
     }
+
     if(!dir.exists(m_wavDir)){
         dir.mkdir(m_wavDir);
     }
 
-    ui->lineEdit4WavDir->setText(m_wavDir);
-    ui->lineEdit4WavDir->setToolTip(m_wavDir);
-
+    fi.setFile(m_wavDir);
+    if(fi.isDir()){
+        setWavDir4UI(m_wavDir);
+    }else{
+        log.warn("Setting4Path: WAV目录设定失败.");
+    }
 }
 
 void MainWindow::Setting4Config()
@@ -1367,7 +1442,7 @@ void MainWindow::Setting4Config()
 
     // 主要输出目录检测 m_outputDir
     if(m_outputDir.isEmpty()){
-        log.warn("异常！ 主要输出目录未设定。");
+        log.warn("异常！ 主目录未设定。");
     }else{
         log.info("主目录:"+m_outputDir);
     }
@@ -1457,9 +1532,18 @@ void MainWindow::Setting4Devices()
 void MainWindow::on_btnSetting4Model_clicked()
 {//机种管理
 
-    setup4model->setHidden(true);
-    setup4model->show();
+//    setup4model->setHidden(true);
+//    setup4model->show();
+    if(!setup4model){
+        qDebug() << "UI (Setup4Model) 未载入！";
+        return ;
+    }
 
+    // 载入数据库文件
+    emit setup4model_loadDB(QCoreApplication::applicationDirPath() + "\\Model.db");
+
+    setup4model->setWindowModality(Qt::ApplicationModal);
+    setup4model->show();
 }
 
 
@@ -1487,9 +1571,15 @@ void MainWindow::on_btnLoadTempWavDir_clicked()
 {
     //载入 音频测试的临时目录 default_workdir/temp/test
     this->m_wavDir = default_AudioTestDir;
-    ui->lineEdit4WavDir->setText(default_AudioTestDir);
-    ui->lineEdit4WavDir->setToolTip(default_AudioTestDir);
-    log.warn(this->m_wavDir);
+
+    fi.setFile(this->m_wavDir);
+    if(fi.isDir()){
+        setWavDir4UI(this->m_wavDir);
+    }else{
+        this->m_wavDir.clear();
+        log.warn("载入默认WAV目录失败.");
+        log.warn(this->m_wavDir);
+    }
 }
 
 void MainWindow::on_btnSwitchRunningMode_clicked()
@@ -1602,18 +1692,6 @@ void MainWindow::on_btnDebug_clicked()
 
 void MainWindow::on_btnOpenWithExplorer_clicked()
 {
-//    // 目录合法性判断
-//    QDir wavdir(m_wavDir);
-//    if(wavdir.exists()){
-//        // 调用资源管理器 打开
-//        QString cmd("Explorer ");
-//        cmd += m_wavDir;
-////        system_hide((char*)cmd.toLatin1().data());
-//        system((char*)cmd.toLatin1().data());
-//    }else{
-//        log.warn("打开失败");
-//    }
-
     //打开资源管理器并高亮文件
     const QString explorer = "explorer";
     QStringList param;

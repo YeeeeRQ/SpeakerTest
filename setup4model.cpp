@@ -24,6 +24,9 @@ Setup4Model::~Setup4Model()
 
 void Setup4Model::openDB(const QString & dbFile)
 {
+
+    m_dbfile = dbFile;
+
 //    QString dbFile=QFileDialog::getOpenFileName(this,"选择数据库文件","",
 //                             "SQL Lite数据库(*.db *.db3)");
     if (dbFile.isEmpty())  //选择SQL Lite数据库文件
@@ -41,11 +44,18 @@ void Setup4Model::openDB(const QString & dbFile)
     {
         QMessageBox::warning(this, "错误", "打开数据库失败",
                                  QMessageBox::Ok,QMessageBox::NoButton);
+        this->close();
         return;
     }
 
 //打开数据表
     this->openTable();
+}
+
+void Setup4Model::closeEvent(QCloseEvent *event)
+{
+    DB.close();
+    emit closeWindow(m_dbfile);
 }
 
 
@@ -63,6 +73,7 @@ void Setup4Model::openTable()
               "打开数据表错误，错误信息\n"
               + tabModel->lastError().text(),
               QMessageBox::Ok, QMessageBox::NoButton);
+        this->close();
         return;
     }
 
