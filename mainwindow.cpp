@@ -143,7 +143,7 @@ void MainWindow::clearFileList()
         "2L.wav"
     };
     for(int i =0;i<list.size();++i){
-        QFile file_temp(m_wavDir + "\\" +list[i]);
+        QFile file_temp(m_audioTestDir + "\\" +list[i]);
 
         fi.setFile(file_temp);
         if(fi.isFile()){
@@ -302,11 +302,11 @@ void MainWindow::loadConfig()
     //从配置文件中载入 主目录+wav输出目录 设定
     QString temp_dir = conf.Get("Audio", "Path").toString();
     if(QFile::exists(temp_dir)){
-        m_outputDir = conf.Get("Audio", "Path").toString();
-        m_wavDir = m_outputDir + "\\temp";
+        m_workDir = conf.Get("Audio", "Path").toString();
+        m_audioTestDir = m_workDir + "\\temp";
     }else{
-        m_outputDir.clear();
-        m_wavDir.clear();
+        m_workDir.clear();
+        m_audioTestDir.clear();
     }
 
     m_wavDuration  = conf.Get("Audio", "RecordDuration").toUInt();
@@ -437,8 +437,6 @@ void MainWindow::custom_do_sleep(quint64 duration)
 // 自定义流程下 录制动作
 void MainWindow::custom_do_record(quint64 order,quint64 duration)
 {
-
-
     // 输出 当前麦克风
     log.info(m_micL);
     log.info(m_micR);
@@ -448,7 +446,7 @@ void MainWindow::custom_do_record(quint64 order,quint64 duration)
     static QStringList first_wav{"\\1L.wav", "\\1R.wav"};
     static QStringList second_wav{"\\2L.wav", "\\2R.wav"};
 
-    fi.setFile(m_wavDir);
+    fi.setFile(m_audioTestDir);
     if(!fi.isDir()){
         // 输出文件夹不存在
         log.warn("录制异常：输出文件夹不存在");
@@ -457,11 +455,11 @@ void MainWindow::custom_do_record(quint64 order,quint64 duration)
     }
 
     if(order == 1){
-        m_pRecWorkerL->setOutputFile(m_wavDir + first_wav[0]);
-        m_pRecWorkerR->setOutputFile(m_wavDir + first_wav[1]);
+//        m_pRecWorkerL->setOutputFile(m_audioTestDir + first_wav[0]);
+//        m_pRecWorkerR->setOutputFile(m_audioTestDir + first_wav[1]);
     }else if(order == 2){
-        m_pRecWorkerL->setOutputFile(m_wavDir + second_wav[0]);
-        m_pRecWorkerR->setOutputFile(m_wavDir + second_wav[1]);
+//        m_pRecWorkerL->setOutputFile(m_audioTestDir + second_wav[0]);
+//        m_pRecWorkerR->setOutputFile(m_audioTestDir + second_wav[1]);
     }else{
         log.warn("录制不能次数>2");
         emit custom_cmd_done("ERROR");
@@ -473,7 +471,9 @@ void MainWindow::custom_do_record(quint64 order,quint64 duration)
         m_recordCount[1]= false;
 
         log.blue("开始录制");
-        emit sig_startRecording(duration);
+
+//        emit sig_startRecording(duration);
+
     }else{
         log.warn("录制时长: 0 ms");
     }
@@ -804,23 +804,23 @@ void MainWindow::setWavDir4UI(const QString & dir)
 * 匿名产品 ID
 */
 ///////////////////////////////////////////////////////////////////
-void MainWindow::slot_startAutoTest()
-{
+//void MainWindow::slot_startAutoTest()
+//{
 
-    QString model_name = ui->comboBoxModelName->currentText();
-    QString product_id = ui->lineEdit4ProductID->text();
+//    QString model_name = ui->comboBoxModelName->currentText();
+//    QString product_id = ui->lineEdit4ProductID->text();
 
-    QString curDate = QDate::currentDate().toString("yyyy-MM-dd");
-    QString curTime = QTime::currentTime().toString("hh:mm:ss");
+//    QString curDate = QDate::currentDate().toString("yyyy-MM-dd");
+//    QString curTime = QTime::currentTime().toString("hh:mm:ss");
 
-    // 录制
-    m_wavDuration = ui->lineEditDurationOfRecord->text().toUInt();
+//    // 录制
+//    m_wavDuration = ui->lineEditDurationOfRecord->text().toUInt();
 
-    log.blue("开始录制");
+//    log.blue("开始录制");
 
-    ui->widgetShowInfo->startTimer();
-    emit sig_startRecording(m_wavDuration);
-}
+//    ui->widgetShowInfo->startTimer();
+//    emit sig_startRecording(m_wavDuration);
+//}
 
 void MainWindow::slot_startCustomAutoTest()
 {
@@ -890,7 +890,7 @@ void MainWindow::slot_onAutoTestConfigChanged()
     }
 
     // 载入主目录
-    m_outputDir = conf.Get("Audio", "Path").toString();
+    m_workDir = conf.Get("Audio", "Path").toString();
     // do nothing
 }
 
@@ -945,8 +945,8 @@ void MainWindow::on_btnLoadWavDir_clicked()
     fi.setFile(temp_dir);
 
     if(fi.isDir()){
-        m_wavDir = temp_dir;
-        setWavDir4UI(m_wavDir);
+        m_audioTestDir = temp_dir;
+        setWavDir4UI(m_audioTestDir);
     }else{
         // do nothing
         log.warn("载入目录为空.");
@@ -968,14 +968,15 @@ void MainWindow::on_btnStartRecord_clicked()
 
 
     // 输出文件夹检测
-    fi.setFile(m_wavDir);
+    fi.setFile(m_audioTestDir);
     if(!fi.isDir()){
         log.warn("输出目录未指定!");
         return;
     }
 
-    m_pRecWorkerL->setOutputFile(QDir::toNativeSeparators(m_wavDir+ "\\L.wav"));
-    m_pRecWorkerR->setOutputFile(QDir::toNativeSeparators(m_wavDir+ "\\R.wav"));
+    ///////////////////////////!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//    m_pRecWorkerL->setOutputFile(QDir::toNativeSeparators(m_audioTestDir+ "\\L.wav"));
+//    m_pRecWorkerR->setOutputFile(QDir::toNativeSeparators(m_audioTestDir+ "\\R.wav"));
 
     // Start Record
     m_wavDuration = ui->lineEditDurationOfRecord->text().toUInt();
@@ -990,7 +991,8 @@ void MainWindow::on_btnStartRecord_clicked()
 
         log.blue("开始录制");
         ui->widgetShowInfo->startTimer();
-        emit sig_startRecording(m_wavDuration);
+//        emit sig_startRecording(m_wavDuration);
+
     }else{
         log.warn("录制时长: 0 ms");
     }
@@ -1014,10 +1016,10 @@ void MainWindow::startTestAudio()
 //    QString workdir = ui->lineEdit4WavDir->text().trimmed();
 //    QString workdir = m_wavDir;
 
-    QString wavL =  QDir::toNativeSeparators(m_wavDir + WAV_FILE_L);
-    QString wavR =  QDir::toNativeSeparators(m_wavDir + WAV_FILE_R);
+    QString wavL =  QDir::toNativeSeparators(m_audioTestDir + WAV_FILE_L);
+    QString wavR =  QDir::toNativeSeparators(m_audioTestDir + WAV_FILE_R);
 
-    fi.setFile(m_wavDir);
+    fi.setFile(m_audioTestDir);
     if(!fi.isDir()){
         log.warn("未指定wav文件存放目录！");
         fileIsOK = false;
@@ -1044,7 +1046,7 @@ void MainWindow::startTestAudio()
 
     }else{
         log.warn("测试失败!");
-        log.warn("dir: "+m_wavDir);
+        log.warn("dir: "+m_audioTestDir);
         log.warn("file: "+wavL);
         log.warn("file: "+wavR);
     }
@@ -1055,19 +1057,19 @@ void MainWindow::startTestAudioInAutoMode()
 {
 
     //WAV文件输入检测
-    QString wav1L =  QDir::toNativeSeparators(m_wavDir + "\\1L.wav");
-    QString wav1R =  QDir::toNativeSeparators(m_wavDir + "\\1R.wav");
+    QString wav1L =  QDir::toNativeSeparators(m_audioTestDir + "\\1L.wav");
+    QString wav1R =  QDir::toNativeSeparators(m_audioTestDir + "\\1R.wav");
 
-    QString wav2L =  QDir::toNativeSeparators(m_wavDir + "\\2L.wav");
-    QString wav2R =  QDir::toNativeSeparators(m_wavDir + "\\2R.wav");
+    QString wav2L =  QDir::toNativeSeparators(m_audioTestDir + "\\2L.wav");
+    QString wav2R =  QDir::toNativeSeparators(m_audioTestDir + "\\2R.wav");
 
-    qDebug() << "workdir: " << m_wavDir;
+    qDebug() << "workdir: " << m_audioTestDir;
     qDebug() << "wav1l: " << wav1L;
     qDebug() << "wav1r: " << wav1R;
     qDebug() << "wav2l: " << wav2L;
     qDebug() << "wav2r: " << wav2R;
 
-    if(m_wavDir.isEmpty()){
+    if(m_audioTestDir.isEmpty()){
         log.warn("未指定音频存放目录！");
         return;
     }
@@ -1091,7 +1093,7 @@ void MainWindow::slot_testAudio()
 {
     //调用ConsoleAppAudioTest.exe 输出CSV测试结果
 //    QString target_dir = ui->lineEdit4WavDir->text().trimmed();
-    QString target_dir = m_wavDir;
+    QString target_dir = m_audioTestDir;
 
     QString app = QDir::toNativeSeparators(QCoreApplication::applicationDirPath() + "\\AudioTest\\ConsoleAppAudioTest.exe");
 
@@ -1123,7 +1125,7 @@ void MainWindow::slot_getAudioInfo()
 {
     //调用ConsoleAppAudioTest.exe 输出CSV测试结果
 //    QString target_dir = ui->lineEdit4WavDir->text().trimmed();
-    QString target_dir = m_wavDir;
+    QString target_dir = m_audioTestDir;
 
     QString app = QDir::toNativeSeparators(QCoreApplication::applicationDirPath() + "\\AudioTest\\ConsoleAppAudioTest.exe");
 
@@ -1187,7 +1189,7 @@ void MainWindow::slot_onAudioTestFinished()
 
     //    QString csv_file = current_AudioTestDir + "\\test.csv";
 //    QString csv_file = ui->lineEdit4WavDir->text().trimmed() + "\\test.csv";
-    QString csv_file = m_wavDir+ "\\test.csv";
+    QString csv_file = m_audioTestDir+ "\\test.csv";
     qDebug() << csv_file;
     log.blue(csv_file);
 
@@ -1405,9 +1407,9 @@ void MainWindow::Setting4Path()
     default_AudioTestDir = QCoreApplication::applicationDirPath() + "\\Output\\temp";
 
     // 若配置文件未设定输出目录，则载入默认目录设定
-    if(m_outputDir.isEmpty()){
-        m_outputDir =default_WorkDir;
-        m_wavDir = default_AudioTestDir;
+    if(m_workDir.isEmpty()){
+        m_workDir =default_WorkDir;
+        m_audioTestDir = default_AudioTestDir;
     }
     if(!dir.exists(default_WorkDir)){
         dir.mkdir(default_WorkDir);
@@ -1417,17 +1419,17 @@ void MainWindow::Setting4Path()
         dir.mkdir(default_AudioTestDir);
     }
 
-    if(!dir.exists(m_outputDir)){
-        dir.mkdir(m_outputDir);
+    if(!dir.exists(m_workDir)){
+        dir.mkdir(m_workDir);
     }
 
-    if(!dir.exists(m_wavDir)){
-        dir.mkdir(m_wavDir);
+    if(!dir.exists(m_audioTestDir)){
+        dir.mkdir(m_audioTestDir);
     }
 
-    fi.setFile(m_wavDir);
+    fi.setFile(m_audioTestDir);
     if(fi.isDir()){
-        setWavDir4UI(m_wavDir);
+        setWavDir4UI(m_audioTestDir);
     }else{
         log.warn("Setting4Path: WAV目录设定失败.");
     }
@@ -1441,20 +1443,20 @@ void MainWindow::Setting4Config()
     this->loadConfig();
 
     // 主要输出目录检测 m_outputDir
-    if(m_outputDir.isEmpty()){
+    if(m_workDir.isEmpty()){
         log.warn("异常！ 主目录未设定。");
     }else{
-        log.info("主目录:"+m_outputDir);
+        log.info("主目录:"+m_workDir);
     }
 
-    QDir outdir(m_outputDir);
+    QDir outdir(m_workDir);
     if(!outdir.exists()){
-        bool ismkdir = outdir.mkdir(m_outputDir);
+        bool ismkdir = outdir.mkdir(m_workDir);
         if(!ismkdir){
-            log.warn("创建"+m_outputDir+"失败!");
+            log.warn("创建"+m_workDir+"失败!");
             log.warn("程序无法正确运行");
         }else{
-            log.info("创建"+m_outputDir+"成功!");
+            log.info("创建"+m_workDir+"成功!");
         }
     }
 
@@ -1481,7 +1483,7 @@ void MainWindow::Setting4Devices()
     // 麦克风数量检测
         QAudioRecorder* recorder = new QAudioRecorder(this);
         QStringList  devList= recorder->audioInputs();
-        log.info("麦克风输入"+QString::number(devList.count()));
+        log.info("麦克风输入设备数量："+QString::number(devList.count()));
         audioInputs = QSet<QString>(devList.begin(), devList.end());
         foreach (const QString &device, audioInputs)
             qDebug() << (device); //音频录入设备列表
@@ -1494,36 +1496,36 @@ void MainWindow::Setting4Devices()
             m_pRecWorkerL = new RecordWorker;
             m_pRecWorkerL->moveToThread(&m_recordThread4L);
 
-
             // 录音前提：设定好2个麦克风输入
-            connect(this, SIGNAL(sig_startRecording(quint64)), m_pRecWorkerL, SLOT(doWork(quint64)));
+//            connect(this, SIGNAL(sig_startRecording(quint64)), m_pRecWorkerL, SLOT(doWork(quint64)));
+            connect(this, &MainWindow::sig_startRecording, m_pRecWorkerL, &RecordWorker::startRecord);
             connect(&m_recordThread4L, &QThread::finished, m_pRecWorkerL, &QObject::deleteLater);
             connect(m_pRecWorkerL, SIGNAL(resultReady()), this, SLOT(slot_onLMicRecordingOver()));
 
             connect(this, &MainWindow::sig_setRecordInputL, m_pRecWorkerL, &RecordWorker::setAudioInput);
-            connect(this, &MainWindow::sig_setRecordOutputL, m_pRecWorkerL, &RecordWorker::setOutputFile);
+//            connect(this, &MainWindow::sig_setRecordOutputL, m_pRecWorkerL, &RecordWorker::setOutputFile);
 
-            m_pRecWorkerL->setOutputFile("C:\\Temp\\L.wav");
+//            m_pRecWorkerL->setOutputFile("C:\\Temp\\L.wav");
 
-            // 启动录制线程
-            m_recordThread4L.start();
 
             // -------------------------------------------------------------------------
 
             m_pRecWorkerR = new RecordWorker;
             m_pRecWorkerR->moveToThread(&m_recordThread4R);
 
-            connect(this, SIGNAL(sig_startRecording(quint64)), m_pRecWorkerR, SLOT(doWork(quint64)));
+//            connect(this, SIGNAL(sig_startRecording(quint64)), m_pRecWorkerR, SLOT(doWork(quint64)));
+            connect(this, &MainWindow::sig_startRecording, m_pRecWorkerR, &RecordWorker::startRecord);
             connect(&m_recordThread4L, &QThread::finished, m_pRecWorkerR, &QObject::deleteLater);
             connect(m_pRecWorkerR, SIGNAL(resultReady()), this, SLOT(slot_onRMicRecordingOver()));
 
             connect(this, &MainWindow::sig_setRecordInputR, m_pRecWorkerR, &RecordWorker::setAudioInput);
-            connect(this, &MainWindow::sig_setRecordOutputR, m_pRecWorkerR, &RecordWorker::setOutputFile);
+//            connect(this, &MainWindow::sig_setRecordOutputR, m_pRecWorkerR, &RecordWorker::setOutputFile);
 
-            m_pRecWorkerR->setOutputFile("C:\\Temp\\R.wav");
+//            m_pRecWorkerR->setOutputFile("C:\\Temp\\R.wav");
             //    recWorkerR->setAudioInput(audioInputs.begin());
 
             // 启动录制线程
+            m_recordThread4L.start();
             m_recordThread4R.start();
         }
 }
@@ -1570,15 +1572,15 @@ void MainWindow::on_btnSetting4Mic_clicked()
 void MainWindow::on_btnLoadTempWavDir_clicked()
 {
     //载入 音频测试的临时目录 default_workdir/temp/test
-    this->m_wavDir = default_AudioTestDir;
+    this->m_audioTestDir = default_AudioTestDir;
 
-    fi.setFile(this->m_wavDir);
+    fi.setFile(this->m_audioTestDir);
     if(fi.isDir()){
-        setWavDir4UI(this->m_wavDir);
+        setWavDir4UI(this->m_audioTestDir);
     }else{
-        this->m_wavDir.clear();
+        this->m_audioTestDir.clear();
         log.warn("载入默认WAV目录失败.");
-        log.warn(this->m_wavDir);
+        log.warn(this->m_audioTestDir);
     }
 }
 
@@ -1684,8 +1686,8 @@ void MainWindow::on_btnLockOption4Model_clicked()
 
 void MainWindow::on_btnDebug_clicked()
 {
-    qDebug() << "Main Dir:" << m_outputDir;
-    qDebug() << "Wav  Dir:" << m_wavDir;
+    qDebug() << "Main Dir:" << m_workDir;
+    qDebug() << "Wav  Dir:" << m_audioTestDir;
 
 }
 
@@ -1695,10 +1697,10 @@ void MainWindow::on_btnOpenWithExplorer_clicked()
     //打开资源管理器并高亮文件
     const QString explorer = "explorer";
     QStringList param;
-    if(!QFileInfo(m_wavDir).isDir()){
+    if(!QFileInfo(m_audioTestDir).isDir()){
         param<<QLatin1String("/select,");
     }
-    param<<QDir::toNativeSeparators(m_wavDir);
+    param<<QDir::toNativeSeparators(m_audioTestDir);
     QProcess::startDetached(explorer,param);
 }
 

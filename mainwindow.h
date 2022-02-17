@@ -55,8 +55,8 @@ private:
     QString default_WorkDir;
     QString default_AudioTestDir;
 
-    QString m_outputDir;   // 音频录制存放(主目录)
-    QString m_wavDir;      // 录制文件保存目录 (主目录->机种->日期时间)
+    QString m_workDir;   // 音频录制存放(主目录)
+    QString m_audioTestDir;      // 录制文件保存目录 (主目录->机种->日期时间)
 
     // Mic Device
     QSet<QString> audioInputs;
@@ -70,7 +70,6 @@ private:
     QString m_micR;        // 右麦克风
     int m_micIndexL;       // 左麦克风序号
     int m_micIndexR;       // 右麦克风序号
-
 
     // 左右麦克风录制完毕标记 值为1时表示录制结束
     bool m_recordCount[2]; // 0->L | 1->R
@@ -176,7 +175,8 @@ private: // UI
 
 signals:
     void sig_startAutoTest(); //已接收到读卡器开始指令 自动测试流程开始信号
-    void sig_startRecording(quint64 duration); // 目录+时长以确定，开始录音
+//    void sig_startRecording(quint64 duration); // 目录+时长以确定，开始录音
+    void sig_startRecording(quint64 duration, QFile& file); // 目录+时长以确定，开始录音
     void sig_startTestAudio(); // 手动模式 录音文件已就绪， 开始测试
     void sig_audioTestFinished();
 
@@ -202,7 +202,7 @@ private slots:
     void slot_onSigGeneratorConnectStatusChanged();
     void slot_onAutoTestConfigChanged();
 
-    void slot_startAutoTest();  // 自动测试流程 (废弃)
+//    void slot_startAutoTest();  // 自动测试流程 (废弃)
     void slot_startCustomAutoTest();  // 自动测试流程 (现用)
     void slot_testAudio();    // for startTestAudio
     void slot_onAudioTestFinished(); //音频检测后根据csv判断结果

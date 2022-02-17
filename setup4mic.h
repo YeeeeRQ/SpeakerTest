@@ -43,8 +43,6 @@ private:
     QmyDisplayDevice *displayDevice1;
     QLineSeries *lineSeries1;
 
-
-
 signals:
 //    void setupMic(int l_idx, int r_idx);
     void setupMic(int l_idx, const QString& lmic, int r_idx, const QString& rmic);
