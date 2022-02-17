@@ -59,7 +59,7 @@ private:
     QString m_audioTestDir;      // 录制文件保存目录 (主目录->机种->日期时间)
 
     // Mic Device
-    QSet<QString> audioInputs;
+    QSet<QString> m_audioInputs;
     RecordWorker * m_pRecWorkerL;
     RecordWorker * m_pRecWorkerR;
 
@@ -108,7 +108,8 @@ private:
     bool checkCustomTestProcess(); //检测自定义流程
 
     void custom_do_sleep(quint64 duration);
-    void custom_do_record(quint64 order,quint64 duration);
+//    void custom_do_record(quint64 order,quint64 duration);
+    void custom_do_record(quint64 duration);
     void custom_do_sendcmd2pg(const QString& cmd);
     void custom_do_sendcmd2mnt(const QString& cmd);
     void custom_do_set_order(const QString & first_speaker);
@@ -175,15 +176,13 @@ private: // UI
 
 signals:
     void sig_startAutoTest(); //已接收到读卡器开始指令 自动测试流程开始信号
-//    void sig_startRecording(quint64 duration); // 目录+时长以确定，开始录音
-    void sig_startRecording(quint64 duration, QFile& file); // 目录+时长以确定，开始录音
+    void sig_startRecording(quint64 duration); // 目录+时长以确定，开始录音
+//    void sig_startRecording(quint64 duration, QFile& file); // 目录+时长以确定，开始录音
     void sig_startTestAudio(); // 手动模式 录音文件已就绪， 开始测试
     void sig_audioTestFinished();
 
-    void sig_setRecordOutputL(const QString& out);
-    void sig_setRecordInputL(const QString& dev);
-    void sig_setRecordOutputR(const QString& out);
-    void sig_setRecordInputR(const QString& dev);
+    void sig_setRecordInputL(quint64 idx); //麦克风输入设定 L
+    void sig_setRecordInputR(quint64 idx); //麦克风输入设定 R
 
     void sig_loadMicConf(int l_idx, int r_idx);
     void sig_loadModel(const QString& dbfile);

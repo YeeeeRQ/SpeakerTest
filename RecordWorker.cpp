@@ -1,117 +1,73 @@
 ﻿#include "RecordWorker.h"
 
-// 设定设备
-// 检测设定设备 (存在且支持设置)
-
 RecordWorker::RecordWorker(QObject *parent)
     : QObject{parent}
 {
-    fmt.setSampleRate(441000);
+    fmt.setSampleRate(44100);
     fmt.setChannelCount(1);
     fmt.setSampleSize(16);
     fmt.setCodec("audio/pcm");
     fmt.setByteOrder(QAudioFormat::LittleEndian);
     fmt.setSampleType(QAudioFormat::UnSignedInt);
-
-//    connect(&timer, &QTimer::timeout, this, &RecordWorker::stopRecord);
-
-//    timer.setSingleShot(false); // 单次触发
-
-//    file.setFileName("D:\temp\test.raw");
-//    file.open(QIODevice::WriteOnly|QIODevice::Truncate);
-
-    audioInput = new QAudioInput(curDevice, fmt, this);
+    deviceList=QAudioDeviceInfo::availableDevices(QAudio::AudioInput);
 }
 
-void RecordWorker::startRecord(quint64 duration, QFile& file)
+void RecordWorker::startRecord(quint64 duration)
 {
-    curDevice = QAudioDeviceInfo::defaultInputDevice(); // 选择缺省设备
+    if(isRecording) return;
+    this->duration = duration;
+//    curDevice = QAudioDeviceInfo::defaultInputDevice(); // 选择缺省设备
     if (!curDevice.isFormatSupported(fmt))
     {
-//        QMessageBox::critical(this,"音频输入设置测试","测试失败，输入设备不支持此设置");
+        qDebug() << "Dev is Null: " <<curDevice.isNull();
+        qDebug() << "测试失败，输入设备不支持此设置";
         return;
     }
-    audioInput->start(&file);
-    QTimer timer;
-    timer.singleShot(duration, this, [=](){
-        audioInput->stop();
-    });
+    audioInput->start(&m_outputFile);
+    isRecording = true;
 }
 
-
-//void RecordWorker::record()
-//{
-/*
-    if (recorder->state() == QMediaRecorder::StoppedState) //已停止，重新设置
-    {
-        if (outputFile.isEmpty())
-        {
-            qDebug() << "RecordWorkder: 错误 << " << "请先设置录音输出文件" << Qt::endl;
-            return;
-        }
-
-        if (QFile::exists(outputFile))
-         if (!QFile::remove(outputFile))
-         {
-            qDebug() << "RecordWorkder: 错误 << " << "所设置录音输出文件被占用，无法删除" << Qt::endl;
-            return;
-         }
-        recorder->setOutputLocation(QUrl::fromLocalFile(outputFile));//设置输出文件
-    }
-    //        ui->comboDevices->addItem(device); //音频录入设备列表
-//    recorder->setAudioInput(recorder->defaultAudioInput()); //设置录入设备
-
-    //Todo: 检测设备是否存在
-
-    qDebug()<<inputDev;
-    recorder->setAudioInput(inputDev); //设置录入设备
-
-
-    QAudioEncoderSettings settings; //音频编码设置
-    settings.setCodec("audio/cpm");
-    settings.setSampleRate(44100);
-    settings.setBitRate(128000);
-    settings.setChannelCount(1);
-    settings.setEncodingMode(QMultimedia::ConstantQualityEncoding);
-    recorder->setAudioSettings(settings); //音频设置
-
-    recorder->record()*/;
-//}
-
-bool RecordWorker::setAudioFormat()
+bool RecordWorker::setMic(quint64 idx)
 {
-    fmt.setCodec("audio/pcm");
-    fmt.setChannelCount(1);
-    fmt.setSampleRate(441000);
-    fmt.setSampleSize(16);
-    fmt.setSampleType(QAudioFormat::UnSignedInt);
-    fmt.setByteOrder(QAudioFormat::LittleEndian);
-
-    if (curDevice.isFormatSupported(fmt)){
-        return true;
-    }else{
+    if(idx >= deviceList.size()){
         return false;
     }
+    curDevice = deviceList.at(idx);
+
+    if(audioInput){
+        delete audioInput;
+    }
+    audioInput = new QAudioInput(curDevice, fmt, this);
+    connect(audioInput, &QAudioInput::stateChanged, this, &RecordWorker::micInRecording);
+    audioInput->setBufferSize(4000);
+    return true;
 }
 
-//void RecordWorker::setAudioInput(const QString &dev)
-//{
-//    qDebug() << "Set AudioInput: "<<dev;
-//    inputDev = dev;
+void RecordWorker::setOutputFile(QString filename)
+{
+    m_outputFile.setFileName(filename);
+    m_outputFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
+}
 
-////    qDebug() << "--------------";
-////    qDebug() << "1. "<<dev;
-////    qDebug() << "2. "<<dev.toUtf8();
-////    qDebug() << "3. "<<dev.toLocal8Bit();
-////    qDebug() << "--------------";
-////    foreach (const QString &device, recorder->audioInputs()){
-////        qDebug() << device;
-////    }
-////    recorder->setAudioInput(dev.toUtf8()); //设置录入设备
-//}
+void RecordWorker::micInRecording(QAudio::State s)
+{
+    if(s != QAudio::ActiveState) return;
+    static QTimer timer;
+    timer.singleShot(duration, this, [=](){
+        audioInput->stop();
+        m_outputFile.close();
 
+        isRecording = false;
+        //Todo:
+        // 1. raw -> wav
+        // 2. emit record done
+        if (AddWavHeader(m_outputFile.fileName(), m_outputFile.fileName() + ".wav") > 0){
+            qDebug() << "raw --> wav";
+        }
 
-
+        emit recordDone();
+    });
+}
 
 const qint64 TIME_TRANSFORM = 1000 * 1000;              // 微妙转秒;
 
@@ -144,7 +100,6 @@ struct WAVFILEHEADER
 qint64 AddWavHeader(QString catheFileName , QString wavFileName)
 {
     // 开始设置WAV的文件头
-    // 这里具体的数据代表什么含义请看上一篇文章（Qt之WAV文件解析）中对wav文件头的介绍
     WAVFILEHEADER WavFileHeader;
     qstrcpy(WavFileHeader.RiffName, "RIFF");
     qstrcpy(WavFileHeader.WavName, "WAVE");
