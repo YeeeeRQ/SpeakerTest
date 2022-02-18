@@ -20,7 +20,14 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Network REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Sql REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS AxContainer REQUIRED)
 
-
+# aubio
+set(AUBIO_INC_DIR "C:\\Users\\foo\\source\\qt\\aubio-0.4.6-win64\\include")
+set(AUBIO_LINK_DIR "C:\\Users\\foo\\source\\qt\\aubio-0.4.6-win64\\lib")
+include_directories(${AUBIO_INC_DIR})
+link_directories(${AUBIO_LINK_DIR})
+set(CMAKE_CXX_FLAGS
+    "-D_GLIBCXX_USE_CXX11_ABI=0"
+    )
 set(TS_FILES SpeakersTest_zh_CN.ts)
 
 set(PROJECT_SOURCES
@@ -44,6 +51,8 @@ set(PROJECT_SOURCES
         MyCommonFun.cpp MyCommonFun.h
         TempForm.ui
         res.qrc
+
+        AudioProcess.h AudioProcess.cpp
 
         ./font/SourceHanSansK-Regular.ttf
         ${TS_FILES}
@@ -90,6 +99,8 @@ target_link_libraries(SpeakersTest PRIVATE
     Qt${QT_VERSION_MAJOR}::Network
     Qt${QT_VERSION_MAJOR}::Sql
     Qt${QT_VERSION_MAJOR}::AxContainer
+    aubio.dll.a
+    libaubio.a
 )
 
 set_target_properties(SpeakersTest PROPERTIES

@@ -14,13 +14,14 @@
 #define DATABASE_FILE "\\Model.db"
 #define CUSTOMPROCESS_FILE "\\process.xls"
 
-
 //Todo:
 
 // --------------------------------------------------------------------------
 
 void MainWindow::fordebug()
 {
+    auto * test = new AudioProcess(1,1);
+    delete test;
 }
 
 MainWindow::MainWindow(QWidget *parent)
@@ -32,12 +33,16 @@ MainWindow::MainWindow(QWidget *parent)
 
     fordebug();
 
+
     player = new QMediaPlayer;
 
     this->Setting4Config();
     this->Setting4Path();
     this->Setting4Theme();
+
+    // 外部设备连接  0. 麦克风 1. AutoLine 2. 读码器 3. PG
     this->Setting4Devices();  // 外部设备连接
+
     this->loadAutoProcess(); // 依据配置文件载入自动测试流程
 
     // UI载入结束
@@ -1770,17 +1775,5 @@ void MainWindow::on_btnOpenWithExplorer_clicked()
     }
     param<<QDir::toNativeSeparators(m_audioTestDir);
     QProcess::startDetached(explorer,param);
-}
-
-
-void MainWindow::on_btnPlayAudio_clicked()
-{
-    // play audio
-    if(QMediaPlayer::PlayingState == player->state()){
-        player->stop();
-    }
-    player->setMedia(QUrl::fromLocalFile("./Source/1000-2000.wav"));
-    player->setVolume(100);
-    player->play();
 }
 

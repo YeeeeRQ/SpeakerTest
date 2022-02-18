@@ -30,6 +30,8 @@
 #include "RecordWorker.h"
 #include "MyCommonFun.h"
 
+#include "AudioProcess.h"
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -254,7 +256,6 @@ private slots:
     void on_btnLockOption4Model_clicked();
     void on_btnDebug_clicked();
     void on_btnOpenWithExplorer_clicked();
-    void on_btnPlayAudio_clicked();
 };
 #endif // MAINWINDOW_H
 

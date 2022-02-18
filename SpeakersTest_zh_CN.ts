@@ -73,13 +73,8 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="651"/>
+        <location filename="mainwindow.ui" line="654"/>
         <source>debug</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.ui" line="658"/>
-        <source>play audio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -159,7 +154,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="795"/>
+        <location filename="mainwindow.cpp" line="800"/>
         <source>双通道扬声器测试</source>
         <translation type="unfinished"></translation>
     </message>
@@ -516,7 +511,7 @@
     </message>
     <message>
         <location filename="showinfo4result.ui" line="261"/>
-        <source>Clear</source>
+        <source>清除</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
