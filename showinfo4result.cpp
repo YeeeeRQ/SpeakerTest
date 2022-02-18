@@ -25,12 +25,10 @@ ShowInfo4Result::ShowInfo4Result(QWidget *parent) :
 
     connect(this, &ShowInfo4Result::numberChanged, this, &ShowInfo4Result::onNumberChanged);
 
-
     // 秒表 计时
     this->ui->label_Time->setText("00:00.000s");
     this->timer = new QTimer;
     connect(this->timer, &QTimer::timeout, this, &ShowInfo4Result::freshenTime);
-
 
 //    QTime::QTime
 }
@@ -50,6 +48,7 @@ void ShowInfo4Result::clearAll()
     ng_num = 0;
     ok_num = 0;
     total_num = 0;
+    passed_rate = 0.0;
     this->freshen();
 }
 
@@ -58,6 +57,7 @@ void ShowInfo4Result::freshen()
     ui->label_NG_number->setText(QString::number(ng_num));
     ui->label_OK_number->setText(QString::number(ok_num));
     ui->label_Total_number->setText(QString::number(total_num));
+    ui->label_PassedRate->setText(QString::number(passed_rate*100.0, 'f', 2)+"%");
 }
 
 void ShowInfo4Result::freshenTime()
@@ -92,6 +92,9 @@ void ShowInfo4Result::pointTimer()
 void ShowInfo4Result::onNumberChanged()
 {
     total_num = ok_num + ng_num;
+    if(total_num > 0){
+        passed_rate = (double)ok_num / total_num;
+    }
     this->freshen();
 }
 

@@ -32,69 +32,74 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="233"/>
+        <location filename="mainwindow.ui" line="236"/>
         <source>测试</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="323"/>
+        <location filename="mainwindow.ui" line="326"/>
         <source>资源管理器中打开</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="386"/>
+        <location filename="mainwindow.ui" line="389"/>
         <source>录制时长：</source>
         <oldsource>时长：</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="410"/>
+        <location filename="mainwindow.ui" line="413"/>
         <source>2000</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="425"/>
+        <location filename="mainwindow.ui" line="428"/>
         <source>ms</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="443"/>
+        <location filename="mainwindow.ui" line="446"/>
         <source>开始录制(R)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="505"/>
+        <location filename="mainwindow.ui" line="508"/>
         <source>测试(T)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="564"/>
+        <location filename="mainwindow.ui" line="567"/>
         <source>程序输出</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="648"/>
+        <location filename="mainwindow.ui" line="651"/>
         <source>debug</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="545"/>
+        <location filename="mainwindow.ui" line="658"/>
+        <source>play audio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="mainwindow.ui" line="548"/>
         <source>测试结果</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="629"/>
+        <location filename="mainwindow.ui" line="632"/>
         <source>麦克风输入</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="622"/>
+        <location filename="mainwindow.ui" line="625"/>
         <source>音频测试</source>
         <oldsource>自动测试</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="159"/>
+        <location filename="mainwindow.ui" line="162"/>
         <source>运行模式</source>
         <translation type="unfinished"></translation>
     </message>
@@ -104,57 +109,57 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="248"/>
+        <location filename="mainwindow.ui" line="251"/>
         <source>WAV目录:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="270"/>
+        <location filename="mainwindow.ui" line="273"/>
         <source>...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="288"/>
+        <location filename="mainwindow.ui" line="291"/>
         <source>载入自定义目录</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="341"/>
+        <location filename="mainwindow.ui" line="344"/>
         <source>载入临时目录</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="172"/>
+        <location filename="mainwindow.ui" line="175"/>
         <source>自动</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="188"/>
+        <location filename="mainwindow.ui" line="191"/>
         <source>手动</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="203"/>
+        <location filename="mainwindow.ui" line="206"/>
         <source>切换</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="607"/>
+        <location filename="mainwindow.ui" line="610"/>
         <source>设定</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="615"/>
+        <location filename="mainwindow.ui" line="618"/>
         <source>机种管理</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="636"/>
+        <location filename="mainwindow.ui" line="639"/>
         <source>外部设备</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="768"/>
+        <location filename="mainwindow.cpp" line="795"/>
         <source>双通道扬声器测试</source>
         <translation type="unfinished"></translation>
     </message>
@@ -464,8 +469,7 @@
     </message>
     <message>
         <location filename="showinfo4result.ui" line="40"/>
-        <source>Initializing</source>
-        <oldsource>Waiting</oldsource>
+        <source>初始化</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

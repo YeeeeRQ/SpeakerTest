@@ -29,6 +29,7 @@ private:
     quint64 ng_num = 0;
     quint64 ok_num = 0;
     quint64 total_num = 0;
+    double passed_rate = 0.0;
 
 private:
     QTimer* timer;

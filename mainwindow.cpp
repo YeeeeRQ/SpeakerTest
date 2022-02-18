@@ -32,7 +32,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     fordebug();
 
-//    return;
+    player = new QMediaPlayer;
 
     this->Setting4Config();
     this->Setting4Path();
@@ -211,6 +211,8 @@ void MainWindow::onMainWindowLoaded()
             log.info("SigGeneratro COM 打开失败.");
         }
     }
+
+
 }
 
 // 运行模式 （手动|自动）-------------------------------------------------------
@@ -520,6 +522,24 @@ void MainWindow::custom_do_record(quint64 duration)
         log.warn("录制时长: 0 ms");
     }
 }
+
+void MainWindow::custom_do_player_start(const QString &filename)
+{//异步播放
+    // play audio
+    if(QMediaPlayer::PlayingState == player->state()){
+        player->stop();
+    }
+    player->setMedia(QUrl::fromLocalFile(filename));
+    player->setVolume(100);
+    player->play();
+    emit custom_cmd_done("NEXT");
+}
+
+void MainWindow::custom_do_player_stop()
+{
+    player->stop();
+    emit custom_cmd_done("NEXT");
+}
 void MainWindow::custom_do_record_done()
 {
     if(!m_autoMode)return;
@@ -699,6 +719,14 @@ void MainWindow::customCmdParser(const QString& cmd, const QList<QString>&cmd_ar
     }else if(cmd == "record"){
         quint64 duration = cmd_args.at(0).toUInt();
         custom_do_record(duration);
+
+    }else if(cmd == "player_start"){
+
+        custom_do_player_start(cmd_args.at(0));
+
+    }else if(cmd == "player_stop"){
+
+        custom_do_player_stop();
 
     }else if(cmd == "sendcmd2pg"){
 
@@ -1742,5 +1770,17 @@ void MainWindow::on_btnOpenWithExplorer_clicked()
     }
     param<<QDir::toNativeSeparators(m_audioTestDir);
     QProcess::startDetached(explorer,param);
+}
+
+
+void MainWindow::on_btnPlayAudio_clicked()
+{
+    // play audio
+    if(QMediaPlayer::PlayingState == player->state()){
+        player->stop();
+    }
+    player->setMedia(QUrl::fromLocalFile("./Source/1000-2000.wav"));
+    player->setVolume(100);
+    player->play();
 }
 

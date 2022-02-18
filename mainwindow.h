@@ -59,6 +59,9 @@ private:
     QString m_workDir;   // 音频录制存放(主目录)
     QString m_audioTestDir;      // 录制文件保存目录 (主目录->机种->日期时间)
 
+    // 音频播放
+    QMediaPlayer* player;
+
     // Mic Device
     QSet<QString> m_audioInputs;
     RecordWorker * m_pRecWorkerL;
@@ -111,6 +114,8 @@ private:
     void custom_do_sleep(quint64 duration);
 //    void custom_do_record(quint64 order,quint64 duration);
     void custom_do_record(quint64 duration);
+    void custom_do_player_start(const QString& filename);
+    void custom_do_player_stop();
     void custom_do_sendcmd2pg(const QString& cmd);
     void custom_do_sendcmd2mnt(const QString& cmd);
     void custom_do_set_order(const QString & first_speaker);
@@ -133,6 +138,8 @@ private slots:
     void customCmdParser(const QString& cmd, const QList<QString>&cmd_args);
 //    void processCmdParser(QString cmd);
     void onCheckAllRecordOver();
+
+
 
 
 
@@ -247,6 +254,7 @@ private slots:
     void on_btnLockOption4Model_clicked();
     void on_btnDebug_clicked();
     void on_btnOpenWithExplorer_clicked();
+    void on_btnPlayAudio_clicked();
 };
 #endif // MAINWINDOW_H
 

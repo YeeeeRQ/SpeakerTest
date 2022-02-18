@@ -258,7 +258,7 @@
         </font>
        </property>
        <property name="text">
-        <string>Clear</string>
+        <string>清除</string>
        </property>
       </widget>
      </item>
