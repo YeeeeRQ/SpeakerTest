@@ -14,6 +14,7 @@
 #include <ActiveQt/QAxObject>
 #include <QMediaPlayer>
 #include <QMediaPlaylist>
+#include <QAudioRecorder>
 
 #include "CodeReader.h"
 #include "AutoLine.h"

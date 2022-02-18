@@ -1,5 +1,8 @@
 ﻿#include "RecordWorker.h"
 
+// ---------------------------------------------------------------------------
+// class RecordWorker
+// ---------------------------------------------------------------------------
 RecordWorker::RecordWorker(QObject *parent)
     : QObject{parent}
 {
@@ -68,6 +71,95 @@ void RecordWorker::micInRecording(QAudio::State s)
         emit recordDone();
     });
 }
+
+// ---------------------------------------------------------------------------
+// class DataSource
+// ---------------------------------------------------------------------------
+DataSource::DataSource( QObject *parent) :
+    QIODevice(parent)
+{
+    fmt.setSampleRate(44100);
+    fmt.setChannelCount(1);
+    fmt.setSampleSize(16);
+    fmt.setCodec("audio/pcm");
+    fmt.setByteOrder(QAudioFormat::LittleEndian);
+    fmt.setSampleType(QAudioFormat::UnSignedInt);
+    m_audioData = new QByteArray;
+}
+
+DataSource::~DataSource()
+{
+    delete m_audioData;
+}
+
+void DataSource::setAudioFormat(QAudioFormat fmt)
+{
+    this->fmt = fmt;
+}
+
+void DataSource::onWrite2WavFile()
+{
+    auto sampleSize = fmt.sampleSize();
+    auto channels = fmt.channelCount();
+    auto sampleRate = fmt.sampleRate();
+
+    m_wavFileHead.nRIFFLength = 36;
+    m_wavFileHead.nFMTLength = sampleSize;
+    m_wavFileHead.nAudioFormat = 0x01;
+    m_wavFileHead.nChannleNumber = channels;//通道
+    m_wavFileHead.nSampleRate = sampleRate;//采样频率
+    m_wavFileHead.nBytesPerSecond = (sampleSize / 8) * channels * sampleRate;//播放频率
+    m_wavFileHead.nBytesPerSample = (sampleSize / 8) * channels;
+    m_wavFileHead.nBitsPerSample = sampleSize;//量化位宽
+    m_wavFileHead.nDataLength = 0;//实际数据长度
+
+    QFile f("test.wav");
+    bool bisOk = f.open(QIODevice::WriteOnly);
+    if(bisOk == true)
+    {
+        m_wavFileHead.nDataLength = m_audioData->size();
+        f.write((char *)&m_wavFileHead, sizeof(WavFileHead));
+        f.write(m_audioData->data(), m_audioData->size());
+        f.close();
+    }else{
+
+
+    }
+
+    //清空音频数据
+    m_audioData->clear();
+}
+
+
+qint64 DataSource::readData(char * data, qint64 maxSize)
+{
+    Q_UNUSED(data)
+    Q_UNUSED(maxSize)
+    return -1;
+}
+
+
+qint64 DataSource::writeData(const char * data, qint64 maxSize)
+{
+    if(isOK){
+        return 0;
+    }
+
+    //到达指定录制时长
+    if(m_audioData->size() > fmt.sampleRate()* 10 * fmt.sampleSize()/ 8){
+        isOK = true;
+        emit write2WavFile();
+    }
+
+//    if
+//    nDataLength = sampleRate（采样频率） * 10 * sampleSize（量化位宽）/ 8（char的大小）
+//    m_audioData->size() > fmt.sampleRate()* 10 * fmt.sampleSize()/ 8;
+
+    m_audioData->append(data, maxSize);
+    return maxSize;
+}
+
+// ---------------------------------------------------------------------------
 
 const qint64 TIME_TRANSFORM = 1000 * 1000;              // 微妙转秒;
 

@@ -154,7 +154,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="767"/>
+        <location filename="mainwindow.cpp" line="768"/>
         <source>双通道扬声器测试</source>
         <translation type="unfinished"></translation>
     </message>
@@ -458,50 +458,60 @@
 <context>
     <name>ShowInfo4Result</name>
     <message>
-        <location filename="showinfo4result.ui" line="14"/>
+        <location filename="showinfo4result.ui" line="26"/>
         <source>Form</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="showinfo4result.ui" line="28"/>
+        <location filename="showinfo4result.ui" line="40"/>
         <source>Initializing</source>
         <oldsource>Waiting</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="showinfo4result.ui" line="41"/>
+        <location filename="showinfo4result.ui" line="53"/>
         <source>00.000 s </source>
         <oldsource>0.0s</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="showinfo4result.ui" line="63"/>
+        <location filename="showinfo4result.ui" line="75"/>
         <source>OK</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="showinfo4result.ui" line="83"/>
+        <location filename="showinfo4result.ui" line="95"/>
         <source>NG</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="showinfo4result.ui" line="103"/>
+        <location filename="showinfo4result.ui" line="115"/>
         <source>Total</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="showinfo4result.ui" line="127"/>
-        <location filename="showinfo4result.ui" line="150"/>
+        <location filename="showinfo4result.ui" line="139"/>
+        <location filename="showinfo4result.ui" line="162"/>
         <source>100,100,000</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="showinfo4result.ui" line="173"/>
+        <location filename="showinfo4result.ui" line="185"/>
         <source>200,200,000</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="showinfo4result.ui" line="202"/>
+        <location filename="showinfo4result.ui" line="223"/>
+        <source>通过率：</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="showinfo4result.ui" line="236"/>
+        <source>95%</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="showinfo4result.ui" line="261"/>
         <source>Clear</source>
         <translation type="unfinished"></translation>
     </message>

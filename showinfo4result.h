@@ -41,10 +41,14 @@ private slots:
     void onNumberChanged();
 
 public:
+    void changeStatus2Start();
     void changeStatus2Waiting();
     void changeStatus2Testing();
+    void changeStatus2Recording();
+    void changeStatus2Processing();
     void changeStatus2Pass();
     void changeStatus2Fail();
+    void changeStatus2Done();
 
     void ngNumPlusOne();
     void okNumPlusOne();

@@ -16,7 +16,6 @@
 
 
 //Todo:
-//1. 测试开始时，清空指定目录下[test.csv R.wav L.wav 1R.wav 1L.wav 2R.wav, 2L.wav]
 
 // --------------------------------------------------------------------------
 
@@ -251,6 +250,7 @@ void MainWindow::onCheckAllRecordOver()
         m_recordCount[0]= false;
         m_recordCount[1]= false;
         ui->widgetShowInfo->stopTimer();
+        ui->widgetShowInfo->changeStatus2Done();
         if(m_audioInputs.count() < 2){
             ui->btnStartRecord->setEnabled(false); //关闭录制按钮
         }else{
@@ -361,7 +361,7 @@ void MainWindow::loadAutoProcess()
     m_processTable_cols =  row0.size();
     qDebug() << "Table rows:"<< m_processTable_rows;
     qDebug() << "Table cols:"<< m_processTable_cols;
-    log.warn("载入测试流程文件 成功");
+    log.info("载入测试流程文件 成功");
 
     return ;
 
@@ -889,6 +889,7 @@ void MainWindow::slot_startCustomAutoTest()
     qDebug() << "Product ID:"<< product_id;
 
 
+    ui->widgetShowInfo->changeStatus2Processing();
     emit custom_cmd_done("START");
 }
 
@@ -913,7 +914,9 @@ void MainWindow::slot_onAutoLineReceiveCmd(QString rev_cmd)
         if(rev_cmd == m_cmd_start){
             // 开始自动测试流程(流程自定义)
             log.warn("[AutoMode]: 开始测试流程.");
+            ui->widgetShowInfo->changeStatus2Start();
             emit sig_startAutoTest();
+
         }
     }
 }
@@ -1028,6 +1031,7 @@ void MainWindow::on_btnStartRecord_clicked()
 
         log.blue("开始录制");
         ui->widgetShowInfo->startTimer();
+        ui->widgetShowInfo->changeStatus2Recording();
         emit sig_startRecording(m_wavDuration);
 
     }else{
@@ -1082,6 +1086,7 @@ void MainWindow::startTestAudio()
         emit sig_startTestAudio();
 
     }else{
+        ui->widgetShowInfo->changeStatus2Fail();
         log.warn("测试失败!");
         log.warn("dir: "+m_audioTestDir);
         log.warn("file: "+wavL);
@@ -1232,6 +1237,7 @@ void MainWindow::slot_onAudioTestFinished()
 
     if(!QFile::exists(csv_file)){
         printResult(false, "测试目录下无测试结果文件！测试失败！");
+        ui->widgetShowInfo->changeStatus2Fail();
         return;
     }
 
@@ -1240,6 +1246,7 @@ void MainWindow::slot_onAudioTestFinished()
 
     if (!f.open(QIODevice::ReadOnly)) {
         printResult(false, "测试结果文件读取失败！");
+        ui->widgetShowInfo->changeStatus2Fail();
         return;
     }
 
@@ -1252,6 +1259,7 @@ void MainWindow::slot_onAudioTestFinished()
 
     if(line_l.isEmpty() || line_r.isEmpty()){
         printResult(false, "测试结果文件异常！");
+        ui->widgetShowInfo->changeStatus2Fail();
         log.info("请检查目标目录下test.csv文件");
         return;
     }
@@ -1261,6 +1269,7 @@ void MainWindow::slot_onAudioTestFinished()
 
     if(L_data.size()!=5 || R_data.size()!=5){
         printResult(false, "异常， 测试结果不存在");
+        ui->widgetShowInfo->changeStatus2Fail();
         log.warn("1. 尝试检查音频信息获取程序是否存在。");
         log.warn("2. 尝试检查设定的音频信息获取时段是否有误。");
         return;
@@ -1401,10 +1410,12 @@ void MainWindow::printResult(bool isOk, const QString& msg)
     qDebug() << "fail:"<<m_cmd_fail;
 
     if(isOk){
+        ui->widgetShowInfo->changeStatus2Pass();
         ui->widgetShowInfo->okNumPlusOne();
         m_AutoLine->sendCmd(m_cmd_pass);
         log.info(msg);
     }else{
+        ui->widgetShowInfo->changeStatus2Fail();
         ui->widgetShowInfo->ngNumPlusOne();
         m_AutoLine->sendCmd(m_cmd_fail);
         log.warn(msg);

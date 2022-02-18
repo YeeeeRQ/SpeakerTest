@@ -95,10 +95,22 @@ void ShowInfo4Result::onNumberChanged()
     this->freshen();
 }
 
+void ShowInfo4Result::changeStatus2Start()
+{
+    //    ui->label_Status->setText("Start");
+    ui->label_Status->setText("开始");
+    ui->label_Status->setStyleSheet(
+                "QLabel{"
+                "color:rgb(238,238,0)"
+                "}"
+                );
+}
+
 
 void ShowInfo4Result::changeStatus2Waiting()
 {
-    ui->label_Status->setText("Waiting");
+//    ui->label_Status->setText("Waiting");
+    ui->label_Status->setText("等待");
     ui->label_Status->setStyleSheet(
                 "QLabel{"
                 "color:rgb(238,238,0)"
@@ -108,7 +120,8 @@ void ShowInfo4Result::changeStatus2Waiting()
 
 void ShowInfo4Result::changeStatus2Testing()
 {
-    ui->label_Status->setText("Testing");
+//    ui->label_Status->setText("Testing");
+    ui->label_Status->setText("测试中");
     ui->label_Status->setStyleSheet(
                 "QLabel{"
                 "color:rgb(255, 165, 0)"
@@ -118,7 +131,8 @@ void ShowInfo4Result::changeStatus2Testing()
 
 void ShowInfo4Result::changeStatus2Pass()
 {
-    ui->label_Status->setText("Pass");
+//    ui->label_Status->setText("Pass");
+    ui->label_Status->setText("通过");
     ui->label_Status->setStyleSheet(
                 "QLabel{"
                 "color:rgb(34, 139, 34)"
@@ -128,10 +142,44 @@ void ShowInfo4Result::changeStatus2Pass()
 
 void ShowInfo4Result::changeStatus2Fail()
 {
-    ui->label_Status->setText("Fail");
+//    ui->label_Status->setText("Fail");
+    ui->label_Status->setText("失败");
     ui->label_Status->setStyleSheet(
                 "QLabel{"
                 "color:rgb(205, 51, 51)"
+                "}"
+                );
+}
+
+void ShowInfo4Result::changeStatus2Recording()
+{
+//    ui->label_Status->setText("Recording");
+    ui->label_Status->setText("录制中");
+    ui->label_Status->setStyleSheet(
+                "QLabel{"
+                "color:rgb(205, 51, 51)"
+                "}"
+                );
+}
+
+void ShowInfo4Result::changeStatus2Processing()
+{
+    //    ui->label_Status->setText("Processing");
+    ui->label_Status->setText("运行中");
+    ui->label_Status->setStyleSheet(
+                "QLabel{"
+                "color:rgb(205, 51, 51)"
+                "}"
+                );
+}
+
+void ShowInfo4Result::changeStatus2Done()
+{
+//    ui->label_Status->setText("Done");
+    ui->label_Status->setText("完成");
+    ui->label_Status->setStyleSheet(
+                "QLabel{"
+                "color:rgb(34, 139, 34)"
                 "}"
                 );
 }

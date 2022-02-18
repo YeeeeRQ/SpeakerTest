@@ -35,7 +35,6 @@ set(PROJECT_SOURCES
         showinfo4result.h showinfo4result.cpp showinfo4result.ui
 
         qmydisplaydevice.cpp qmydisplaydevice.h
-
         RecordWorker.h RecordWorker.cpp
         AutoLine.h AutoLine.cpp
         CodeReader.cpp CodeReader.h

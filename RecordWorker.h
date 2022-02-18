@@ -4,18 +4,33 @@
 #include <QObject>
 #include <QThread>
 
-#include <QAudioRecorder>
-#include <QAudioProbe>
 #include <QAudioInput>
 #include <QFile>
 #include <QUrl>
 #include <QDebug>
 #include <QTimer>
+#include <QIODevice>
 
 #if _MSC_VER >= 1600
 #pragma execution_character_set("utf-8")
 #endif
 
+struct WavFileHead
+{
+    char RIFFNAME[4];
+    unsigned int nRIFFLength;
+    char WAVNAME[4];
+    char FMTNAME[4];
+    unsigned int nFMTLength;
+    unsigned short nAudioFormat;
+    unsigned short nChannleNumber;
+    unsigned int nSampleRate;
+    unsigned int nBytesPerSecond;
+    unsigned short nBytesPerSample;
+    unsigned short   nBitsPerSample;
+    char   DATANAME[4];
+    unsigned int  nDataLength;
+};
 qint64 AddWavHeader(QString catheFileName , QString wavFileName);
 
 class RecordWorker : public QObject
@@ -45,4 +60,29 @@ private:
 //    bool setAudioFormat();
 };
 
+class DataSource : public QIODevice
+{
+    Q_OBJECT
+public:
+    explicit DataSource(QObject *parent = nullptr);
+    ~DataSource();
+    void setAudioFormat(QAudioFormat fmt);
+
+signals:
+    void write2WavFile();
+private:
+    void onWrite2WavFile();
+
+protected:
+    qint64 readData(char * data, qint64 maxSize);
+    qint64 writeData(const char * data, qint64 maxSize);
+    bool isOK = false;
+
+private:
+    QByteArray* m_audioData;
+    QAudioFormat fmt; //缺省录制格式
+    WavFileHead m_wavFileHead;
+    quint64 curDuration=0;
+    quint64 recDuration=0;
+};
 #endif // RECORDWORKER_H
