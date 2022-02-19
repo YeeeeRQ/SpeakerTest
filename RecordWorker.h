@@ -109,4 +109,16 @@ protected:
 private:
     QByteArray* m_audioData;
 };
+
+
+class AudioProcess:public QObject
+{
+    Q_OBJECT
+
+public:
+    explicit AudioProcess(QObject *parent = nullptr);
+    ~AudioProcess();
+
+};
+
 #endif // RECORDWORKER_H

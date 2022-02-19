@@ -112,6 +112,7 @@ bool DataSource::setDuration(quint64 duration)
     //!!!!!!!!!录制时长不能小于侦听测试缓存时长
     //!!!!!!!!!录制时长不能小于侦听测试缓存时长
     if(duration < 1000){
+        qDebug() << "录制时长不能小于侦听测试缓存时长";
         return false;
     }
     return m_duration = duration;
