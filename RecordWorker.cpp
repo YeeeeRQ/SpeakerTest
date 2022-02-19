@@ -141,11 +141,8 @@ qint64 DataSource::readData(char * data, qint64 maxSize)
 
 qint64 DataSource::writeData(const char * data, qint64 maxSize)
 {
-    if(isOK){
-        return 0;
-    }
-
     //到达指定录制时长
+    if(isOK) return 0;
     if(m_audioData->size() > fmt.sampleRate()* 10 * fmt.sampleSize()/ 8){
         isOK = true;
         emit write2WavFile();

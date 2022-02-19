@@ -11,10 +11,6 @@
 #include <QTimer>
 #include <QIODevice>
 
-#if _MSC_VER >= 1600
-#pragma execution_character_set("utf-8")
-#endif
-
 struct WavFileHead
 {
     char RIFFNAME[4];
