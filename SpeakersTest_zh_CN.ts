@@ -42,68 +42,58 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="393"/>
+        <location filename="mainwindow.ui" line="398"/>
         <source>录制时长：</source>
         <oldsource>时长：</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="417"/>
+        <location filename="mainwindow.ui" line="422"/>
         <source>2000</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="432"/>
+        <location filename="mainwindow.ui" line="443"/>
         <source>ms</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="494"/>
+        <location filename="mainwindow.ui" line="461"/>
         <source>开始录制(R)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="448"/>
-        <source>频率</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.ui" line="460"/>
-        <source>0</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.ui" line="472"/>
-        <source>Hz</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.ui" line="556"/>
+        <location filename="mainwindow.ui" line="523"/>
         <source>测试(T)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="615"/>
+        <location filename="mainwindow.ui" line="582"/>
         <source>程序输出</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="702"/>
+        <location filename="mainwindow.ui" line="669"/>
         <source>debug</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="596"/>
+        <location filename="mainwindow.ui" line="679"/>
+        <source>single mic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="mainwindow.ui" line="563"/>
         <source>测试结果</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="680"/>
+        <location filename="mainwindow.ui" line="647"/>
         <source>麦克风输入</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="673"/>
+        <location filename="mainwindow.ui" line="640"/>
         <source>音频测试</source>
         <oldsource>自动测试</oldsource>
         <translation type="unfinished"></translation>
@@ -154,17 +144,17 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="658"/>
+        <location filename="mainwindow.ui" line="625"/>
         <source>设定</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="666"/>
+        <location filename="mainwindow.ui" line="633"/>
         <source>机种管理</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="687"/>
+        <location filename="mainwindow.ui" line="654"/>
         <source>外部设备</source>
         <translation type="unfinished"></translation>
     </message>
@@ -198,7 +188,8 @@
     </message>
     <message>
         <location filename="Setup4AutoTest.ui" line="487"/>
-        <source>播放顺序</source>
+        <source>手动测试 播放顺序</source>
+        <oldsource>播放顺序</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -213,7 +204,8 @@
     </message>
     <message>
         <location filename="Setup4AutoTest.ui" line="87"/>
-        <source>频率设定</source>
+        <source>手动测试 频率设定</source>
+        <oldsource>频率设定</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -228,6 +220,7 @@
     </message>
     <message>
         <location filename="Setup4AutoTest.ui" line="102"/>
+        <location filename="Setup4AutoTest.ui" line="540"/>
         <source>1000</source>
         <translation type="unfinished"></translation>
     </message>
@@ -249,7 +242,8 @@
     </message>
     <message>
         <location filename="Setup4AutoTest.ui" line="170"/>
-        <source>时段1</source>
+        <source>手动测试 时段1</source>
+        <oldsource>时段1</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -300,7 +294,8 @@
     </message>
     <message>
         <location filename="Setup4AutoTest.ui" line="303"/>
-        <source>时段2</source>
+        <source>手动测试 时段2</source>
+        <oldsource>时段2</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -324,10 +319,26 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="Setup4AutoTest.ui" line="517"/>
+        <source>自动测试 初始检测频率</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Setup4AutoTest.ui" line="527"/>
+        <source>频率 : </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Setup4AutoTest.ui" line="547"/>
+        <source>Hz</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="Setup4AutoTest.ui" line="158"/>
         <location filename="Setup4AutoTest.ui" line="289"/>
         <location filename="Setup4AutoTest.ui" line="422"/>
         <location filename="Setup4AutoTest.ui" line="474"/>
+        <location filename="Setup4AutoTest.ui" line="571"/>
         <source>应用</source>
         <translation type="unfinished"></translation>
     </message>

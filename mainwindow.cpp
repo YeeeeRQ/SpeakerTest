@@ -801,8 +801,12 @@ void MainWindow::Setting4MainWindow()
 
     // 打印启动时间
     QDateTime cur = QDateTime::currentDateTime();
-    ui->statusbar->showMessage("启动时间 : " +
-                               cur.toString("yyyy-MM-dd hh:mm:ss"), 0);
+    label_startUpTime = new QLabel("启动时间 : " + cur.toString("yyyy-MM-dd hh:mm:ss"),this);
+    ui->statusbar->addWidget(label_startUpTime);
+
+    label_audioFreq = new QLabel("频率:~Hz", this);
+    ui->statusbar->addWidget(label_audioFreq);
+
 
 // QPlainTextEdit log 输出设定
 //    textedit4log.setEnabled(false);

@@ -35,7 +35,6 @@ private:
     QSqlTableModel *tabModel; //数据模型
     QItemSelectionModel *theSelection; //选择模型
 
-
     void openTable();
     void revertTable();
     void saveTable();
@@ -55,9 +54,6 @@ private slots:
     void on_btnSave_clicked();
 
     void on_btnUndo_clicked();
-
-
-
 };
 
 #endif // SETUP4MODEL_H

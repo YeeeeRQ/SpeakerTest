@@ -21,8 +21,8 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Sql REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS AxContainer REQUIRED)
 
 # aubio
-set(AUBIO_INC_DIR "C:\\Users\\foo\\source\\qt\\aubio-0.4.6-win64\\include")
-set(AUBIO_LINK_DIR "C:\\Users\\foo\\source\\qt\\aubio-0.4.6-win64\\lib")
+set(AUBIO_INC_DIR "..\\aubio-0.4.6-win64\\include")
+set(AUBIO_LINK_DIR "..\\aubio-0.4.6-win64\\lib")
 include_directories(${AUBIO_INC_DIR})
 link_directories(${AUBIO_LINK_DIR})
 set(CMAKE_CXX_FLAGS

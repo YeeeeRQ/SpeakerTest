@@ -379,103 +379,70 @@ QHeaderView::section/*表头样式*/
                        <item>
                         <layout class="QHBoxLayout" name="horizontalLayout_16">
                          <item>
-                          <layout class="QVBoxLayout" name="verticalLayout_11">
-                           <item>
-                            <layout class="QHBoxLayout" name="horizontalLayout_10">
-                             <item>
-                              <widget class="QLabel" name="label_2">
-                               <property name="font">
-                                <font>
-                                 <pointsize>14</pointsize>
-                                </font>
-                               </property>
-                               <property name="text">
-                                <string>录制时长：</string>
-                               </property>
-                              </widget>
-                             </item>
-                             <item>
-                              <widget class="QLineEdit" name="lineEditDurationOfRecord">
-                               <property name="minimumSize">
-                                <size>
-                                 <width>150</width>
-                                 <height>40</height>
-                                </size>
-                               </property>
-                               <property name="maximumSize">
-                                <size>
-                                 <width>50</width>
-                                 <height>16777215</height>
-                                </size>
-                               </property>
-                               <property name="font">
-                                <font>
-                                 <pointsize>16</pointsize>
-                                </font>
-                               </property>
-                               <property name="text">
-                                <string>2000</string>
-                               </property>
-                               <property name="maxLength">
-                                <number>20000</number>
-                               </property>
-                              </widget>
-                             </item>
-                             <item>
-                              <widget class="QLabel" name="label_3">
-                               <property name="font">
-                                <font>
-                                 <pointsize>14</pointsize>
-                                </font>
-                               </property>
-                               <property name="text">
-                                <string>ms</string>
-                               </property>
-                              </widget>
-                             </item>
-                            </layout>
-                           </item>
-                           <item>
-                            <layout class="QHBoxLayout" name="horizontalLayout_19" stretch="0,1,0">
-                             <item>
-                              <widget class="QLabel" name="label_4">
-                               <property name="font">
-                                <font>
-                                 <pointsize>14</pointsize>
-                                </font>
-                               </property>
-                               <property name="text">
-                                <string>频率:</string>
-                               </property>
-                              </widget>
-                             </item>
-                             <item>
-                              <widget class="QLabel" name="label_AudioFreq">
-                               <property name="font">
-                                <font>
-                                 <pointsize>14</pointsize>
-                                </font>
-                               </property>
-                               <property name="text">
-                                <string>0</string>
-                               </property>
-                              </widget>
-                             </item>
-                             <item>
-                              <widget class="QLabel" name="label_5">
-                               <property name="font">
-                                <font>
-                                 <pointsize>14</pointsize>
-                                </font>
-                               </property>
-                               <property name="text">
-                                <string>Hz</string>
-                               </property>
-                              </widget>
-                             </item>
-                            </layout>
-                           </item>
-                          </layout>
+                          <layout class="QVBoxLayout" name="verticalLayout_11"/>
+                         </item>
+                         <item>
+                          <widget class="QLabel" name="label_2">
+                           <property name="minimumSize">
+                            <size>
+                             <width>0</width>
+                             <height>40</height>
+                            </size>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>14</pointsize>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>录制时长：</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QLineEdit" name="lineEditDurationOfRecord">
+                           <property name="minimumSize">
+                            <size>
+                             <width>150</width>
+                             <height>40</height>
+                            </size>
+                           </property>
+                           <property name="maximumSize">
+                            <size>
+                             <width>50</width>
+                             <height>16777215</height>
+                            </size>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>16</pointsize>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>2000</string>
+                           </property>
+                           <property name="maxLength">
+                            <number>20000</number>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QLabel" name="label_3">
+                           <property name="minimumSize">
+                            <size>
+                             <width>0</width>
+                             <height>40</height>
+                            </size>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>14</pointsize>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>ms</string>
+                           </property>
+                          </widget>
                          </item>
                          <item>
                           <widget class="QPushButton" name="btnStartRecord">
@@ -730,7 +697,7 @@ QHeaderView::section/*表头样式*/
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>22</height>
+     <height>17</height>
     </rect>
    </property>
   </widget>

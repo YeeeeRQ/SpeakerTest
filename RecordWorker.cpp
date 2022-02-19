@@ -54,6 +54,7 @@ void RecordWorker::setOutputFile(QString filename)
 
 void RecordWorker::micInRecording(QAudio::State s)
 {
+    qDebug() << "QAudio State: " << s;
     if(s != QAudio::ActiveState) return;
     static QTimer timer;
     timer.singleShot(duration, this, [=](){
@@ -84,7 +85,10 @@ DataSource::DataSource( QObject *parent) :
     fmt.setCodec("audio/pcm");
     fmt.setByteOrder(QAudioFormat::LittleEndian);
     fmt.setSampleType(QAudioFormat::UnSignedInt);
+
     m_audioData = new QByteArray;
+    m_testAudioData = new QByteArray;
+    isOK = false;
 }
 
 DataSource::~DataSource()
@@ -97,6 +101,23 @@ void DataSource::setAudioFormat(QAudioFormat fmt)
     this->fmt = fmt;
 }
 
+bool DataSource::setOutputFile(const QString& filename)
+{
+    m_outputFile.setFileName(filename);
+    return m_outputFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
+}
+
+bool DataSource::setDuration(quint64 duration)
+{
+    //!!!!!!!!!录制时长不能小于侦听测试缓存时长
+    //!!!!!!!!!录制时长不能小于侦听测试缓存时长
+    if(duration < 1000){
+        return false;
+    }
+    return m_duration = duration;
+}
+
+// 到达指定录制时长，保存录音文件
 void DataSource::onWrite2WavFile()
 {
     auto sampleSize = fmt.sampleSize();
@@ -113,14 +134,13 @@ void DataSource::onWrite2WavFile()
     m_wavFileHead.nBitsPerSample = sampleSize;//量化位宽
     m_wavFileHead.nDataLength = 0;//实际数据长度
 
-    QFile f("test.wav");
-    bool bisOk = f.open(QIODevice::WriteOnly);
+    bool bisOk = m_outputFile.open(QIODevice::WriteOnly);
     if(bisOk == true)
     {
         m_wavFileHead.nDataLength = m_audioData->size();
-        f.write((char *)&m_wavFileHead, sizeof(WavFileHead));
-        f.write(m_audioData->data(), m_audioData->size());
-        f.close();
+        m_outputFile.write((char *)&m_wavFileHead, sizeof(WavFileHead));
+        m_outputFile.write(m_audioData->data(), m_audioData->size());
+        m_outputFile.close();
     }else{
 
 
@@ -141,19 +161,72 @@ qint64 DataSource::readData(char * data, qint64 maxSize)
 
 qint64 DataSource::writeData(const char * data, qint64 maxSize)
 {
-    //到达指定录制时长
-    if(isOK) return 0;
-    if(m_audioData->size() > fmt.sampleRate()* 10 * fmt.sampleSize()/ 8){
+
+    if(isOK) return 0; //录制任务已结束
+
+    // 0. 侦听任务
+
+    // 时长过滤器
+
+    // 采集超过100ms ，检测该时段频率
+    // 到达指定频率范围，发送 侦听结束信号
+    // 超过指定时长， 发送 侦听超时信号
+
+    // 接受到侦听结束信号，开始 录制指定音频并使用wav格式保存至文件
+
+    if(!isInterceptDone){// 侦听任务未执行
+
+        static const quint64 size4100ms = 0.1 * (fmt.sampleRate() * fmt.sampleSize()/ 8);
+        if(m_testAudioData->size() > size4100ms){
+            static quint64 count = 0;
+            static bool prevFreqInRange = false;
+            qint64 freq = 0;
+
+            //         提取频率
+            //        emit getFrequency(qint64 freq);
+
+            if(freq > 1000){ // 满足条件
+                if(prevFreqInRange){
+                    ++count;
+                }else{
+                    count = 1;
+                }
+                prevFreqInRange = true;
+            }else{
+                count = 0;
+                prevFreqInRange = false;
+            }
+
+            // 连续5次满足指定频率 （500ms音频都是指定频率区间）
+            if(count > 5){
+                // 侦听任务完成
+                isInterceptDone = true;
+                //emit interceptDone(isInterceptDone);
+            }
+        }
+        // 清空缓存音频数据
+        m_testAudioData->clear();
+        m_audioData->clear();
+    }else{// 侦听任务结束
+//        m_testAudioData->append(data, maxSize); //保存音频数据 for test
+        m_audioData->append(data, maxSize); //保存音频数据
+    }
+
+
+    // 1. 录制任务
+    //到达指定录制时长(通过pcm流大小测定，而非计时统计)
+    quint64 size4record = (m_duration/1000.0) * (fmt.sampleRate() * fmt.sampleSize()/ 8);
+
+    if(m_audioData->size() > size4record){
         isOK = true;
+
+        // 2. 测试任务
+
         emit write2WavFile();
     }
 
-//    if
-//    nDataLength = sampleRate（采样频率） * 10 * sampleSize（量化位宽）/ 8（char的大小）
-//    m_audioData->size() > fmt.sampleRate()* 10 * fmt.sampleSize()/ 8;
 
-    m_audioData->append(data, maxSize);
-    return maxSize;
+    return maxSize; //返回每次收到数据的大小
 }
 
 // ---------------------------------------------------------------------------

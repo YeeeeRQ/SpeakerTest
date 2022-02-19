@@ -46,7 +46,6 @@ int AudioProcess::process_wav(const QString& wav)
 
     //
     vector<uint_t> len1_pitch, len2_pitch;
-    vector<smpl_t> len1_level, len2_level;
 
     // 两时段的音频处理
     do {
@@ -56,26 +55,14 @@ int AudioProcess::process_wav(const QString& wav)
         //std::cout << std::endl;
 
         aubio_pitch_do(o, samples, pitch_out);
+
         tick = n_frames / (float)samplerate * 1000;
+        std::cout << tick << std::endl;
 
-        // 时段1
-        if (tick > len1[0] && tick < len1[1]) {
-            //std::cout << tick << std::endl;
+        //fvec_print(pitch_out);
+        //break;
+        len1_pitch.push_back(pitch_out->data[0]);
 
-            //fvec_print(pitch_out);
-            //break;
-            len1_pitch.push_back(pitch_out->data[0]);
-            smpl_t level = aubio_level_lin(samples);
-            len1_level.push_back(level);
-            std::cout << level << std::endl;
-        }
-
-        // 时段2
-        if (tick > len2[0] && tick < len2[1]) {
-            len2_pitch.push_back(pitch_out->data[0]);
-            smpl_t level = aubio_level_lin(samples);
-            len2_level.push_back(level);
-        }
         //std::cout << tick << std::endl;
         //fvec_print(pitch_out);
 
@@ -88,36 +75,17 @@ int AudioProcess::process_wav(const QString& wav)
     aubio_cleanup();
 
     //
-    if (len1_level.size() == 0) return -1;
     if (len1_pitch.size() == 0) return -1;
-    if (len2_level.size() == 0) return -1;
-    if (len2_pitch.size() == 0) return -1;
 
     // 振幅(amplitude)  -->  响度(loudness)
     // 频率(frequency)  -->  音调(pitch)
 
 
-    double len1_level_avg = std::accumulate(len1_level.begin(), len1_level.end(), 0.0) / len1_level.size();
     double len1_pitch_avg = std::accumulate(len1_pitch.begin(), len1_pitch.end(), 0.0) / len1_pitch.size();
 
-    double len2_level_avg = std::accumulate(len2_level.begin(), len2_level.end(), 0.0) / len2_level.size();
-    double len2_pitch_avg = std::accumulate(len2_pitch.begin(), len2_pitch.end(), 0.0) / len2_pitch.size();
-
-    len1_level_avg *= 1e8;
-    len2_level_avg *= 1e8;
 
     std::cout << "## tick 1 " << len1[0] << "-" << len1[1] << "\n";
-    std::cout << "* level :" << len1_level_avg << std::endl;
     std::cout << "* pitch :" << len1_pitch_avg << std::endl;
-
-    std::cout << "## tick 2 " << len2[0] << "-" << len2[1] << "\n";
-    std::cout << "* level :" << len2_level_avg << std::endl;
-    std::cout << "* pitch :" << len2_pitch_avg << std::endl;
-
-    out_csv += std::to_string(len1_level_avg) + ',';
-    out_csv += std::to_string(len1_pitch_avg) + ',';
-    out_csv += std::to_string(len2_level_avg) + ',';
-    out_csv += std::to_string(len2_pitch_avg);
 
     return 0;
 }

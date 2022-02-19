@@ -61,6 +61,11 @@ private:
     QString m_workDir;   // 音频录制存放(主目录)
     QString m_audioTestDir;      // 录制文件保存目录 (主目录->机种->日期时间)
 
+
+    // 底部状态栏
+    QLabel * label_startUpTime; //记录启动时间
+    QLabel * label_audioFreq;   //音频频率
+
     // 音频播放
     QMediaPlayer* player;
 
