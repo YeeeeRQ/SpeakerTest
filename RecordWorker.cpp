@@ -1,7 +1,22 @@
 ﻿#include "RecordWorker.h"
 
+
 // ---------------------------------------------------------------------------
-// class RecordWorker
+// AudioProcess
+// ---------------------------------------------------------------------------
+AudioProcess::AudioProcess(QObject *parent)
+{
+
+}
+
+AudioProcess::~AudioProcess()
+{
+
+}
+
+
+// ---------------------------------------------------------------------------
+// RecordWorker
 // ---------------------------------------------------------------------------
 RecordWorker::RecordWorker(QObject *parent)
     : QObject{parent}
@@ -26,7 +41,8 @@ void RecordWorker::startRecord(quint64 duration)
         qDebug() << "测试失败，输入设备不支持此设置";
         return;
     }
-    audioInput->start(&m_outputFile);
+//    audioInput->start(&m_outputFile);
+    audioInput->start(&ds);
     isRecording = true;
 }
 
@@ -41,40 +57,39 @@ bool RecordWorker::setMic(quint64 idx)
         delete audioInput;
     }
     audioInput = new QAudioInput(curDevice, fmt, this);
-    connect(audioInput, &QAudioInput::stateChanged, this, &RecordWorker::micInRecording);
+//    connect(audioInput, &QAudioInput::stateChanged, this, &RecordWorker::micInRecording);
     audioInput->setBufferSize(4000);
     return true;
 }
 
-void RecordWorker::setOutputFile(QString filename)
+bool RecordWorker::setOutputFile(QString filename)
 {
-    m_outputFile.setFileName(filename);
-    m_outputFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
+    return ds.setOutputFile(filename);
 }
 
-void RecordWorker::micInRecording(QAudio::State s)
-{
-    qDebug() << "QAudio State: " << s;
-    if(s != QAudio::ActiveState) return;
-    static QTimer timer;
-    timer.singleShot(duration, this, [=](){
-        audioInput->stop();
-        m_outputFile.close();
+//void RecordWorker::micInRecording(QAudio::State s)
+//{
+//    qDebug() << "QAudio State: " << s;
+//    if(s != QAudio::ActiveState) return;
+//    static QTimer timer;
+//    timer.singleShot(duration, this, [=](){
+//        audioInput->stop();
+//        m_outputFile.close();
 
-        isRecording = false;
-        //Todo:
-        // 1. raw -> wav
-        // 2. emit record done
-        if (AddWavHeader(m_outputFile.fileName(), m_outputFile.fileName() + ".wav") > 0){
-            qDebug() << "raw --> wav";
-        }
+//        isRecording = false;
+//        //Todo:
+//        // 1. raw -> wav
+//        // 2. emit record done
+//        if (AddWavHeader(m_outputFile.fileName(), m_outputFile.fileName() + ".wav") > 0){
+//            qDebug() << "raw --> wav";
+//        }
 
-        emit recordDone();
-    });
-}
+//        emit recordDone();
+//    });
+//}
 
 // ---------------------------------------------------------------------------
-// class DataSource
+// DataSource
 // ---------------------------------------------------------------------------
 DataSource::DataSource( QObject *parent) :
     QIODevice(parent)
@@ -149,6 +164,9 @@ void DataSource::onWrite2WavFile()
 
     //清空音频数据
     m_audioData->clear();
+
+    // wav文件保存完毕， 录制过程结束。
+    emit recordDone();
 }
 
 
@@ -164,6 +182,7 @@ qint64 DataSource::writeData(const char * data, qint64 maxSize)
 {
 
     if(isOK) return 0; //录制任务已结束
+    isInterceptDone = true;  //不进行侦测 for debug
 
     // 0. 侦听任务
 
@@ -216,7 +235,7 @@ qint64 DataSource::writeData(const char * data, qint64 maxSize)
 
     // 1. 录制任务
     //到达指定录制时长(通过pcm流大小测定，而非计时统计)
-    quint64 size4record = (m_duration/1000.0) * (fmt.sampleRate() * fmt.sampleSize()/ 8);
+    quint64 size4record = (double)(m_duration/1000.0) * (double)(fmt.sampleRate() * fmt.sampleSize()/ 8);
 
     if(m_audioData->size() > size4record){
         isOK = true;

@@ -27,35 +27,10 @@ struct WavFileHead
     char   DATANAME[4];
     unsigned int  nDataLength;
 };
-qint64 AddWavHeader(QString catheFileName , QString wavFileName);
 
-class RecordWorker : public QObject
-{
-    Q_OBJECT
-public:
-    explicit RecordWorker(QObject *parent = nullptr);
-
-signals:
-    void recordDone(); // 工作流程结束
-
-public slots:
-    bool setMic(quint64 idx);
-    void startRecord(quint64 duration);
-    void setOutputFile(QString filename);
-    void micInRecording(QAudio::State s);
-
-private:
-    bool isRecording = false;
-    quint64 duration = 0;
-
-    QFile m_outputFile;
-    QAudioFormat fmt; //缺省录制格式
-    QAudioInput* audioInput = nullptr;//音频输入设备
-    QAudioDeviceInfo curDevice;//当前输入设备
-    QList<QAudioDeviceInfo> deviceList;  //音频录入设备列表
-//    bool setAudioFormat();
-};
-
+/*
+ * class DataSource
+ */
 class DataSource : public QIODevice
 {
     Q_OBJECT
@@ -100,7 +75,6 @@ private:
 
     QTimer interceptCheckTimer; //侦听超时检测
 
-
 // QIODevice 数据读写
 protected:
     qint64 readData(char * data, qint64 maxSize);
@@ -108,6 +82,11 @@ protected:
     bool isOK = false;
 private:
     QByteArray* m_audioData;
+
+signals:
+    void getFrequency(quint64 freq); //频率获取
+    void interceptDone(bool done);   //侦听结果 (超时|正常结束)
+    void recordDone();
 };
 
 
@@ -119,6 +98,41 @@ public:
     explicit AudioProcess(QObject *parent = nullptr);
     ~AudioProcess();
 
+};
+
+
+qint64 AddWavHeader(QString catheFileName , QString wavFileName);
+
+class RecordWorker : public QObject
+{
+    Q_OBJECT
+public:
+    explicit RecordWorker(QObject *parent = nullptr);
+
+signals:
+    void recordDone(); // 工作流程结束
+
+public slots:
+    void startRecord(quint64 duration);
+//    void micInRecording(QAudio::State s);
+
+    bool setMic(quint64 idx);
+    bool setOutputFile(QString filename);
+
+private:
+    bool isRecording = false;
+    quint64 duration = 0;
+
+    QAudioFormat fmt; //缺省录制格式
+    QAudioInput* audioInput = nullptr;//音频输入设备
+    QAudioDeviceInfo curDevice;//当前输入设备
+    QList<QAudioDeviceInfo> deviceList;  //音频录入设备列表
+
+    DataSource ds;
+    AudioProcess ap;
+
+    QFile m_outputFile;
+//    bool setAudioFormat();
 };
 
 #endif // RECORDWORKER_H

@@ -20,8 +20,8 @@
 
 void MainWindow::fordebug()
 {
-    auto * test = new AudioProcess(1,1);
-    delete test;
+//    auto * test = new AudioProcess(1,1);
+//    delete test;
 }
 
 MainWindow::MainWindow(QWidget *parent)
@@ -828,7 +828,7 @@ void MainWindow::Setting4MainWindow()
     ui->lineEditDurationOfRecord->setText(QString::number(m_wavDuration));
 
 // 输入验证
-    auto* durationValidator = new QIntValidator(0, 20000,this);
+    auto* durationValidator = new QIntValidator(1000, 20000,this);
     ui->lineEditDurationOfRecord->setValidator(durationValidator);
 
 

@@ -30,7 +30,6 @@
 #include "RecordWorker.h"
 #include "MyCommonFun.h"
 
-#include "AudioProcess.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }

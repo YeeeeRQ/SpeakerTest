@@ -78,11 +78,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="679"/>
-        <source>single mic</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="mainwindow.ui" line="563"/>
         <source>测试结果</source>
         <translation type="unfinished"></translation>
