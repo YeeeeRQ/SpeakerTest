@@ -1581,10 +1581,11 @@ void MainWindow::Setting4Devices()
 
         //            connect(this, SIGNAL(sig_startRecording(quint64)), m_pRecWorkerR, SLOT(doWork(quint64)));
         connect(this, &MainWindow::sig_startRecording, m_pRecWorkerR, &RecordWorker::startRecord);
-        connect(&m_recordThread4L, &QThread::finished, m_pRecWorkerR, &QObject::deleteLater);
+        connect(&m_recordThread4R, &QThread::finished, m_pRecWorkerR, &QObject::deleteLater);
         connect(m_pRecWorkerR, SIGNAL(recordDone()), this, SLOT(slot_onRMicRecordingOver()));
 //	    connect(this, &MainWindow::sig_setRecordInputR, m_pRecWorkerR, &RecordWorker::setAudioInput);
         connect(this, &MainWindow::sig_setRecordInputR, m_pRecWorkerR, &RecordWorker::setMic);
+
 
         // 启动录制线程
         m_recordThread4L.start();

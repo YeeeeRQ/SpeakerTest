@@ -154,6 +154,9 @@ DataSource::DataSource( QObject *parent) :
     m_audioData = new QByteArray;
     m_testAudioData = new QByteArray;
     isOK = false;
+
+
+    connect(this, &DataSource::write2WavFile, this, &DataSource::onWrite2WavFile);
 }
 
 DataSource::~DataSource()
@@ -295,6 +298,9 @@ qint64 DataSource::writeData(const char * data, qint64 maxSize)
     // 1. 录制任务
     //到达指定录制时长(通过pcm流大小测定，而非计时统计)
     quint64 size4record = (double)(m_duration/1000.0) * (double)(fmt.sampleRate() * fmt.sampleSize()/ 8);
+//    quint64 size4record = 10 * fmt.sampleRate() * fmt.sampleSize()/ 8;
+    qDebug() << "record size: "<< m_audioData->size();
+    qDebug() << "target record size: "<< size4record;
 
     if(m_audioData->size() > size4record){
         isOK = true;

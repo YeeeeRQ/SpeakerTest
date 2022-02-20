@@ -153,7 +153,7 @@ void Setup4Mic::on_btnStartL_clicked()
     if (!curDevice0.isFormatSupported(defaultAudioFormat))
     {
         QMessageBox::critical(this,"音频输入设置测试","测试失败，输入设备不支持此设置");
-        return;
+//        return;
     }
     audioInput0 = new QAudioInput(curDevice0,defaultAudioFormat, this);
     audioInput0->setBufferSize(displayPointsCount);
@@ -174,7 +174,7 @@ void Setup4Mic::on_btnStartR_clicked()
     if (!curDevice1.isFormatSupported(defaultAudioFormat))
     {
         QMessageBox::critical(this,"音频输入设置测试","测试失败，输入设备不支持此设置");
-        return;
+//        return;
     }
     audioInput1 = new QAudioInput(curDevice1,defaultAudioFormat, this);
     audioInput1->setBufferSize(displayPointsCount);
