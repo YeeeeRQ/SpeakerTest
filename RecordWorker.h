@@ -130,8 +130,8 @@ private:
     QAudioDeviceInfo curDevice;//当前输入设备
     QList<QAudioDeviceInfo> deviceList;  //音频录入设备列表
 
-    DataSource ds;
-    AudioProcess ap;
+    DataSource* ds;
+    AudioProcess* ap;
 
     QFile m_outputFile;
 //    bool setAudioFormat();
