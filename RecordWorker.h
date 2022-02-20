@@ -29,8 +29,10 @@ struct WavFileHead
     unsigned int  nDataLength;
 };
 
+qint64 AddWavHeader(QString catheFileName , QString wavFileName);
+
 /*
- * class DataSource
+ * DataSource
  */
 class DataSource : public QIODevice
 {
@@ -38,6 +40,7 @@ class DataSource : public QIODevice
 public:
     explicit DataSource(QObject *parent = nullptr);
     ~DataSource();
+    void resetStatus();
 
 
 // 音频保存时长设定
@@ -75,6 +78,7 @@ public:
     void setIntercept(bool open); // 侦听 开关设定
     void setInterceptTimeout(quint64 duration); // 侦听 超时设定
     void setInterceptFreqRange(qint64 freq, quint64 range);
+
 private:
     bool singleIntercept = false; //是否打开侦测
     bool isInterceptDone = false; //侦测是否完成
@@ -96,7 +100,7 @@ private:
     QByteArray* m_audioData;
 
 signals:
-    void getFrequency(quint64 freq); //频率获取
+    void getFrequency(qint64 freq); //频率获取
     void interceptDone(bool done);   //侦听是否完成
     void interceptTimeout(bool timeout);   //侦听超时
     void recordDone();
@@ -104,8 +108,10 @@ private slots:
     void onInterceptTimeout(bool timeout);
 };
 
-qint64 AddWavHeader(QString catheFileName , QString wavFileName);
 
+/*
+ * RecordWorker
+ */
 class RecordWorker : public QObject
 {
     Q_OBJECT
@@ -114,19 +120,25 @@ public:
     ~RecordWorker();
 
 public:
-    bool setMic(quint64 idx); // 输入麦克风
     bool setOutputFile(QString filename); // 录制输出文件
 
     void setIntercept(bool open); // 侦听 开关设定
     void setInterceptTimeout(quint64 duration); // 侦听 超时设定
     void setInterceptFreqRange(qint64 freq, quint64 range); // 侦听 频率范围设定
 
+
 signals:
     void recordDone(); // 工作流程结束
+    void interceptTimeout();
+    void getFrequency(qint64 freq);
 
 public slots:
     void startRecord(quint64 duration);
+    bool setMic(quint64 idx); // 输入麦克风
     void onRecordDone();
+
+    void onInterceptTimeout(); //侦测超时处理
+    void onGetFrequency(qint64 freq);
 
 private:
     bool isRecording = false;

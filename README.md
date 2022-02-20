@@ -43,3 +43,5 @@
 * 设定侦听超时. XXX ms
 * 设定侦听频率满足范围. 1000(±100)Hz
 
+set_intercept_timeout 10000
+set_intercept_freq 1000 200

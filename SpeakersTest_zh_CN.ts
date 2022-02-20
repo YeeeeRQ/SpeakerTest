@@ -2,14 +2,6 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="zh_CN">
 <context>
-    <name>Dlg4ChangeValue</name>
-    <message>
-        <location filename="Dlg4ChangeValue.ui" line="14"/>
-        <source>Dialog</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>MainWindow</name>
     <message>
         <location filename="mainwindow.ui" line="20"/>
@@ -154,7 +146,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="802"/>
+        <location filename="mainwindow.cpp" line="805"/>
         <source>双通道扬声器测试</source>
         <translation type="unfinished"></translation>
     </message>

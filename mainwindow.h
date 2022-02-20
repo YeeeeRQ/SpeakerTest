@@ -126,6 +126,8 @@ private:
     void custom_do_sendcmd2mnt(const QString& cmd);
     void custom_do_set_order(const QString & first_speaker);
     void custom_do_get_audio_info(int order, quint64 tick, quint64 tick_range, quint64 freq,quint64 freq_range);
+    void custom_do_set_intercept_timeout(quint64 duration); //设定侦测时长
+    void custom_do_set_intercept_freq(qint64 freq, quint64 range); //设定侦测频率范围
     void custom_do_autotest_end();
 
     void printResult(bool isOk, const QString& msg);
@@ -144,6 +146,7 @@ private slots:
     void customCmdParser(const QString& cmd, const QList<QString>&cmd_args);
 //    void processCmdParser(QString cmd);
     void onCheckAllRecordOver();
+    void onInterceptTimeout(); //侦测超时
 
 
 
@@ -184,6 +187,7 @@ private: // UI
     void Setting4Path();
     void Setting4Config();
     void Setting4Devices();
+    void setting4Mic();
     void Setting4MainWindow(); // 界面载入后的设定
 
     void setWavDir4UI(const QString &dir);

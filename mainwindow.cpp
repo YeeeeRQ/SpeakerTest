@@ -38,6 +38,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     player = new QMediaPlayer;
 
+    this->setting4Mic();
+
     this->Setting4Config();
     this->Setting4Path();
     this->Setting4Theme();
@@ -271,6 +273,13 @@ void MainWindow::onCheckAllRecordOver()
     }
 }
 
+void MainWindow::onInterceptTimeout()
+{
+    // 侦测超时
+    log.warn("侦测超时!");
+    log.warn("侦测超时!");
+}
+
 
 // --------------------------------------------------------------------------
 
@@ -342,16 +351,16 @@ void MainWindow::loadConfig()
 
     if(!m_micL.isEmpty()){
 //        emit sig_setRecordInputL(m_micL);
-//        emit sig_setRecordInputL(m_micIndexL);
-        m_pRecWorkerL->setMic(m_micIndexL);
+        emit sig_setRecordInputL(m_micIndexL);
+//        m_pRecWorkerL->setMic(m_micIndexL);
 
     }else{
         log.warn("L 左侧麦克风未设定");
     }
     if(!m_micR.isEmpty()){
 //        emit sig_setRecordInputR(m_micR);
-//        emit sig_setRecordInputR(m_micIndexR);
-        m_pRecWorkerR->setMic(m_micIndexR);
+        emit sig_setRecordInputR(m_micIndexR);
+//        m_pRecWorkerR->setMic(m_micIndexR);
     }else{
         log.warn("R 右侧麦克风未设定");
     }
@@ -481,6 +490,17 @@ void MainWindow::custom_do_record(quint64 duration)
     m_pRecWorkerL->setOutputFile(m_audioTestDir + wav_name[0]);
     m_pRecWorkerR->setOutputFile(m_audioTestDir + wav_name[1]);
 
+    //打开侦测
+    bool openIntercept = true;
+    m_pRecWorkerL->setIntercept(openIntercept);
+    m_pRecWorkerR->setIntercept(openIntercept);
+
+    // 侦测设定
+    m_pRecWorkerL->setInterceptFreqRange(1000, 100);
+    m_pRecWorkerL->setInterceptTimeout(10000);
+    m_pRecWorkerR->setInterceptFreqRange(1000, 100);
+    m_pRecWorkerR->setInterceptTimeout(10000);
+
     if(duration >0){
         //标志位置位
         m_recordCount[0]= false;
@@ -593,6 +613,24 @@ void MainWindow::custom_do_get_audio_info(int order, quint64 tick, quint64 tick_
     }
 }
 
+void MainWindow::custom_do_set_intercept_timeout(quint64 duration)
+{
+    qDebug() << "custom_do_set_intercept_timeout";
+    m_pRecWorkerL->setInterceptTimeout(duration);
+    m_pRecWorkerR->setInterceptTimeout(duration);
+
+    emit custom_cmd_done("NEXT");
+}
+
+void MainWindow::custom_do_set_intercept_freq(qint64 freq, quint64 range)
+{
+    qDebug() << "custom_do_set_intercept_freq";
+    m_pRecWorkerL->setInterceptFreqRange(freq, range);
+    m_pRecWorkerR->setInterceptFreqRange(freq, range);
+
+    emit custom_cmd_done("NEXT");
+}
+
 // 自定义测试流程结束
 void MainWindow::custom_do_autotest_end()
 {
@@ -692,13 +730,23 @@ void MainWindow::customCmdParser(const QString& cmd, const QList<QString>&cmd_ar
         quint64 duration = cmd_args.at(0).toUInt();
         custom_do_record(duration);
 
-    }else if(cmd == "player_start"){
+    }else if(cmd == "set_intercept_timeout"){
+        quint64 duration = cmd_args.at(0).toUInt();
 
-        custom_do_player_start(cmd_args.at(0));
+        custom_do_set_intercept_timeout(duration);
 
-    }else if(cmd == "player_stop"){
+    }else if(cmd == "set_intercept_freq"){
+        qint64 freq= cmd_args.at(0).toInt();
+        quint64 range= cmd_args.at(1).toUInt();
+        custom_do_set_intercept_freq(freq, range);
 
-        custom_do_player_stop();
+//    }else if(cmd == "player_start"){
+
+//        custom_do_player_start(cmd_args.at(0));
+
+//    }else if(cmd == "player_stop"){
+
+//        custom_do_player_stop();
 
     }else if(cmd == "sendcmd2pg"){
 
@@ -731,6 +779,7 @@ void MainWindow::customCmdParser(const QString& cmd, const QList<QString>&cmd_ar
     }else{
         qDebug() << "未知指令";
         log.warn("未知指令");
+        emit custom_cmd_done("END"); //测试流程结束
     }
 }
 
@@ -974,11 +1023,11 @@ void MainWindow::slot_onSetupMic(int l_idx, const QString &lmic, int r_idx, cons
 //    emit sig_setRecordInputL(lmic);
 //    emit sig_setRecordInputR(rmic);
 
-//    emit sig_setRecordInputL(l_idx);
-//    emit sig_setRecordInputR(r_idx);
+    emit sig_setRecordInputL(l_idx);
+    emit sig_setRecordInputR(r_idx);
 
-    m_pRecWorkerL->setMic(l_idx);
-    m_pRecWorkerR->setMic(r_idx);
+//    m_pRecWorkerL->setMic(l_idx);
+//    m_pRecWorkerR->setMic(r_idx);
 
 
     conf.Set("Mic", "L", lmic);
@@ -1026,6 +1075,10 @@ void MainWindow::on_btnStartRecord_clicked()
     QString output_r = QDir::toNativeSeparators(m_audioTestDir+ "\\R");
     m_pRecWorkerL->setOutputFile(output_l);
     m_pRecWorkerR->setOutputFile(output_r);
+
+    bool openIntercept = false; // 关闭侦测
+    m_pRecWorkerL->setIntercept(openIntercept);
+    m_pRecWorkerR->setIntercept(openIntercept);
 
     // Start Record
     m_wavDuration = ui->lineEditDurationOfRecord->text().toUInt();
@@ -1526,8 +1579,26 @@ void MainWindow::Setting4Config()
 
 void MainWindow::Setting4Devices()
 {
-    // 外部设备连接  0. 麦克风 1. AutoLine 2. 读码器 3. PG
+    // 外部设备连接   1. AutoLine 2. 读码器 3. PG
 
+    // AutoLine
+    m_AutoLine = new AutoLine;
+    connect(m_AutoLine, &AutoLine::receiveCmd, this, &MainWindow::slot_onAutoLineReceiveCmd);
+    connect(m_AutoLine, &AutoLine::connectStatusChanged, this, &MainWindow::slot_onAutoLineConnectStatusChanged);
+
+    // 读码器
+    m_CodeReader = new CodeReader;
+    m_CodeReader->setLogger(&log);
+    connect(m_CodeReader, &CodeReader::receiveBarcode, this, &MainWindow::slot_onCodeReaderReceiveBarcode);
+    connect(m_CodeReader, &CodeReader::connectStatusChanged, this, &MainWindow::slot_onCodeReaderConnectStatusChanged);
+
+    // PG
+    m_SigGenerator = new AutoLine;
+    connect(m_SigGenerator, &AutoLine::connectStatusChanged, this, &MainWindow::slot_onAutoLineConnectStatusChanged);
+}
+
+void MainWindow::setting4Mic()
+{
     // 麦克风数量检测
     QAudioRecorder* recorder = new QAudioRecorder(this);
     QStringList  devList= recorder->audioInputs();
@@ -1550,7 +1621,7 @@ void MainWindow::Setting4Devices()
         connect(&m_recordThread4L, &QThread::finished, m_pRecWorkerL, &QObject::deleteLater);
         connect(m_pRecWorkerL, SIGNAL(recordDone()), this, SLOT(slot_onLMicRecordingOver()));
 //	    connect(this, &MainWindow::sig_setRecordInputL, m_pRecWorkerL, &RecordWorker::setAudioInput);
-//        connect(this, &MainWindow::sig_setRecordInputL, m_pRecWorkerL, &RecordWorker::setMic);
+        connect(this, &MainWindow::sig_setRecordInputL, m_pRecWorkerL, &RecordWorker::setMic);
 
         // -------------------------------------------------------------------------
 
@@ -1562,28 +1633,21 @@ void MainWindow::Setting4Devices()
         connect(&m_recordThread4R, &QThread::finished, m_pRecWorkerR, &QObject::deleteLater);
         connect(m_pRecWorkerR, SIGNAL(recordDone()), this, SLOT(slot_onRMicRecordingOver()));
 //	    connect(this, &MainWindow::sig_setRecordInputR, m_pRecWorkerR, &RecordWorker::setAudioInput);
-//        connect(this, &MainWindow::sig_setRecordInputR, m_pRecWorkerR, &RecordWorker::setMic);
+        connect(this, &MainWindow::sig_setRecordInputR, m_pRecWorkerR, &RecordWorker::setMic);
 
 
         // 启动录制线程
         m_recordThread4L.start();
         m_recordThread4R.start();
+
+
+        // 侦测超时
+        connect(m_pRecWorkerL, &RecordWorker::interceptTimeout, this, &MainWindow::onInterceptTimeout);
+//        connect(m_pRecWorkerR, &RecordWorker::interceptTimeout, this, &MainWindow::onInterceptTimeout);
+
+        // 侦测频率获取
+        connect(m_pRecWorkerL, &RecordWorker::getFrequency, this, &MainWindow::slot_onGetFrequency);
     }
-
-    // AutoLine
-    m_AutoLine = new AutoLine;
-    connect(m_AutoLine, &AutoLine::receiveCmd, this, &MainWindow::slot_onAutoLineReceiveCmd);
-    connect(m_AutoLine, &AutoLine::connectStatusChanged, this, &MainWindow::slot_onAutoLineConnectStatusChanged);
-
-    // 读码器
-    m_CodeReader = new CodeReader;
-    m_CodeReader->setLogger(&log);
-    connect(m_CodeReader, &CodeReader::receiveBarcode, this, &MainWindow::slot_onCodeReaderReceiveBarcode);
-    connect(m_CodeReader, &CodeReader::connectStatusChanged, this, &MainWindow::slot_onCodeReaderConnectStatusChanged);
-
-    // PG
-    m_SigGenerator = new AutoLine;
-    connect(m_SigGenerator, &AutoLine::connectStatusChanged, this, &MainWindow::slot_onAutoLineConnectStatusChanged);
 }
 
 // --------------------------------------------------------------------------

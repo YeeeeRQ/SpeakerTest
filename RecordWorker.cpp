@@ -42,6 +42,14 @@ DataSource::~DataSource()
     delete m_testAudioData;
 }
 
+void DataSource::resetStatus()
+{
+    isOK = false;
+    singleIntercept = false;
+    isInterceptDone = false;
+    isInterceptTimeout = false;
+}
+
 void DataSource::setAudioFormat(QAudioFormat fmt)
 {
     this->fmt = fmt;
@@ -214,13 +222,15 @@ qint64 DataSource::writeData(const char * data, qint64 maxSize)
 
 void DataSource::onInterceptTimeout(bool timeout)
 {//侦测超时，停止录制
-    this->close();
-    m_outputFile->close();
+    isOK = false; //QIODevice 停止接收数据
+
+    this->close(); //关闭 QIODevice
+
+    m_outputFile->close(); // 关闭打开的文件
 
     m_testAudioData->clear();
     m_audioData->clear();
 
-    isOK = false;
 
     emit recordDone();
 }
@@ -240,8 +250,9 @@ RecordWorker::RecordWorker(QObject *parent)
     deviceList=QAudioDeviceInfo::availableDevices(QAudio::AudioInput);
 
     ds = new DataSource();
-    connect(ds, &DataSource::recordDone, this, &RecordWorker::onRecordDone);
 
+    connect(ds, &DataSource::recordDone, this, &RecordWorker::onRecordDone);
+    connect(ds, &DataSource::interceptTimeout, this, &RecordWorker::onInterceptTimeout);
 }
 
 RecordWorker::~RecordWorker()
@@ -253,6 +264,8 @@ RecordWorker::~RecordWorker()
 void RecordWorker::startRecord(quint64 duration)
 {
     if(isRecording) return;
+
+    ds->resetStatus();
     if(!ds->setDuration(duration)){
         qDebug() << "设定输出文件时长失败!";
     }
@@ -271,14 +284,26 @@ void RecordWorker::startRecord(quint64 duration)
 
 void RecordWorker::onRecordDone()
 {
-    audioInput->stop();
+    ds->resetStatus(); //ds状态重置
+    audioInput->stop(); //关闭麦克风输入
     isRecording = false;
-
     emit recordDone();
+}
+
+void RecordWorker::onInterceptTimeout()
+{// 告知上游, 侦测超时， 录制失败
+    emit interceptTimeout();
+}
+
+void RecordWorker::onGetFrequency(qint64 freq)
+{
+    emit getFrequency(freq);
 }
 
 bool RecordWorker::setMic(quint64 idx)
 {
+    if(deviceList.isEmpty()) return false;
+
     if(idx >= deviceList.size()){
         return false;
     }

@@ -26,8 +26,8 @@ int main(int argc, char *argv[])
     qDebug() << "Thread ID(Main): " << QThread::currentThreadId() << Qt::endl;
 
     //根据添加时id打印字体名
-//    int id =QFontDatabase::addApplicationFont("://font/SourceHanSansK-Regular.ttf");
-//    qDebug()<<"family"<<QFontDatabase::applicationFontFamilies(id);
+    int id =QFontDatabase::addApplicationFont("://font/SourceHanSansK-Regular.ttf");
+    qDebug()<<"family"<<QFontDatabase::applicationFontFamilies(id);
 
     MainWindow w;
     w.show();
