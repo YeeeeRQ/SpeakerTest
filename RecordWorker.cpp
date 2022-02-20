@@ -175,33 +175,13 @@ bool DataSource::setDuration(quint64 duration)
 // 到达指定录制时长，保存录音文件
 void DataSource::onWrite2WavFile()
 {
-    auto sampleSize = fmt.sampleSize();
-    auto channels = fmt.channelCount();
-    auto sampleRate = fmt.sampleRate();
-
-    m_wavFileHead.nRIFFLength = 36;
-    m_wavFileHead.nFMTLength = sampleSize;
-    m_wavFileHead.nAudioFormat = 0x01;
-    m_wavFileHead.nChannleNumber = channels;//通道
-    m_wavFileHead.nSampleRate = sampleRate;//采样频率
-    m_wavFileHead.nBytesPerSecond = (sampleSize / 8) * channels * sampleRate;//播放频率
-    m_wavFileHead.nBytesPerSample = (sampleSize / 8) * channels;
-    m_wavFileHead.nBitsPerSample = sampleSize;//量化位宽
-    m_wavFileHead.nDataLength = 0;//实际数据长度
-
-//    bool bisOk = m_outputFile->open(QIODevice::WriteOnly);
-//    if(bisOk == true)
-//    {
-        m_wavFileHead.nDataLength = m_audioData->size();
-        m_outputFile->write((char *)&m_wavFileHead, sizeof(WavFileHead));
-        m_outputFile->write(m_audioData->data(), m_audioData->size());
-        m_outputFile->close();
-//    }else{
-//    }
-
-
     // wav文件保存完毕， 录制过程结束。
 
+    m_outputFile->write(m_audioData->data(), m_audioData->size());
+    m_outputFile->close();
+
+    qDebug() << "output file : " << m_outputFile->fileName();
+    AddWavHeader(m_outputFile->fileName(), m_outputFile->fileName() + ".wav");
     this->close();
 
     //清空音频数据
