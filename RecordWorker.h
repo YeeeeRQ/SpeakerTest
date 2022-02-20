@@ -114,6 +114,7 @@ signals:
 
 public slots:
     void startRecord(quint64 duration);
+    void onRecordDone();
 //    void micInRecording(QAudio::State s);
 
     bool setMic(quint64 idx);
