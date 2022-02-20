@@ -34,6 +34,7 @@ RecordWorker::RecordWorker(QObject *parent)
 
     ds = new DataSource();
     connect(ds, &DataSource::recordDone, this, &RecordWorker::onRecordDone);
+
 }
 
 void RecordWorker::startRecord(quint64 duration)
@@ -55,41 +56,14 @@ void RecordWorker::startRecord(quint64 duration)
     isRecording = true;
 }
 
-//void RecordWorker::startRecord(quint64 duration, QString filename)
-//{
-//    if(isRecording) return;
-
-//    if(!ds->setDuration(duration)){
-//        qDebug() << "设定输出文件时长失败!";
-//    }
-
-//    if(!ds->setOutputFile(filename))
-//    {
-//        qDebug() << "设定输出文件失败!";
-//    }
-
-
-////    this->duration = duration;
-
-
-
-////    curDevice = QAudioDeviceInfo::defaultInputDevice(); // 选择缺省设备
-//    if (!curDevice.isFormatSupported(fmt))
-//    {
-//        qDebug() << "Dev is Null: " <<curDevice.isNull();
-//        qDebug() << "测试失败，输入设备不支持此设置";
-//        return;
-//    }
-////    audioInput->start(&m_outputFile);
-//    ds->open(QIODevice::WriteOnly);
-//    audioInput->start(ds);
-//    isRecording = true;
-//}
-
 void RecordWorker::onRecordDone()
 {
 //    disconnect(ds, &DataSource::recordDone, this, &RecordWorker::onRecordDone);
+//    ds->close();
+
+    audioInput->stop();
     isRecording = false;
+
 //    ds->close();
 //    ds->deleteLater();
     emit recordDone();
@@ -178,12 +152,13 @@ bool DataSource::setOutputFile(QString filename)
 //    curDir.setCurrent(fi.path());
 //    m_outputFile->setFileName(fi.fileName());
 
-    QFileInfo fi = QFileInfo(filename);
-    if(fi.isFile()){
-        m_outputFile->setFileName(filename);
-        return m_outputFile->open(QIODevice::WriteOnly|QIODevice::Truncate);
-    }
-    return false;
+//    QFileInfo fi = QFileInfo(filename);
+//    if(fi.isFile()){
+//        m_outputFile->setFileName(filename);
+//        return m_outputFile->open(QIODevice::WriteOnly|QIODevice::Truncate);
+//    }
+    m_outputFile->setFileName(filename);
+    return m_outputFile->open(QIODevice::WriteOnly|QIODevice::Truncate);
 }
 
 bool DataSource::setDuration(quint64 duration)
@@ -224,10 +199,15 @@ void DataSource::onWrite2WavFile()
 //    }else{
 //    }
 
-    //清空音频数据
-    m_audioData->clear();
 
     // wav文件保存完毕， 录制过程结束。
+
+    this->close();
+
+    //清空音频数据
+    m_audioData->clear();
+    isOK=false;
+
     emit recordDone();
 }
 
@@ -299,8 +279,9 @@ qint64 DataSource::writeData(const char * data, qint64 maxSize)
     //到达指定录制时长(通过pcm流大小测定，而非计时统计)
     quint64 size4record = (double)(m_duration/1000.0) * (double)(fmt.sampleRate() * fmt.sampleSize()/ 8);
 //    quint64 size4record = 10 * fmt.sampleRate() * fmt.sampleSize()/ 8;
-    qDebug() << "record size: "<< m_audioData->size();
-    qDebug() << "target record size: "<< size4record;
+
+//    qDebug() << "record size: "<< m_audioData->size();
+//    qDebug() << "target record size: "<< size4record;
 
     if(m_audioData->size() > size4record){
         isOK = true;

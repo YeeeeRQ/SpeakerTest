@@ -86,8 +86,8 @@ private:
 signals:
     void getFrequency(quint64 freq); //频率获取
     void interceptDone(bool done);   //侦听结果 (超时|正常结束)
-    void recordDone();
     void updateBlockSize(qint64&);
+    void recordDone();
 };
 
 
