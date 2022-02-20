@@ -342,13 +342,16 @@ void MainWindow::loadConfig()
 
     if(!m_micL.isEmpty()){
 //        emit sig_setRecordInputL(m_micL);
-        emit sig_setRecordInputR(m_micIndexL);
+//        emit sig_setRecordInputL(m_micIndexL);
+        m_pRecWorkerL->setMic(m_micIndexL);
+
     }else{
         log.warn("L 左侧麦克风未设定");
     }
     if(!m_micR.isEmpty()){
 //        emit sig_setRecordInputR(m_micR);
-        emit sig_setRecordInputR(m_micIndexR);
+//        emit sig_setRecordInputR(m_micIndexR);
+        m_pRecWorkerR->setMic(m_micIndexR);
     }else{
         log.warn("R 右侧麦克风未设定");
     }
@@ -970,8 +973,13 @@ void MainWindow::slot_onSetupMic(int l_idx, const QString &lmic, int r_idx, cons
 
 //    emit sig_setRecordInputL(lmic);
 //    emit sig_setRecordInputR(rmic);
-    emit sig_setRecordInputL(l_idx);
-    emit sig_setRecordInputR(r_idx);
+
+//    emit sig_setRecordInputL(l_idx);
+//    emit sig_setRecordInputR(r_idx);
+
+    m_pRecWorkerL->setMic(l_idx);
+    m_pRecWorkerR->setMic(r_idx);
+
 
     conf.Set("Mic", "L", lmic);
     conf.Set("Mic", "L_idx", l_idx);
@@ -1542,7 +1550,7 @@ void MainWindow::Setting4Devices()
         connect(&m_recordThread4L, &QThread::finished, m_pRecWorkerL, &QObject::deleteLater);
         connect(m_pRecWorkerL, SIGNAL(recordDone()), this, SLOT(slot_onLMicRecordingOver()));
 //	    connect(this, &MainWindow::sig_setRecordInputL, m_pRecWorkerL, &RecordWorker::setAudioInput);
-        connect(this, &MainWindow::sig_setRecordInputL, m_pRecWorkerL, &RecordWorker::setMic);
+//        connect(this, &MainWindow::sig_setRecordInputL, m_pRecWorkerL, &RecordWorker::setMic);
 
         // -------------------------------------------------------------------------
 
@@ -1554,7 +1562,7 @@ void MainWindow::Setting4Devices()
         connect(&m_recordThread4R, &QThread::finished, m_pRecWorkerR, &QObject::deleteLater);
         connect(m_pRecWorkerR, SIGNAL(recordDone()), this, SLOT(slot_onRMicRecordingOver()));
 //	    connect(this, &MainWindow::sig_setRecordInputR, m_pRecWorkerR, &RecordWorker::setAudioInput);
-        connect(this, &MainWindow::sig_setRecordInputR, m_pRecWorkerR, &RecordWorker::setMic);
+//        connect(this, &MainWindow::sig_setRecordInputR, m_pRecWorkerR, &RecordWorker::setMic);
 
 
         // 启动录制线程

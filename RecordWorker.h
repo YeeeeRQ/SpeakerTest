@@ -100,6 +100,8 @@ signals:
     void interceptDone(bool done);   //侦听是否完成
     void interceptTimeout(bool timeout);   //侦听超时
     void recordDone();
+private slots:
+    void onInterceptTimeout(bool timeout);
 };
 
 qint64 AddWavHeader(QString catheFileName , QString wavFileName);
@@ -109,18 +111,22 @@ class RecordWorker : public QObject
     Q_OBJECT
 public:
     explicit RecordWorker(QObject *parent = nullptr);
+    ~RecordWorker();
+
+public:
+    bool setMic(quint64 idx); // 输入麦克风
+    bool setOutputFile(QString filename); // 录制输出文件
+
+    void setIntercept(bool open); // 侦听 开关设定
+    void setInterceptTimeout(quint64 duration); // 侦听 超时设定
+    void setInterceptFreqRange(qint64 freq, quint64 range); // 侦听 频率范围设定
 
 signals:
     void recordDone(); // 工作流程结束
 
 public slots:
     void startRecord(quint64 duration);
-//    void startRecord(quint64 duration, QString filename);
     void onRecordDone();
-//    void micInRecording(QAudio::State s);
-
-    bool setMic(quint64 idx);
-    bool setOutputFile(QString filename);
 
 private:
     bool isRecording = false;

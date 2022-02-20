@@ -36,7 +36,6 @@ set(PROJECT_SOURCES
         mainwindow.cpp mainwindow.h mainwindow.ui
         Setup4AutoTest.h Setup4AutoTest.cpp Setup4AutoTest.ui
         setup4mic.h setup4mic.cpp setup4mic.ui
-        Dlg4ChangeValue.h Dlg4ChangeValue.cpp Dlg4ChangeValue.ui
         Setup4Devices.h Setup4Devices.cpp Setup4Devices.ui
         setup4model.h setup4model.cpp setup4model.ui
         showinfo4result.h showinfo4result.cpp showinfo4result.ui

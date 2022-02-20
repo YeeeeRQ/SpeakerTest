@@ -244,6 +244,12 @@ RecordWorker::RecordWorker(QObject *parent)
 
 }
 
+RecordWorker::~RecordWorker()
+{
+    if(ds) delete ds;
+    if(audioInput) delete audioInput;
+}
+
 void RecordWorker::startRecord(quint64 duration)
 {
     if(isRecording) return;
@@ -280,16 +286,35 @@ bool RecordWorker::setMic(quint64 idx)
 
     if(audioInput){
         delete audioInput;
+        audioInput = nullptr;
     }
     audioInput = new QAudioInput(curDevice, fmt, this);
-    //    connect(audioInput, &QAudioInput::stateChanged, this, &RecordWorker::micInRecording);
     audioInput->setBufferSize(4000);
     return true;
 }
 
 bool RecordWorker::setOutputFile(QString filename)
 {
+    if(!ds) return false;
     return ds->setOutputFile(filename);
+}
+
+void RecordWorker::setIntercept(bool open)
+{
+    if(!ds) return ;
+    ds->setIntercept(open);
+}
+
+void RecordWorker::setInterceptTimeout(quint64 duration)
+{
+    if(!ds) return ;
+    ds->setInterceptTimeout(duration);
+}
+
+void RecordWorker::setInterceptFreqRange(qint64 freq, quint64 range)
+{
+    if(!ds) return ;
+    ds->setInterceptFreqRange(freq, range);
 }
 
 
