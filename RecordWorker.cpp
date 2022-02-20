@@ -29,7 +29,7 @@ RecordWorker::RecordWorker(QObject *parent)
     fmt.setSampleType(QAudioFormat::UnSignedInt);
     deviceList=QAudioDeviceInfo::availableDevices(QAudio::AudioInput);
 
-    connect(&ds, &DataSource::recordDone, this, &RecordWorker::onRecordDone);
+
 }
 
 void RecordWorker::startRecord(quint64 duration)
@@ -43,16 +43,20 @@ void RecordWorker::startRecord(quint64 duration)
         qDebug() << "测试失败，输入设备不支持此设置";
         return;
     }
+    ds = new DataSource();
+    connect(ds, &DataSource::recordDone, this, &RecordWorker::onRecordDone);
 //    audioInput->start(&m_outputFile);
-    ds.open(QIODevice::WriteOnly);
-    audioInput->start(&ds);
+    ds->open(QIODevice::WriteOnly);
+    audioInput->start(ds);
     isRecording = true;
 }
 
 void RecordWorker::onRecordDone()
 {
+    disconnect(ds, &DataSource::recordDone, this, &RecordWorker::onRecordDone);
     isRecording = false;
-    ds.close();
+    ds->close();
+    ds->deleteLater();
     emit recordDone();
 }
 
@@ -74,7 +78,7 @@ bool RecordWorker::setMic(quint64 idx)
 
 bool RecordWorker::setOutputFile(QString filename)
 {
-    return ds.setOutputFile(filename);
+    return ds->setOutputFile(filename);
 }
 
 //void RecordWorker::micInRecording(QAudio::State s)
@@ -256,6 +260,7 @@ qint64 DataSource::writeData(const char * data, qint64 maxSize)
     }
 
 
+    emit updateBlockSize(maxSize);
     return maxSize; //返回每次收到数据的大小
 }
 
