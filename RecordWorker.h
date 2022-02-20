@@ -115,6 +115,7 @@ signals:
 
 public slots:
     void startRecord(quint64 duration);
+    void startRecord(quint64 duration, QString filename);
     void onRecordDone();
 //    void micInRecording(QAudio::State s);
 

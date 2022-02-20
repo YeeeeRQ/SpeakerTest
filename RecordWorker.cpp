@@ -53,6 +53,37 @@ void RecordWorker::startRecord(quint64 duration)
     isRecording = true;
 }
 
+void RecordWorker::startRecord(quint64 duration, QString filename)
+{
+    if(isRecording) return;
+
+    if(!ds->setDuration(duration)){
+        qDebug() << "设定输出文件时长失败!";
+    }
+
+    if(!ds->setOutputFile(filename))
+    {
+        qDebug() << "设定输出文件失败!";
+    }
+
+
+//    this->duration = duration;
+
+
+
+//    curDevice = QAudioDeviceInfo::defaultInputDevice(); // 选择缺省设备
+    if (!curDevice.isFormatSupported(fmt))
+    {
+        qDebug() << "Dev is Null: " <<curDevice.isNull();
+        qDebug() << "测试失败，输入设备不支持此设置";
+        return;
+    }
+//    audioInput->start(&m_outputFile);
+    ds->open(QIODevice::WriteOnly);
+    audioInput->start(ds);
+    isRecording = true;
+}
+
 void RecordWorker::onRecordDone()
 {
 //    disconnect(ds, &DataSource::recordDone, this, &RecordWorker::onRecordDone);
@@ -137,12 +168,17 @@ void DataSource::setAudioFormat(QAudioFormat fmt)
 
 bool DataSource::setOutputFile(QString filename)
 {
-    QDir curDir;
-    QFileInfo fi = QFileInfo(filename);
+//    QDir curDir;
 
-    curDir.setCurrent(fi.path());
-    m_outputFile->setFileName(fi.fileName());
-    return m_outputFile->open(QIODevice::WriteOnly|QIODevice::Truncate);
+//    curDir.setCurrent(fi.path());
+//    m_outputFile->setFileName(fi.fileName());
+
+    QFileInfo fi = QFileInfo(filename);
+    if(fi.isFile()){
+        m_outputFile->setFileName(filename);
+        return m_outputFile->open(QIODevice::WriteOnly|QIODevice::Truncate);
+    }
+    return false;
 }
 
 bool DataSource::setDuration(quint64 duration)
