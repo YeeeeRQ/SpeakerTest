@@ -224,6 +224,8 @@ private slots:
 
     void loadModel(QString dbfile);
 
+    void slot_onGetFrequency(qint64 freq);
+
 private:
     void fordebug();
 // -- 主界面日志输出

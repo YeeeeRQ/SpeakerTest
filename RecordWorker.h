@@ -3,13 +3,14 @@
 
 #include <QObject>
 #include <QThread>
-
 #include <QAudioInput>
+#include <QIODevice>
 #include <QFile>
 #include <QUrl>
 #include <QDebug>
 #include <QTimer>
-#include <QIODevice>
+
+#include <aubio/aubio.h>
 
 struct WavFileHead
 {
@@ -57,6 +58,7 @@ public:
 private:
     QFile* m_outputFile;
 
+
 // raw -> wav 保存为WAV
 private:
     WavFileHead m_wavFileHead;
@@ -69,11 +71,21 @@ private slots:
 // 侦测到连续300ms时长的指定频率,即认为侦测到指定频率
 
 // 频率侦测
+public:
+    void setIntercept(bool open); // 侦听 开关设定
+    void setInterceptTimeout(quint64 duration); // 侦听 超时设定
+    void setInterceptFreqRange(qint64 freq, quint64 range);
 private:
-    QByteArray* m_testAudioData;
-    bool isInterceptDone = false;
+    bool singleIntercept = false; //是否打开侦测
+    bool isInterceptDone = false; //侦测是否完成
+    bool isInterceptTimeout = false; //侦测是否超时
+    qint64 m_freq1 = 0;
+    qint64 m_freq2 = 0;
 
     QTimer interceptCheckTimer; //侦听超时检测
+
+    QByteArray* m_testAudioData; //测试采样
+
 
 // QIODevice 数据读写
 protected:
@@ -85,22 +97,10 @@ private:
 
 signals:
     void getFrequency(quint64 freq); //频率获取
-    void interceptDone(bool done);   //侦听结果 (超时|正常结束)
-    void updateBlockSize(qint64&);
+    void interceptDone(bool done);   //侦听是否完成
+    void interceptTimeout(bool timeout);   //侦听超时
     void recordDone();
 };
-
-
-class AudioProcess:public QObject
-{
-    Q_OBJECT
-
-public:
-    explicit AudioProcess(QObject *parent = nullptr);
-    ~AudioProcess();
-
-};
-
 
 qint64 AddWavHeader(QString catheFileName , QString wavFileName);
 
@@ -132,7 +132,6 @@ private:
     QList<QAudioDeviceInfo> deviceList;  //音频录入设备列表
 
     DataSource* ds;
-    AudioProcess* ap;
 
     QFile m_outputFile;
 //    bool setAudioFormat();

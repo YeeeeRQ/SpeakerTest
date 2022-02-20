@@ -52,8 +52,6 @@ set(PROJECT_SOURCES
         TempForm.ui
         res.qrc
 
-#        AudioProcess.h AudioProcess.cpp
-
         ./font/SourceHanSansK-Regular.ttf
         ${TS_FILES}
 )
