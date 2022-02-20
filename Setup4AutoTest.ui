@@ -513,6 +513,9 @@ QHeaderView::section/*表头样式*/
            </item>
            <item>
             <widget class="QGroupBox" name="groupBox_5">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="title">
               <string>自动测试 初始检测频率</string>
              </property>
