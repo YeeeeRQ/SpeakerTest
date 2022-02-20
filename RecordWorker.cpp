@@ -39,38 +39,9 @@ RecordWorker::RecordWorker(QObject *parent)
 void RecordWorker::startRecord(quint64 duration)
 {
     if(isRecording) return;
-    this->duration = duration;
-//    curDevice = QAudioDeviceInfo::defaultInputDevice(); // 选择缺省设备
-    if (!curDevice.isFormatSupported(fmt))
-    {
-        qDebug() << "Dev is Null: " <<curDevice.isNull();
-        qDebug() << "测试失败，输入设备不支持此设置";
-        return;
-    }
-//    audioInput->start(&m_outputFile);
-    ds->open(QIODevice::WriteOnly);
-    audioInput->start(ds);
-    isRecording = true;
-}
-
-void RecordWorker::startRecord(quint64 duration, QString filename)
-{
-    if(isRecording) return;
-
     if(!ds->setDuration(duration)){
         qDebug() << "设定输出文件时长失败!";
     }
-
-    if(!ds->setOutputFile(filename))
-    {
-        qDebug() << "设定输出文件失败!";
-    }
-
-
-//    this->duration = duration;
-
-
-
 //    curDevice = QAudioDeviceInfo::defaultInputDevice(); // 选择缺省设备
     if (!curDevice.isFormatSupported(fmt))
     {
@@ -83,6 +54,37 @@ void RecordWorker::startRecord(quint64 duration, QString filename)
     audioInput->start(ds);
     isRecording = true;
 }
+
+//void RecordWorker::startRecord(quint64 duration, QString filename)
+//{
+//    if(isRecording) return;
+
+//    if(!ds->setDuration(duration)){
+//        qDebug() << "设定输出文件时长失败!";
+//    }
+
+//    if(!ds->setOutputFile(filename))
+//    {
+//        qDebug() << "设定输出文件失败!";
+//    }
+
+
+////    this->duration = duration;
+
+
+
+////    curDevice = QAudioDeviceInfo::defaultInputDevice(); // 选择缺省设备
+//    if (!curDevice.isFormatSupported(fmt))
+//    {
+//        qDebug() << "Dev is Null: " <<curDevice.isNull();
+//        qDebug() << "测试失败，输入设备不支持此设置";
+//        return;
+//    }
+////    audioInput->start(&m_outputFile);
+//    ds->open(QIODevice::WriteOnly);
+//    audioInput->start(ds);
+//    isRecording = true;
+//}
 
 void RecordWorker::onRecordDone()
 {
