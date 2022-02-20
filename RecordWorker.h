@@ -53,9 +53,9 @@ private:
 
 // 音频文件输出设定
 public:
-    bool setOutputFile(const QString& filename);
+    bool setOutputFile(QString filename);
 private:
-    QFile m_outputFile;
+    QFile* m_outputFile;
 
 // raw -> wav 保存为WAV
 private:

@@ -1,4 +1,7 @@
 ﻿#include "RecordWorker.h"
+#include <QFileInfo>
+#include <QDir>
+#include <QFile>
 
 
 // ---------------------------------------------------------------------------
@@ -29,7 +32,8 @@ RecordWorker::RecordWorker(QObject *parent)
     fmt.setSampleType(QAudioFormat::UnSignedInt);
     deviceList=QAudioDeviceInfo::availableDevices(QAudio::AudioInput);
 
-
+    ds = new DataSource();
+    connect(ds, &DataSource::recordDone, this, &RecordWorker::onRecordDone);
 }
 
 void RecordWorker::startRecord(quint64 duration)
@@ -43,8 +47,6 @@ void RecordWorker::startRecord(quint64 duration)
         qDebug() << "测试失败，输入设备不支持此设置";
         return;
     }
-    ds = new DataSource();
-    connect(ds, &DataSource::recordDone, this, &RecordWorker::onRecordDone);
 //    audioInput->start(&m_outputFile);
     ds->open(QIODevice::WriteOnly);
     audioInput->start(ds);
@@ -53,10 +55,10 @@ void RecordWorker::startRecord(quint64 duration)
 
 void RecordWorker::onRecordDone()
 {
-    disconnect(ds, &DataSource::recordDone, this, &RecordWorker::onRecordDone);
+//    disconnect(ds, &DataSource::recordDone, this, &RecordWorker::onRecordDone);
     isRecording = false;
-    ds->close();
-    ds->deleteLater();
+//    ds->close();
+//    ds->deleteLater();
     emit recordDone();
 }
 
@@ -115,6 +117,7 @@ DataSource::DataSource( QObject *parent) :
     fmt.setByteOrder(QAudioFormat::LittleEndian);
     fmt.setSampleType(QAudioFormat::UnSignedInt);
 
+    m_outputFile = new QFile(this);
     m_audioData = new QByteArray;
     m_testAudioData = new QByteArray;
     isOK = false;
@@ -122,7 +125,9 @@ DataSource::DataSource( QObject *parent) :
 
 DataSource::~DataSource()
 {
+    delete m_outputFile;
     delete m_audioData;
+    delete m_testAudioData;
 }
 
 void DataSource::setAudioFormat(QAudioFormat fmt)
@@ -130,10 +135,14 @@ void DataSource::setAudioFormat(QAudioFormat fmt)
     this->fmt = fmt;
 }
 
-bool DataSource::setOutputFile(const QString& filename)
+bool DataSource::setOutputFile(QString filename)
 {
-    m_outputFile.setFileName(filename);
-    return m_outputFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
+    QDir curDir;
+    QFileInfo fi = QFileInfo(filename);
+
+    curDir.setCurrent(fi.path());
+    m_outputFile->setFileName(fi.fileName());
+    return m_outputFile->open(QIODevice::WriteOnly|QIODevice::Truncate);
 }
 
 bool DataSource::setDuration(quint64 duration)
@@ -164,17 +173,15 @@ void DataSource::onWrite2WavFile()
     m_wavFileHead.nBitsPerSample = sampleSize;//量化位宽
     m_wavFileHead.nDataLength = 0;//实际数据长度
 
-    bool bisOk = m_outputFile.open(QIODevice::WriteOnly);
-    if(bisOk == true)
-    {
+//    bool bisOk = m_outputFile->open(QIODevice::WriteOnly);
+//    if(bisOk == true)
+//    {
         m_wavFileHead.nDataLength = m_audioData->size();
-        m_outputFile.write((char *)&m_wavFileHead, sizeof(WavFileHead));
-        m_outputFile.write(m_audioData->data(), m_audioData->size());
-        m_outputFile.close();
-    }else{
-
-
-    }
+        m_outputFile->write((char *)&m_wavFileHead, sizeof(WavFileHead));
+        m_outputFile->write(m_audioData->data(), m_audioData->size());
+        m_outputFile->close();
+//    }else{
+//    }
 
     //清空音频数据
     m_audioData->clear();
