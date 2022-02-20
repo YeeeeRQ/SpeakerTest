@@ -28,6 +28,8 @@ RecordWorker::RecordWorker(QObject *parent)
     fmt.setByteOrder(QAudioFormat::LittleEndian);
     fmt.setSampleType(QAudioFormat::UnSignedInt);
     deviceList=QAudioDeviceInfo::availableDevices(QAudio::AudioInput);
+
+    connect(&ds, &DataSource::recordDone, this, &RecordWorker::onRecordDone);
 }
 
 void RecordWorker::startRecord(quint64 duration)
@@ -42,8 +44,16 @@ void RecordWorker::startRecord(quint64 duration)
         return;
     }
 //    audioInput->start(&m_outputFile);
+    ds.open(QIODevice::WriteOnly);
     audioInput->start(&ds);
     isRecording = true;
+}
+
+void RecordWorker::onRecordDone()
+{
+    isRecording = false;
+    ds.close();
+    emit recordDone();
 }
 
 bool RecordWorker::setMic(quint64 idx)
