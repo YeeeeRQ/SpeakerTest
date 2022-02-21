@@ -145,24 +145,9 @@ qint64 DataSource::writeData(const char * data, qint64 maxSize)
 
     // 打开任务 | 侦听未完成 | 未超时
     if(singleIntercept && !isInterceptDone && !isInterceptTimeout){ // 打开侦测任务
-        static const quint64 size_250ms = 0.25 * (fmt.sampleRate() * fmt.sampleSize()/ 8);
+        static const quint64 size_300ms = 0.3 * (fmt.sampleRate() * fmt.sampleSize()/ 8);
 //        qDebug() << m_testAudioData->size();
-        if(m_testAudioData->size() >= size_250ms){ //测试数据已达300ms
-
-            // 注意清空cache文件
-
-            //保存为wav文件
-            QString filename = "D:\\Temp\\cache\\" + QTime::currentTime().toString("hh_mm_ss_zzz");
-            QFile cache_file(filename);
-            cache_file.open(QFile::WriteOnly);
-
-            cache_file.write(m_testAudioData->data(), m_testAudioData->size());
-            cache_file.close();
-
-            AddWavHeader(cache_file.fileName(), cache_file.fileName() + ".wav");
-
-            qDebug() << "wav cache: " << m_outputFile->fileName();
-
+        if(m_testAudioData->size() >= size_300ms){ //测试数据已达300ms
 
             //载入wav cache //读取频率
             static quint64 count = 0;
@@ -173,28 +158,28 @@ qint64 DataSource::writeData(const char * data, qint64 maxSize)
             uint_t win_s = 1024;
             uint_t hop_size = win_s / 4;
 
-            aubio_source_t* source = new_aubio_source(QString(cache_file.fileName()+".wav").toLocal8Bit(), samplerate, hop_size);
-            if (!source) {
-                qDebug() << "aubio source create error.";
-                del_aubio_source(source);
-                return -1;
-            }
-
-            float tick = 0.0;
-            uint_t n_frames = 0, read = 0;
             fvec_t* samples = new_fvec(hop_size);
             fvec_t* pitch_out = new_fvec(2);
 
+            std::vector<uint_t> v_point;
             std::vector<uint_t> len1_pitch;
             aubio_pitch_t* o = new_aubio_pitch("default", win_s, hop_size, samplerate);
 
-            do {
-                aubio_source_do(source, samples, &read);
+            // 按2字节(16bit)长度读取，256一组， 封装samples
+            for(quint64 i = 0; i< m_testAudioData->size() ;i+=2 ){
+                quint16 point =((quint16)m_testAudioData->at(i+1) << 8) | ((quint16)m_testAudioData->at(i) &0x00ff);
+                v_point.push_back(point);
+            }
+//            qDebug() << "v_point size:" << v_point.size();
+
+            for(quint64 i = 0 ; i < v_point.size()/hop_size; ++i){
+                for(quint64 j =0; j< hop_size; ++j){
+                    samples->data[j] = v_point.at(i*hop_size+j);
+                }
 
                 aubio_pitch_do(o, samples, pitch_out);
                 len1_pitch.push_back(pitch_out->data[0]);
-                n_frames += read;
-            } while (read == hop_size);
+            }
 
             double len1_pitch_avg = std::accumulate(len1_pitch.begin(), len1_pitch.end(), 0.0) / len1_pitch.size();
 
@@ -202,13 +187,12 @@ qint64 DataSource::writeData(const char * data, qint64 maxSize)
             emit getFrequency(len1_pitch_avg);
             freq = len1_pitch_avg;
 
-            del_aubio_source(source);
             del_aubio_pitch(o);
             del_fvec(samples);
             del_fvec(pitch_out);
             aubio_cleanup();
 
-            qDebug() << "Freq : " << m_freq1 << " ~ " << m_freq2;
+//            qDebug() << "Freq : " << m_freq1 << " ~ " << m_freq2;
             if(freq > m_freq1 && freq < m_freq2){ // 满足条件
                 qDebug() << "In Range!!";
                 if(prevFreqInRange){
