@@ -100,6 +100,7 @@ void DataSource::setIntercept(bool open)
 
 void DataSource::setInterceptTimeout(quint64 duration)
 {
+    //
     interceptCheckTimer.singleShot(duration, this, [=](){
         if(!isInterceptDone){ //到点还未侦测到指定频率
             isInterceptDone = false;
@@ -199,6 +200,7 @@ qint64 DataSource::writeData(const char * data, qint64 maxSize)
         // 清空缓存音频数据
         m_testAudioData->clear();
         m_audioData->clear();
+//        return maxSize;
     }else{// 侦听任务结束
         //        m_testAudioData->append(data, maxSize); //保存音频数据 for test
         m_audioData->append(data, maxSize); //保存音频数据

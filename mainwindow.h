@@ -51,6 +51,7 @@ public:
 
 private:
     QFileInfo fi;
+
 // -- 音频测试流程
 private:
     // 工作目录
@@ -59,7 +60,6 @@ private:
 
     QString m_workDir;   // 音频录制存放(主目录)
     QString m_audioTestDir;      // 录制文件保存目录 (主目录->机种->日期时间)
-
 
     // 底部状态栏
     QLabel * label_startUpTime; //记录启动时间
@@ -107,6 +107,9 @@ private:
 
 // 启动时载入自定义流程 关联文件:process.xlsx
 private:
+
+    bool isInParseCmd = false;
+
     QVector<QVector<QString>> m_processTable;
     int m_processTable_rows;
     int m_processTable_cols;
@@ -132,6 +135,8 @@ private:
 
     void printResult(bool isOk, const QString& msg);
 
+
+
 signals:
     void checkAllRecordOver();
     void allRecordOver();
@@ -147,10 +152,6 @@ private slots:
 //    void processCmdParser(QString cmd);
     void onCheckAllRecordOver();
     void onInterceptTimeout(); //侦测超时
-
-
-
-
 
 // -- 测试模式 (手动|自动)
 private:
@@ -171,26 +172,9 @@ private:
     QString m_cmd_pass;  // 测试成功发送
     QString m_cmd_fail;  // 测试失败发送
 
-    // CodeReader
-    CodeReader* m_CodeReader;
+    CodeReader* m_CodeReader; // CodeReader
+    AutoLine* m_SigGenerator; // SigGenerator
 
-    // SigGenerator
-    AutoLine* m_SigGenerator;
-
-private: // UI
-    Ui::MainWindow *ui;
-    Setup4Mic * setup4mic = nullptr;
-    Setup4AutoTest* setup4autotest = nullptr;
-    Setup4Model* setup4model= nullptr;
-
-    void Setting4Theme();
-    void Setting4Path();
-    void Setting4Config();
-    void Setting4Devices();
-    void setting4Mic();
-    void Setting4MainWindow(); // 界面载入后的设定
-
-    void setWavDir4UI(const QString &dir);
 
 signals:
     void sig_startAutoTest(); //已接收到读卡器开始指令 自动测试流程开始信号
@@ -245,6 +229,21 @@ private:
 //    void saveConfig();  // 保存配置文件
 //    void resetConfig(); // 恢复默认配置
 
+private: // UI
+    Ui::MainWindow *ui;
+    Setup4Mic * setup4mic = nullptr;
+    Setup4AutoTest* setup4autotest = nullptr;
+    Setup4Model* setup4model= nullptr;
+
+    void Setting4Theme();
+    void Setting4Path();
+    void Setting4Config();
+    void Setting4Devices();
+    void setting4Mic();
+    void Setting4MainWindow(); // 界面载入后的设定
+
+    void setWavDir4UI(const QString &dir);
+
 // -- 界面载入后，进行初始化
 signals:
     void MainWindowLoaded();
@@ -264,7 +263,6 @@ private slots:
     void on_btnSwitchRunningMode_clicked();
     void on_btnTest_clicked();
     void on_btnLockOption4Model_clicked();
-    void on_btnDebug_clicked();
     void on_btnOpenWithExplorer_clicked();
 };
 #endif // MAINWINDOW_H

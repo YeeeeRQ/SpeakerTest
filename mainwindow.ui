@@ -618,7 +618,7 @@ QHeaderView::section/*表头样式*/
          </widget>
         </item>
         <item>
-         <layout class="QVBoxLayout" name="verticalLayout_9" stretch="0,0,0">
+         <layout class="QVBoxLayout" name="verticalLayout_9" stretch="0,0">
           <item>
            <widget class="QGroupBox" name="groupBox4AppSetting">
             <property name="title">
@@ -661,16 +661,6 @@ QHeaderView::section/*表头样式*/
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="btnDebug">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="text">
-             <string>debug</string>
-            </property>
-           </widget>
-          </item>
-          <item>
            <spacer name="verticalSpacer_3">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
@@ -697,7 +687,7 @@ QHeaderView::section/*表头样式*/
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>17</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>

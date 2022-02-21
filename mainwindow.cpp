@@ -17,13 +17,6 @@
 //Todo:
 
 // --------------------------------------------------------------------------
-
-void MainWindow::fordebug()
-{
-//    auto * test = new AudioProcess(1,1);
-//    delete test;
-}
-
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     ,log(SimpleLog::getInstance(&textedit4log))
@@ -31,7 +24,6 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    fordebug();
 
    // 侦听频率显示
 //    connect()
@@ -615,7 +607,6 @@ void MainWindow::custom_do_get_audio_info(int order, quint64 tick, quint64 tick_
 
 void MainWindow::custom_do_set_intercept_timeout(quint64 duration)
 {
-    qDebug() << "custom_do_set_intercept_timeout";
     m_pRecWorkerL->setInterceptTimeout(duration);
     m_pRecWorkerR->setInterceptTimeout(duration);
 
@@ -624,7 +615,6 @@ void MainWindow::custom_do_set_intercept_timeout(quint64 duration)
 
 void MainWindow::custom_do_set_intercept_freq(qint64 freq, quint64 range)
 {
-    qDebug() << "custom_do_set_intercept_freq";
     m_pRecWorkerL->setInterceptFreqRange(freq, range);
     m_pRecWorkerR->setInterceptFreqRange(freq, range);
 
@@ -705,8 +695,8 @@ void MainWindow::customTestAudio(const QString& ctl)
         log.info(cmd + " " + str_args);
         qDebug() << "----------------";
 
-    //        ++step; //for debug
-    //        emit custom_cmd_done("Debug"); // for debug
+        // ++step; //for debug
+        // emit custom_cmd_done("Debug"); // for debug
         // 解析并执行自定义指令
 
         ++step;
@@ -720,6 +710,7 @@ void MainWindow::customCmdParser(const QString& cmd, const QList<QString>&cmd_ar
     // 解析 指令 + 参数 并执行.
 
     if(cmd == "autotest_start"){
+        isInParseCmd = true;
         // do nothing
     }else if(cmd == "sleep"){
 
@@ -775,6 +766,8 @@ void MainWindow::customCmdParser(const QString& cmd, const QList<QString>&cmd_ar
         // 假定参数设定完毕， 音频录制完毕
         // 判断并输出结果
         custom_do_autotest_end();
+
+        isInParseCmd = false;
 
     }else{
         qDebug() << "未知指令";
@@ -963,13 +956,15 @@ void MainWindow::slot_onAutoLineReceiveCmd(QString rev_cmd)
     if(!this->isAutoMode()){
         log.info("当前模式: 手动");
         return ;
-    }else{
+    }else if(isInParseCmd){
+        log.info("最近一次，自定义流程未结束.");
+        return ;
+    } else{
         if(rev_cmd == m_cmd_start){
             // 开始自动测试流程(流程自定义)
             log.warn("[AutoMode]: 开始测试流程.");
             ui->widgetShowInfo->changeStatus2Start();
             emit sig_startAutoTest();
-
         }
     }
 }
@@ -1233,7 +1228,8 @@ void MainWindow::slot_getAudioInfo()
 
     QString app = QDir::toNativeSeparators(QCoreApplication::applicationDirPath() + "\\AudioTest\\ConsoleAppAudioTest.exe");
 
-    QString cmd = app + " -a " + target_dir;
+//    QString cmd = app + " -a " + target_dir;
+    QString cmd = app + " " + target_dir;
     cmd += " " +  QString::number(m_testTime1[0]);
     cmd += " " +  QString::number(m_testTime1[1]);
     cmd += " " +  QString::number(m_testTime2[0]);
@@ -1643,7 +1639,6 @@ void MainWindow::setting4Mic()
 
         // 侦测超时
         connect(m_pRecWorkerL, &RecordWorker::interceptTimeout, this, &MainWindow::onInterceptTimeout);
-//        connect(m_pRecWorkerR, &RecordWorker::interceptTimeout, this, &MainWindow::onInterceptTimeout);
 
         // 侦测频率获取
         connect(m_pRecWorkerL, &RecordWorker::getFrequency, this, &MainWindow::slot_onGetFrequency);
@@ -1801,14 +1796,6 @@ void MainWindow::on_btnLockOption4Model_clicked()
     //Todo:
     //保存最后一次机种名
     }
-}
-
-
-void MainWindow::on_btnDebug_clicked()
-{
-    qDebug() << "Main Dir:" << m_workDir;
-    qDebug() << "Wav  Dir:" << m_audioTestDir;
-
 }
 
 
