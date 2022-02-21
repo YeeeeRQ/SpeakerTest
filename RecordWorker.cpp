@@ -2,6 +2,8 @@
 #include <QFileInfo>
 #include <QDir>
 #include <QFile>
+#include <QTime>
+#include <vector>
 
 // Todo:
 //RecordWorker
@@ -101,6 +103,7 @@ void DataSource::setIntercept(bool open)
 void DataSource::setInterceptTimeout(quint64 duration)
 {
     //
+    return;
     interceptCheckTimer.singleShot(duration, this, [=](){
         if(!isInterceptDone){ //到点还未侦测到指定频率
             isInterceptDone = false;
@@ -110,7 +113,7 @@ void DataSource::setInterceptTimeout(quint64 duration)
     });
 }
 
-void DataSource::setInterceptFreqRange(qint64 freq, quint64 range)
+void DataSource::setInterceptFreqRange(quint64 freq, quint64 range)
 {
     m_freq1 = freq-range;
     m_freq2 = freq+range;
@@ -142,43 +145,72 @@ qint64 DataSource::writeData(const char * data, qint64 maxSize)
 
     // 打开任务 | 侦听未完成 | 未超时
     if(singleIntercept && !isInterceptDone && !isInterceptTimeout){ // 打开侦测任务
-        static const quint64 size_100ms = 0.1 * (fmt.sampleRate() * fmt.sampleSize()/ 8);
-        if(m_testAudioData->size() > size_100ms){ //测试数据已达100ms
+        static const quint64 size_250ms = 0.25 * (fmt.sampleRate() * fmt.sampleSize()/ 8);
+//        qDebug() << m_testAudioData->size();
+        if(m_testAudioData->size() >= size_250ms){ //测试数据已达300ms
+
+            // 注意清空cache文件
+
+            //保存为wav文件
+            QString filename = "D:\\Temp\\cache\\" + QTime::currentTime().toString("hh_mm_ss_zzz");
+            QFile cache_file(filename);
+            cache_file.open(QFile::WriteOnly);
+
+            cache_file.write(m_testAudioData->data(), m_testAudioData->size());
+            cache_file.close();
+
+            AddWavHeader(cache_file.fileName(), cache_file.fileName() + ".wav");
+
+            qDebug() << "wav cache: " << m_outputFile->fileName();
+
+
+            //载入wav cache //读取频率
             static quint64 count = 0;
             static bool prevFreqInRange = false;
-            qint64 freq = 0;
+            double freq = 0;
 
-            // 提取频率
             uint_t samplerate = 44100;
             uint_t win_s = 1024;
             uint_t hop_size = win_s / 4;
 
-//            float tick = 0.0;
-//            uint_t n_frames = 0, read = 0;
+            aubio_source_t* source = new_aubio_source(QString(cache_file.fileName()+".wav").toLocal8Bit(), samplerate, hop_size);
+            if (!source) {
+                qDebug() << "aubio source create error.";
+                del_aubio_source(source);
+                return -1;
+            }
+
+            float tick = 0.0;
+            uint_t n_frames = 0, read = 0;
             fvec_t* samples = new_fvec(hop_size);
             fvec_t* pitch_out = new_fvec(2);
 
+            std::vector<uint_t> len1_pitch;
             aubio_pitch_t* o = new_aubio_pitch("default", win_s, hop_size, samplerate);
 
-            // 从 m_tetsAudioData 中提取 samples 256
-            int cnt = m_testAudioData->size() / samples->length;
-            for(int i = 0; i<cnt ; ++i){
-                for(int j =0; j<hop_size;++j){
-                    samples->data[j] = (smpl_t)m_testAudioData->at(i*hop_size + j);
-                }
+            do {
+                aubio_source_do(source, samples, &read);
+
                 aubio_pitch_do(o, samples, pitch_out);
+                len1_pitch.push_back(pitch_out->data[0]);
+                n_frames += read;
+            } while (read == hop_size);
 
-                qDebug() << "Frequency :" << pitch_out->data[0];
-                freq = pitch_out->data[0];
-            }
-            emit getFrequency(freq);
+            double len1_pitch_avg = std::accumulate(len1_pitch.begin(), len1_pitch.end(), 0.0) / len1_pitch.size();
 
+            qDebug() << "Frequency :" << len1_pitch_avg;
+            emit getFrequency(len1_pitch_avg);
+            freq = len1_pitch_avg;
+
+            del_aubio_source(source);
             del_aubio_pitch(o);
             del_fvec(samples);
             del_fvec(pitch_out);
             aubio_cleanup();
 
+            qDebug() << "Freq : " << m_freq1 << " ~ " << m_freq2;
             if(freq > m_freq1 && freq < m_freq2){ // 满足条件
+                qDebug() << "In Range!!";
                 if(prevFreqInRange){
                     ++count;
                 }else{
@@ -190,19 +222,22 @@ qint64 DataSource::writeData(const char * data, qint64 maxSize)
                 prevFreqInRange = false;
             }
 
-            // 连续5次满足指定频率 （300ms音频都是指定频率区间）
-            if(count > 3){
+            // 连续2次满足指定频率 （500ms音频都是指定频率区间）
+            if(count > 2){
                 // 侦听任务完成
+                qDebug() << "Intercep Done!!";
+
                 isInterceptDone = true;
                 emit interceptDone(isInterceptDone);
             }
+            // 清空缓存音频数据
+            m_testAudioData->clear();
+            m_audioData->clear();
         }
-        // 清空缓存音频数据
-        m_testAudioData->clear();
-        m_audioData->clear();
-//        return maxSize;
+
+        m_testAudioData->append(data, maxSize); //保存音频数据 for test
+        return maxSize;
     }else{// 侦听任务结束
-        //        m_testAudioData->append(data, maxSize); //保存音频数据 for test
         m_audioData->append(data, maxSize); //保存音频数据
     }
 
@@ -234,7 +269,8 @@ void DataSource::onInterceptTimeout(bool timeout)
     m_audioData->clear();
 
 
-    emit recordDone();
+    //???????
+//    emit recordDone();
 }
 
 // ---------------------------------------------------------------------------
@@ -255,6 +291,7 @@ RecordWorker::RecordWorker(QObject *parent)
 
     connect(ds, &DataSource::recordDone, this, &RecordWorker::onRecordDone);
     connect(ds, &DataSource::interceptTimeout, this, &RecordWorker::onInterceptTimeout);
+    connect(ds, &DataSource::getFrequency,this, &RecordWorker::onGetFrequency);
 }
 
 RecordWorker::~RecordWorker()
@@ -267,7 +304,6 @@ void RecordWorker::startRecord(quint64 duration)
 {
     if(isRecording) return;
 
-    ds->resetStatus();
     if(!ds->setDuration(duration)){
         qDebug() << "设定输出文件时长失败!";
     }
@@ -286,18 +322,21 @@ void RecordWorker::startRecord(quint64 duration)
 
 void RecordWorker::onRecordDone()
 {
-    ds->resetStatus(); //ds状态重置
     audioInput->stop(); //关闭麦克风输入
+    ds->resetStatus(); //ds状态重置
     isRecording = false;
-    emit recordDone();
+    emit recordDone(); //告知上游
 }
 
 void RecordWorker::onInterceptTimeout()
-{// 告知上游, 侦测超时， 录制失败
-    emit interceptTimeout();
+{
+    audioInput->stop(); //关闭麦克风输入
+    ds->resetStatus(); //ds状态重置
+    isRecording = false;
+    emit interceptTimeout(); // 告知上游, 侦测超时， 录制失败
 }
 
-void RecordWorker::onGetFrequency(qint64 freq)
+void RecordWorker::onGetFrequency(quint64 freq)
 {
     emit getFrequency(freq);
 }
@@ -338,7 +377,7 @@ void RecordWorker::setInterceptTimeout(quint64 duration)
     ds->setInterceptTimeout(duration);
 }
 
-void RecordWorker::setInterceptFreqRange(qint64 freq, quint64 range)
+void RecordWorker::setInterceptFreqRange(quint64 freq, quint64 range)
 {
     if(!ds) return ;
     ds->setInterceptFreqRange(freq, range);

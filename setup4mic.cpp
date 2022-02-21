@@ -119,6 +119,12 @@ void Setup4Mic::onLoadDeviceConf(int l_idx, int r_idx)
 
 void Setup4Mic::on_btnExit_clicked()
 {
+    if(ui->btnStopL->isEnabled()){
+        this->on_btnStopL_clicked();
+    }
+    if(ui->btnStopR->isEnabled()){
+        this->on_btnStopR_clicked();
+    }
     this->close();
 }
 

@@ -420,8 +420,6 @@ void MainWindow::custom_do_record(quint64 duration)
     // 侦测设定
     m_pRecWorkerL->setInterceptFreqRange(1000, 100);
     m_pRecWorkerL->setInterceptTimeout(10000);
-    m_pRecWorkerR->setInterceptFreqRange(1000, 100);
-    m_pRecWorkerR->setInterceptTimeout(10000);
 
     if(duration >0){
         //标志位置位
@@ -958,10 +956,13 @@ void MainWindow::on_btnStartRecord_clicked()
     m_pRecWorkerR->setIntercept(openIntercept);
 
     // 侦测设定
-    m_pRecWorkerL->setInterceptFreqRange(1000, 100);
-    m_pRecWorkerL->setInterceptTimeout(10000);
-    m_pRecWorkerR->setInterceptFreqRange(1000, 100);
-    m_pRecWorkerR->setInterceptTimeout(10000);
+    quint64 freq = setup4autotest->m_firstFreq;
+    quint64 range = setup4autotest->m_firstFreqRange;
+    quint64 timeout= setup4autotest->m_interceptTimeout;
+    m_pRecWorkerL->setInterceptFreqRange(freq, range);
+    m_pRecWorkerL->setInterceptTimeout(timeout);
+    m_pRecWorkerR->setInterceptFreqRange(freq, range);
+    m_pRecWorkerR->setInterceptTimeout(timeout);
 
     // Start Record
     m_wavDuration = ui->lineEditDurationOfRecord->text().toUInt();
@@ -1500,11 +1501,12 @@ void MainWindow::setting4Mic()
         m_pRecWorkerL->moveToThread(&m_recordThread4L);
 
         // 录音前提：设定好2个麦克风输入
-        //            connect(this, SIGNAL(sig_startRecording(quint64)), m_pRecWorkerL, SLOT(doWork(quint64)));
         connect(this, &MainWindow::sig_startRecording, m_pRecWorkerL, &RecordWorker::startRecord);
         connect(&m_recordThread4L, &QThread::finished, m_pRecWorkerL, &QObject::deleteLater);
+
         connect(m_pRecWorkerL, SIGNAL(recordDone()), this, SLOT(slot_onLMicRecordingOver()));
-//	    connect(this, &MainWindow::sig_setRecordInputL, m_pRecWorkerL, &RecordWorker::setAudioInput);
+        connect(m_pRecWorkerL, SIGNAL(interceptTimeout()), this, SLOT(slot_onLMicRecordingOver()));
+
         connect(this, &MainWindow::sig_setRecordInputL, m_pRecWorkerL, &RecordWorker::setMic);
 
         // -------------------------------------------------------------------------
@@ -1512,11 +1514,12 @@ void MainWindow::setting4Mic()
         m_pRecWorkerR = new RecordWorker;
         m_pRecWorkerR->moveToThread(&m_recordThread4R);
 
-        //            connect(this, SIGNAL(sig_startRecording(quint64)), m_pRecWorkerR, SLOT(doWork(quint64)));
         connect(this, &MainWindow::sig_startRecording, m_pRecWorkerR, &RecordWorker::startRecord);
         connect(&m_recordThread4R, &QThread::finished, m_pRecWorkerR, &QObject::deleteLater);
+
         connect(m_pRecWorkerR, SIGNAL(recordDone()), this, SLOT(slot_onRMicRecordingOver()));
-//	    connect(this, &MainWindow::sig_setRecordInputR, m_pRecWorkerR, &RecordWorker::setAudioInput);
+        connect(m_pRecWorkerR, SIGNAL(interceptTimeout()), this, SLOT(slot_onRMicRecordingOver()));
+
         connect(this, &MainWindow::sig_setRecordInputR, m_pRecWorkerR, &RecordWorker::setMic);
 
 

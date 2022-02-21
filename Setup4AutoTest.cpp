@@ -20,7 +20,7 @@ Setup4AutoTest::Setup4AutoTest(QWidget *parent) :
     ui->lineEdit_durationRange1->setValidator(durationRangeValidator);
     ui->lineEdit_durationRange2->setValidator(durationRangeValidator);
 
-    auto* freqValidator = new QIntValidator(-5000,5000, this);
+    auto* freqValidator = new QIntValidator(0,5000, this);
     ui->lineEdit_Frequency1->setValidator(freqValidator);
     ui->lineEdit_Frequency2->setValidator(freqValidator);
 
@@ -42,6 +42,17 @@ void Setup4AutoTest::loadConfig4AutoTest()
     m_duration1= conf.Get("AutoTest", "duration1").toUInt();
     m_duration2=conf.Get("AutoTest", "duration2").toUInt();
 
+//    m_recordDelay = conf.Get("AutoTest", "RecordDelay").toUInt();
+    m_duration1 = conf.Get("AutoTest", "duration1").toUInt();
+    m_duration2 =conf.Get("AutoTest", "duration2").toUInt();
+    m_duration1range=conf.Get("AutoTest", "duration1range").toUInt();
+    m_duration2range= conf.Get("AutoTest", "duration2range").toUInt();
+    m_duration1freq =conf.Get("AutoTest", "duration1freq").toUInt();
+    m_duration2freq=conf.Get("AutoTest", "duration2freq").toUInt();
+    m_firstFreq = conf.Get("AutoTest", "firstFreq").toUInt();
+    m_firstFreqRange=conf.Get("AutoTest", "firstFreqRange").toUInt();
+    m_interceptTimeout = conf.Get("AutoTest", "interceptTimeout").toUInt();
+
     quint64 range = ui->lineEdit_durationRange1->text().toUInt();
     QString s = (m_duration1 > range?QString::number(m_duration1 - range):"0") + "-" +QString::number(m_duration1+range);
     ui->label_duration1->setText(s);
@@ -50,15 +61,24 @@ void Setup4AutoTest::loadConfig4AutoTest()
     s = (m_duration2 > range?QString::number(m_duration2 - range):"0") + "-" +QString::number(m_duration2+range);
     ui->label_duration2->setText(s);
 
-    m_recordDelay = conf.Get("AutoTest", "RecordDelay").toUInt();
+
+    ui->lineEdit_recordDelay->setText(QString::number(m_recordDelay));
 
     ui->lineEdit_mainWorkDir->setText(m_mainWorkDir);
     ui->lineEdit_mainWorkDir->setToolTip(m_mainWorkDir);
 
     ui->lineEdit_duration1->setText(QString::number(m_duration1));
     ui->lineEdit_duration2->setText(QString::number(m_duration2));
+    ui->lineEdit_durationRange1->setText(QString::number(m_duration1range));
+    ui->lineEdit_durationRange2->setText(QString::number(m_duration2range));
+    ui->lineEdit_Frequency1->setText(QString::number(m_duration1freq));
+    ui->lineEdit_Frequency2->setText(QString::number(m_duration2freq));
 
-    ui->lineEdit_recordDelay->setText(QString::number(m_recordDelay));
+
+    ui->lineEdit_FirstFreq->setText(QString::number(m_firstFreq));
+    ui->lineEdit_FirstFreqRange->setText(QString::number(m_firstFreqRange));
+    ui->lineEdit_InterceptTimeout->setText(QString::number(m_interceptTimeout));
+
 }
 
 void Setup4AutoTest::saveConfig4AutoTest()
@@ -71,23 +91,38 @@ void Setup4AutoTest::saveConfig4AutoTest()
 void Setup4AutoTest::on_btnApplyAll_clicked()
 {
     // 录制延迟
-    m_recordDelay = ui->lineEdit_recordDelay->text().toUInt();
-    conf.Set("AutoTest", "RecordDelay", m_recordDelay);
+//    m_recordDelay = ui->lineEdit_recordDelay->text().toUInt();
 
     //
     m_duration1= ui->lineEdit_duration1->text().toUInt();
-    conf.Set("AutoTest", "duration1", m_duration1);
 
-    quint64 dur_range1 = ui->lineEdit_durationRange1->text().toUInt();
-    QString s1 = (m_duration1 > dur_range1?QString::number(m_duration1 - dur_range1):"0") + "-" +QString::number(m_duration1+dur_range1);
+    m_duration1range = ui->lineEdit_durationRange1->text().toUInt();
+    QString s1 = (m_duration1 > m_duration1range?QString::number(m_duration1 - m_duration1range):"0") +  "-" +QString::number(m_duration1+m_duration1range);
     ui->label_duration1->setText(s1);
 
     m_duration2= ui->lineEdit_duration2->text().toUInt();
-    conf.Set("AutoTest", "duration2", m_duration2);
 
-    quint64 dur_range2 = ui->lineEdit_durationRange2->text().toUInt();
-    QString s2 = (m_duration2 > dur_range2?QString::number(m_duration2 - dur_range2):"0")+ "-" +QString::number(m_duration2+dur_range2);
+    m_duration2range = ui->lineEdit_durationRange2->text().toUInt();
+    QString s2 = (m_duration2 > m_duration2range?QString::number(m_duration2 - m_duration2range):"0")+ "-" +QString::number(m_duration2+m_duration2range);
     ui->label_duration2->setText(s2);
+
+    m_duration1freq = ui->lineEdit_Frequency1->text().toUInt();
+    m_duration2freq = ui->lineEdit_Frequency2->text().toUInt();
+
+    m_firstFreq = ui->lineEdit_FirstFreq->text().toUInt();
+    m_firstFreqRange = ui->lineEdit_FirstFreqRange->text().toUInt();
+    m_interceptTimeout = ui->lineEdit_InterceptTimeout->text().toUInt();
+
+//    conf.Set("AutoTest", "RecordDelay", m_recordDelay);
+    conf.Set("AutoTest", "duration1", m_duration1);
+    conf.Set("AutoTest", "duration2", m_duration2);
+    conf.Set("AutoTest", "duration1range", m_duration1range);
+    conf.Set("AutoTest", "duration2range", m_duration2range);
+    conf.Set("AutoTest", "duration1freq", m_duration1freq);
+    conf.Set("AutoTest", "duration2freq", m_duration2freq);
+    conf.Set("AutoTest", "firstFreq", m_firstFreq);
+    conf.Set("AutoTest", "firstFreqRange", m_firstFreqRange);
+    conf.Set("AutoTest", "interceptTimeout", m_interceptTimeout);
 
     emit autoTestConfigChanged();
 }
@@ -100,5 +135,6 @@ void Setup4AutoTest::on_btnMainWorkDirApply_clicked()
     ui->lineEdit_mainWorkDir->setText(m_mainWorkDir);
     ui->lineEdit_mainWorkDir->setToolTip(m_mainWorkDir);
     conf.Set("Audio", "Path", m_mainWorkDir);
+    emit autoTestConfigChanged();
 }
 

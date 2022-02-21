@@ -39,7 +39,7 @@ public:
     quint64 m_duration2range = 0;
     quint64 m_duration2freq= 0;
 
-    qint64 m_firstFreq = 0; // 侦测频率
+    quint64 m_firstFreq = 0; // 侦测频率
     quint64 m_firstFreqRange = 0;
     quint64 m_interceptTimeout= 0; //侦测超时
 

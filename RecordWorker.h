@@ -77,14 +77,14 @@ private slots:
 public:
     void setIntercept(bool open); // 侦听 开关设定
     void setInterceptTimeout(quint64 duration); // 侦听 超时设定
-    void setInterceptFreqRange(qint64 freq, quint64 range);
+    void setInterceptFreqRange(quint64 freq, quint64 range);
 
 private:
     bool singleIntercept = false; //是否打开侦测
     bool isInterceptDone = false; //侦测是否完成
     bool isInterceptTimeout = false; //侦测是否超时
-    qint64 m_freq1 = 0;
-    qint64 m_freq2 = 0;
+    quint64 m_freq1 = 0;
+    quint64 m_freq2 = 0;
 
     QTimer interceptCheckTimer; //侦听超时检测
 
@@ -100,7 +100,7 @@ private:
     QByteArray* m_audioData;
 
 signals:
-    void getFrequency(qint64 freq); //频率获取
+    void getFrequency(quint64 freq); //频率获取
     void interceptDone(bool done);   //侦听是否完成
     void interceptTimeout(bool timeout);   //侦听超时
     void recordDone();
@@ -109,6 +109,7 @@ private slots:
 };
 
 
+// Todo: 要么超时 要么完成
 /*
  * RecordWorker
  */
@@ -124,13 +125,13 @@ public:
 
     void setIntercept(bool open); // 侦听 开关设定
     void setInterceptTimeout(quint64 duration); // 侦听 超时设定
-    void setInterceptFreqRange(qint64 freq, quint64 range); // 侦听 频率范围设定
+    void setInterceptFreqRange(quint64 freq, quint64 range); // 侦听 频率范围设定
 
 
 signals:
     void recordDone(); // 工作流程结束
     void interceptTimeout();
-    void getFrequency(qint64 freq);
+    void getFrequency(quint64 freq);
 
 public slots:
     void startRecord(quint64 duration);
@@ -138,7 +139,7 @@ public slots:
     void onRecordDone();
 
     void onInterceptTimeout(); //侦测超时处理
-    void onGetFrequency(qint64 freq);
+    void onGetFrequency(quint64 freq);
 
 private:
     bool isRecording = false;
