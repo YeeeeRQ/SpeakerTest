@@ -28,18 +28,27 @@ private: // config
 
 public:
     QString m_mainWorkDir;
-    quint64 m_duration1 = 0;
-    quint64 m_duration2 = 0;
-    quint64 m_recordDelay = 0;
+
+    quint64 m_recordDelay = 0; //录音延时
+
+    quint64 m_duration1 = 0; // 测试时段1
+    quint64 m_duration1range = 0;
+    quint64 m_duration1freq= 0;
+
+    quint64 m_duration2 = 0; // 测试时段2
+    quint64 m_duration2range = 0;
+    quint64 m_duration2freq= 0;
+
+    qint64 m_firstFreq = 0; // 侦测频率
+    quint64 m_firstFreqRange = 0;
+    quint64 m_interceptTimeout= 0; //侦测超时
 
 signals:
     void autoTestConfigChanged();
 
 private slots:
     void on_btnMainWorkDirApply_clicked();
-    void on_btnRecordDelayApply_clicked();
-    void on_btnTestDurationApply1_clicked();
-    void on_btnTestDurationApply2_clicked();
+    void on_btnApplyAll_clicked();
 };
 
 #endif // SETUP4AUTOTEST_H

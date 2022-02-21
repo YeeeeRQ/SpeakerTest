@@ -1,10 +1,6 @@
 ﻿#ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#if _MSC_VER >= 1600
-#pragma execution_character_set("utf-8")
-#endif
-
 #include <QMainWindow>
 #include <QPlainTextEdit>
 #include <QThread>
@@ -36,9 +32,6 @@ namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
 
-QVector<QVector<QString>> loadExcel(QString strSheetName);
-
-
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -47,7 +40,6 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     void closeEvent(QCloseEvent *event); //
-    void resizeEvent(QResizeEvent* event);
 
 private:
     QFileInfo fi;
@@ -64,9 +56,6 @@ private:
     // 底部状态栏
     QLabel * label_startUpTime; //记录启动时间
     QLabel * label_audioFreq;   //音频频率
-
-    // 音频播放
-    QMediaPlayer* player;
 
     // Mic Device
     QSet<QString> m_audioInputs;
@@ -91,10 +80,6 @@ private:
     // 自动测试 首次发声麦克风
     QString m_firstSpeaker; //首次发声的麦克风
 
-    // 自动测试录制时长
-    quint64 m_recordDuration1;  //第1次录制时长
-    quint64 m_recordDuration2;  //第2次录制时长
-
     quint64 m_accept_pitch1[2]; // 接受频率范围
     quint64 m_accept_pitch2[2]; // 接受频率范围
     quint64 m_testTime1[2]; // 测试时段
@@ -107,26 +92,14 @@ private:
 
 // 启动时载入自定义流程 关联文件:process.xlsx
 private:
-
-    bool isInParseCmd = false;
-
     QVector<QVector<QString>> m_processTable;
     int m_processTable_rows;
     int m_processTable_cols;
 
     bool m_customTestProcessIsOK = false;
 
-    void loadAutoProcess();
-
-    bool checkCustomTestProcess(); //检测自定义流程
-
     void custom_do_sleep(quint64 duration);
-//    void custom_do_record(quint64 order,quint64 duration);
     void custom_do_record(quint64 duration);
-    void custom_do_player_start(const QString& filename);
-    void custom_do_player_stop();
-    void custom_do_sendcmd2pg(const QString& cmd);
-    void custom_do_sendcmd2mnt(const QString& cmd);
     void custom_do_set_order(const QString & first_speaker);
     void custom_do_get_audio_info(int order, quint64 tick, quint64 tick_range, quint64 freq,quint64 freq_range);
     void custom_do_set_intercept_timeout(quint64 duration); //设定侦测时长
@@ -134,8 +107,6 @@ private:
     void custom_do_autotest_end();
 
     void printResult(bool isOk, const QString& msg);
-
-
 
 signals:
     void checkAllRecordOver();
@@ -203,8 +174,8 @@ private slots:
     void slot_onSigGeneratorConnectStatusChanged();
     void slot_onAutoTestConfigChanged();
 
-//    void slot_startAutoTest();  // 自动测试流程 (废弃)
-    void slot_startCustomAutoTest();  // 自动测试流程 (现用)
+    void slot_startAutoTest();  // 自动测试流程
+//    void slot_startCustomAutoTest();  // 自动测试流程
     void slot_testAudio();    // for startTestAudio
     void slot_onAudioTestFinished(); //音频检测后根据csv判断结果
 

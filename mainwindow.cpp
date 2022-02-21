@@ -12,9 +12,9 @@
 
 #define CONFIG_FILE "\\Config.ini"
 #define DATABASE_FILE "\\Model.db"
-#define CUSTOMPROCESS_FILE "\\process.xls"
 
 //Todo:
+   // 侦听频率显示
 
 // --------------------------------------------------------------------------
 MainWindow::MainWindow(QWidget *parent)
@@ -24,22 +24,13 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-
-   // 侦听频率显示
-//    connect()
-
-    player = new QMediaPlayer;
-
     this->setting4Mic();
-
     this->Setting4Config();
     this->Setting4Path();
     this->Setting4Theme();
 
-    // 外部设备连接  0. 麦克风 1. AutoLine 2. 读码器 3. PG
+    // 外部设备连接  1. AutoLine 2. 读码器 3. PG
     this->Setting4Devices();  // 外部设备连接
-
-    this->loadAutoProcess(); // 依据配置文件载入自动测试流程
 
     // UI载入结束
     connect(this, &MainWindow::MainWindowLoaded, this, &MainWindow::onMainWindowLoaded);
@@ -50,12 +41,16 @@ MainWindow::MainWindow(QWidget *parent)
     // 载入机种列表
     connect(this, &MainWindow::sig_loadModel, this, &MainWindow::loadModel);
 
+    // 两麦克风输入录制结束 检查
+    connect(this, &MainWindow::checkAllRecordOver, this, &MainWindow::onCheckAllRecordOver);
+
+    // 读取CSV, 判断结果
+    connect(this, &MainWindow::sig_audioTestFinished, this, &MainWindow::slot_onAudioTestFinished);
 
 // Test --------------------------------------------------------------------------------------------
-//    void processCmdParser(QString cmd);
 
-// 接收到 AutoLine Start 指令，开始进行自定义测试流程
-//    connect(this, &MainWindow::sig_startAutoTest, this, &MainWindow::slot_startAutoTest); (废弃)
+// 自动模式 接收到 AutoLine Start 指令，开始进行测试
+    connect(this, &MainWindow::sig_startAutoTest, this, &MainWindow::slot_startAutoTest);
 //    connect(this, &MainWindow::allRecordOver, this, &MainWindow::startTestAudio);
 
 // 手动模式 测试
@@ -64,19 +59,19 @@ MainWindow::MainWindow(QWidget *parent)
 
 
 // Test --------------------------------------------------------------------------------------------
+//    void processCmdParser(QString cmd);
 
 // 自定义测试流程
     // 自定义测试流程 0 信号接收
-    connect(this, &MainWindow::sig_startAutoTest, this, &MainWindow::slot_startCustomAutoTest);
+//    connect(this, &MainWindow::sig_startAutoTest, this, &MainWindow::slot_startCustomAutoTest);
     // 自定义测试流程 1 指令读取流程
-    connect(this, &MainWindow::custom_cmd_done, this, &MainWindow::customTestAudio);
+//    connect(this, &MainWindow::custom_cmd_done, this, &MainWindow::customTestAudio);
 
     // 自定义测试流程 录制结束动作
-    connect(this, &MainWindow::allRecordOver, this, &MainWindow::custom_do_record_done);
+//    connect(this, &MainWindow::allRecordOver, this, &MainWindow::custom_do_record_done);
 
     // 自定义测试流程 指令解析动作
-    connect(this, &MainWindow::parseCmd, this, &MainWindow::customCmdParser);
-
+//    connect(this, &MainWindow::parseCmd, this, &MainWindow::customCmdParser);
 
     // 自定义测试流程 0 指令读取 -> 录制流程 -> 测试参数设定 完毕；开始进行测试，输出结果.
 //  void MainWindow::custom_do_autotest_end()
@@ -86,12 +81,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     // 自定义测试流程 2 音频载入 -> 获取音频信息
 //	void MainWindow::slot_getAudioInfo()
-
-    // 两麦克风输入录制结束 检查
-    connect(this, &MainWindow::checkAllRecordOver, this, &MainWindow::onCheckAllRecordOver);
-
-    // 读取CSV, 判断结果
-    connect(this, &MainWindow::sig_audioTestFinished, this, &MainWindow::slot_onAudioTestFinished);
 
 // Test --------------------------------------------------------------------------------------------
 }
@@ -131,22 +120,14 @@ void MainWindow::closeEvent(QCloseEvent *event)
     }
 }
 
-void MainWindow::resizeEvent(QResizeEvent *event)
-{
-    qDebug() << "w:" << this->width() << " h:" << this->height();
-    //    event->ignore();
-}
-
 void MainWindow::clearFileList()
 {
     static QStringList list{
+        "L",
+        "R",
         "test.csv",
         "R.wav",
-        "L.wav",
-//        "1R.wav",
-//        "1L.wav",
-//        "2R.wav",
-//        "2L.wav"
+        "L.wav"
     };
     for(int i =0;i<list.size();++i){
         QFile file_temp(m_audioTestDir + "\\" +list[i]);
@@ -359,57 +340,6 @@ void MainWindow::loadConfig()
 }
 
 // --------------------------------------------------------------------------
-void MainWindow::loadAutoProcess()
-{
-    QString process_file = QCoreApplication::applicationDirPath() + CUSTOMPROCESS_FILE;
-    QFileInfo fi(process_file);
-    if(!fi.isFile()){
-        log.warn("自定义流程文件不存在！");
-        return;
-    }
-
-    m_processTable = loadExcel("Sheet1");
-    QVector<QString>row0 = m_processTable[0];
-    m_processTable_rows = m_processTable.size();
-    m_processTable_cols =  row0.size();
-    qDebug() << "Table rows:"<< m_processTable_rows;
-    qDebug() << "Table cols:"<< m_processTable_cols;
-    log.info("载入测试流程文件 成功");
-
-    return ;
-}
-
-bool MainWindow::checkCustomTestProcess()
-{
-
-    // Todo:
-
-    // check
-    // * 不含未知指令
-    // * 录制次数 === 2
-    // * 必要设定
-        // * set_order
-        // * get_audio_info 1
-        // * get_audio_info 2
-    // * get_audio_info 时刻指针 不能越界
-
-
-//    sleep
-//    record
-//    sendcmd2pg
-//    sendcmd2mnt
-//    set_order
-//    get_audio_info
-//    autotest_start
-//    autotest_end
-
-
-    this->m_customTestProcessIsOK = true;
-
-    return this->m_customTestProcessIsOK;
-}
-
-
 void MainWindow::custom_do_sleep(quint64 duration)
 {
         delaymsec(duration);
@@ -500,6 +430,7 @@ void MainWindow::custom_do_record(quint64 duration)
 
         log.blue("开始录制");
 
+        // 麦克风开始录制
         emit sig_startRecording(duration);
 
     }else{
@@ -507,39 +438,9 @@ void MainWindow::custom_do_record(quint64 duration)
     }
 }
 
-void MainWindow::custom_do_player_start(const QString &filename)
-{//异步播放
-    // play audio
-    if(QMediaPlayer::PlayingState == player->state()){
-        player->stop();
-    }
-    player->setMedia(QUrl::fromLocalFile(filename));
-    player->setVolume(100);
-    player->play();
-    emit custom_cmd_done("NEXT");
-}
-
-void MainWindow::custom_do_player_stop()
-{
-    player->stop();
-    emit custom_cmd_done("NEXT");
-}
 void MainWindow::custom_do_record_done()
 {
     if(!m_autoMode)return;
-    emit custom_cmd_done("NEXT");
-}
-
-void MainWindow::custom_do_sendcmd2pg(const QString &cmd)
-{
-    if(m_SigGenerator){
-        m_SigGenerator->sendCmd(cmd);
-    }
-    emit custom_cmd_done("NEXT");
-}
-
-void MainWindow::custom_do_sendcmd2mnt(const QString &cmd)
-{
     emit custom_cmd_done("NEXT");
 }
 
@@ -569,11 +470,11 @@ void MainWindow::custom_do_get_audio_info(int order, quint64 tick, quint64 tick_
 
     if(1 == order){
         //校验
-        if(t1<0 || t2>m_recordDuration1){
-            //error
-            log.warn("get audio info error!");
-            log.warn("取样时间范围大于或小于录制时间！");
-        }
+//        if(t1<0 || t2>m_recordDuration1){
+//            //error
+//            log.warn("get audio info error!");
+//            log.warn("取样时间范围大于或小于录制时间！");
+//        }
 
         m_testTime1[0] = t1;
         m_testTime1[1] = t2;
@@ -584,11 +485,11 @@ void MainWindow::custom_do_get_audio_info(int order, quint64 tick, quint64 tick_
 
     }else if(2 == order){
         //校验
-        if(t1<0 || t2>m_recordDuration2){
-            //error
-            log.warn("get audio info error!");
-            log.warn("取样时间范围大于或小于录制时间！");
-        }
+//        if(t1<0 || t2>m_recordDuration2){
+//            //error
+//            log.warn("get audio info error!");
+//            log.warn("取样时间范围大于或小于录制时间！");
+//        }
 
         m_testTime2[0] = t1;
         m_testTime2[1] = t2;
@@ -710,7 +611,6 @@ void MainWindow::customCmdParser(const QString& cmd, const QList<QString>&cmd_ar
     // 解析 指令 + 参数 并执行.
 
     if(cmd == "autotest_start"){
-        isInParseCmd = true;
         // do nothing
     }else if(cmd == "sleep"){
 
@@ -739,14 +639,6 @@ void MainWindow::customCmdParser(const QString& cmd, const QList<QString>&cmd_ar
 
 //        custom_do_player_stop();
 
-    }else if(cmd == "sendcmd2pg"){
-
-        custom_do_sendcmd2pg(cmd_args.at(0));
-
-    }else if(cmd == "sendcmd2mnt"){
-
-        custom_do_sendcmd2mnt(cmd_args.at(0));
-
     }else if(cmd == "set_order"){
 
         custom_do_set_order(cmd_args.at(0));
@@ -767,7 +659,6 @@ void MainWindow::customCmdParser(const QString& cmd, const QList<QString>&cmd_ar
         // 判断并输出结果
         custom_do_autotest_end();
 
-        isInParseCmd = false;
 
     }else{
         qDebug() << "未知指令";
@@ -794,6 +685,7 @@ void MainWindow::slot_onAutoModeStateChanged(bool mode)
 
 void MainWindow::Setting4MainWindow()
 {
+
 
     // 机种载入 数据库文件检测
     QString s_dbfile = QCoreApplication::applicationDirPath() + DATABASE_FILE;
@@ -886,58 +778,60 @@ void MainWindow::setWavDir4UI(const QString & dir)
 * 匿名产品 ID
 */
 ///////////////////////////////////////////////////////////////////
-//void MainWindow::slot_startAutoTest()
+void MainWindow::slot_startAutoTest()
+{
+    QString model_name = ui->comboBoxModelName->currentText();
+    QString product_id = ui->lineEdit4ProductID->text();
+
+    QString curDate = QDate::currentDate().toString("yyyy-MM-dd");
+    QString curTime = QTime::currentTime().toString("hh:mm:ss");
+
+    // 录制时长
+    m_wavDuration = ui->lineEditDurationOfRecord->text().toUInt();
+
+    log.blue("开始录制");
+
+    ui->widgetShowInfo->startTimer();
+    ui->widgetShowInfo->changeStatus2Recording();
+
+    // 麦克风开始录制
+    emit sig_startRecording(m_wavDuration);
+}
+
+//void MainWindow::slot_startCustomAutoTest()
 //{
+//    checkCustomTestProcess();
+//    if(!this->m_customTestProcessIsOK){
+//        log.warn("错误！自定义流程配置有误.");
+//        log.warn("无法进行测试!");
+//        return ;
+//    }
+
+//    // Todo:
+//    // 工作目录设定
+
+//    // 读取机种名
+//    // 读取产品ID
+//    // 设定 m_wavDir
+//    // 生成 m_wavDir 目录
 
 //    QString model_name = ui->comboBoxModelName->currentText();
 //    QString product_id = ui->lineEdit4ProductID->text();
 
-//    QString curDate = QDate::currentDate().toString("yyyy-MM-dd");
-//    QString curTime = QTime::currentTime().toString("hh:mm:ss");
+//    if(model_name.isEmpty()){
+//        model_name = "UNKOWN_MODEL";
+//    }
+//    if(product_id.isEmpty()){
+//        product_id = "000000000000";
+//    }
+//    log.info("开始自定义测试流程");
+//    qDebug() << "Model Name: "<< model_name;
+//    qDebug() << "Product ID:"<< product_id;
 
-//    // 录制
-//    m_wavDuration = ui->lineEditDurationOfRecord->text().toUInt();
 
-//    log.blue("开始录制");
-
-//    ui->widgetShowInfo->startTimer();
-//    emit sig_startRecording(m_wavDuration);
+//    ui->widgetShowInfo->changeStatus2Processing();
+//    emit custom_cmd_done("START");
 //}
-
-void MainWindow::slot_startCustomAutoTest()
-{
-    checkCustomTestProcess();
-    if(!this->m_customTestProcessIsOK){
-        log.warn("错误！自定义流程配置有误.");
-        log.warn("无法进行测试!");
-        return ;
-    }
-
-    // Todo:
-    // 工作目录设定
-
-    // 读取机种名
-    // 读取产品ID
-    // 设定 m_wavDir
-    // 生成 m_wavDir 目录
-
-    QString model_name = ui->comboBoxModelName->currentText();
-    QString product_id = ui->lineEdit4ProductID->text();
-
-    if(model_name.isEmpty()){
-        model_name = "UNKOWN_MODEL";
-    }
-    if(product_id.isEmpty()){
-        product_id = "000000000000";
-    }
-    log.info("开始自定义测试流程");
-    qDebug() << "Model Name: "<< model_name;
-    qDebug() << "Product ID:"<< product_id;
-
-
-    ui->widgetShowInfo->changeStatus2Processing();
-    emit custom_cmd_done("START");
-}
 
 // --------------------------------------------------------------------------
 
@@ -955,9 +849,6 @@ void MainWindow::slot_onAutoLineReceiveCmd(QString rev_cmd)
 
     if(!this->isAutoMode()){
         log.info("当前模式: 手动");
-        return ;
-    }else if(isInParseCmd){
-        log.info("最近一次，自定义流程未结束.");
         return ;
     } else{
         if(rev_cmd == m_cmd_start){
@@ -1015,24 +906,14 @@ void MainWindow::slot_onSetupMic(int l_idx, const QString &lmic, int r_idx, cons
     log.warn(lmic);
     log.warn(rmic);
 
-//    emit sig_setRecordInputL(lmic);
-//    emit sig_setRecordInputR(rmic);
-
     emit sig_setRecordInputL(l_idx);
     emit sig_setRecordInputR(r_idx);
-
-//    m_pRecWorkerL->setMic(l_idx);
-//    m_pRecWorkerR->setMic(r_idx);
-
 
     conf.Set("Mic", "L", lmic);
     conf.Set("Mic", "L_idx", l_idx);
     conf.Set("Mic", "R", rmic);
     conf.Set("Mic", "R_idx", r_idx);
 }
-
-
-
 
 void MainWindow::on_btnLoadWavDir_clicked()
 {
@@ -1050,13 +931,10 @@ void MainWindow::on_btnLoadWavDir_clicked()
 
 void MainWindow::on_btnStartRecord_clicked()
 {//Start Record
+
     // 输出 当前麦克风
-
-    this->clearFileList();
-
     log.info(m_micL);
     log.info(m_micR);
-
 
     // 输出文件夹检测
     fi.setFile(m_audioTestDir);
@@ -1065,15 +943,25 @@ void MainWindow::on_btnStartRecord_clicked()
         return;
     }
 
+    // 清空输出目录下相关文件
+    this->clearFileList();
+
     ///////////////////////////!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     QString output_l = QDir::toNativeSeparators(m_audioTestDir+ "\\L");
     QString output_r = QDir::toNativeSeparators(m_audioTestDir+ "\\R");
     m_pRecWorkerL->setOutputFile(output_l);
     m_pRecWorkerR->setOutputFile(output_r);
 
-    bool openIntercept = false; // 关闭侦测
+    // 打开频率侦测
+    bool openIntercept = true;
     m_pRecWorkerL->setIntercept(openIntercept);
     m_pRecWorkerR->setIntercept(openIntercept);
+
+    // 侦测设定
+    m_pRecWorkerL->setInterceptFreqRange(1000, 100);
+    m_pRecWorkerL->setInterceptTimeout(10000);
+    m_pRecWorkerR->setInterceptFreqRange(1000, 100);
+    m_pRecWorkerR->setInterceptTimeout(10000);
 
     // Start Record
     m_wavDuration = ui->lineEditDurationOfRecord->text().toUInt();
@@ -1717,67 +1605,6 @@ void MainWindow::on_btnTest_clicked()
 }
 
 // --------------------------------------------------------------------------
-
-QVector<QVector<QString>> loadExcel(QString strSheetName)
-{
-    QVector<QVector<QString>> vecDatas;//获取所有数据
-
-    if(strSheetName.contains(".xls")){//兼容老版本
-        strSheetName = strSheetName.left(strSheetName.length()-4);
-    }
-
-    QString strPath = QCoreApplication::applicationDirPath() + CUSTOMPROCESS_FILE;
-    QFile file(strPath);
-    if(!file.exists()){
-        qWarning() << "CExcelTool::loadExcel 路径错误，或文件不存在,路径为"<<strPath;
-        return vecDatas;
-    }
-
-    QAxObject *excel = new QAxObject("Excel.Application");//excel应用程序
-    excel->dynamicCall("SetVisible(bool)", false); //true 表示操作文件时可见，false表示为不可见
-    QAxObject *workbooks = excel->querySubObject("WorkBooks");//所有excel文件
-    QAxObject *workbook = workbooks->querySubObject("Open(QString&)", strPath);//按照路径获取文件
-    QAxObject * worksheets = workbook->querySubObject("WorkSheets");//获取文件的所有sheet页
-    QAxObject * worksheet = worksheets->querySubObject("Item(QString)", strSheetName);//获取文件sheet页
-    if(nullptr == worksheet){
-        qWarning()<<strSheetName<<"Sheet页不存在。";
-        return vecDatas;
-    }
-    QAxObject * usedrange = worksheet->querySubObject("UsedRange");//有数据的矩形区域
-
-    //获取行数
-    QAxObject * rows = usedrange->querySubObject("Rows");
-    int nRows = rows->property("Count").toInt();
-    if(nRows <= 1){
-        qWarning()<<"无数据，跳过该文件";
-        return vecDatas;
-    }
-
-    //获取列数
-    QAxObject * columns = usedrange->querySubObject("Columns");
-    int nColumns = columns->property("Count").toInt();
-
-
-    QVariant var = usedrange->dynamicCall("Value");
-    foreach(QVariant varRow,var.toList()){
-        QVector<QString> vecDataRow;
-        foreach(QVariant var,varRow.toList()){
-            vecDataRow.push_back(var.toString());
-        }
-        vecDatas.push_back(vecDataRow);
-    }
-
-    //关闭文件
-    workbook->dynamicCall("Close()");
-    excel->dynamicCall("Quit()");
-    if (excel)
-    {
-        delete excel;
-        excel = NULL;
-    }
-
-    return vecDatas;
-}
 
 // --------------------------------------------------------------------------
 

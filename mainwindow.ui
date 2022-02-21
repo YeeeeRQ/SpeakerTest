@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>1289</width>
+    <height>797</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -686,7 +686,7 @@ QHeaderView::section/*表头样式*/
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>1289</width>
      <height>22</height>
     </rect>
    </property>
