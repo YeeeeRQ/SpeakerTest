@@ -94,6 +94,11 @@ private:
 private:
     void printResult(bool isOk, const QString& msg);
 
+    bool r_record_done = false;
+    bool l_record_done = false;
+    QString r_record_reason;
+    QString l_record_reason;
+
 signals:
     void checkAllRecordOver();
     void allRecordOver();
@@ -144,8 +149,8 @@ signals:
 
 private slots:
     void slot_onSetupMic(int l_idx, const QString& lmic, int r_idx, const QString& rmic);
-    void slot_onLMicRecordingOver(); //左侧Mic录制结束
-    void slot_onRMicRecordingOver(); //右侧Mic录制结束
+    void slot_onLMicRecordingOver(bool done, const QString& result); //左侧Mic录制结束
+    void slot_onRMicRecordingOver(bool done, const QString& result); //右侧Mic录制结束
 
     void slot_onCodeReaderReceiveBarcode(QString barcode);
     void slot_onCodeReaderConnectStatusChanged();

@@ -52,6 +52,11 @@ bool DataSource::setOutputFile(QString filename)
     return m_outputFile->open(QIODevice::WriteOnly|QIODevice::Truncate);
 }
 
+void DataSource::setInterceptTimeout(quint64 duration)
+{
+    this->m_duration4Intercept = duration;
+}
+
 bool DataSource::setDuration(quint64 duration)
 {
     //!!!!!!!!!录制时长不能小于侦听测试缓存时长

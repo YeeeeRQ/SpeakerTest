@@ -51,7 +51,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 // 自动模式 接收到 AutoLine Start 指令，开始进行测试
     connect(this, &MainWindow::sig_startAutoTest, this, &MainWindow::slot_startAutoTest);
-//    connect(this, &MainWindow::allRecordOver, this, &MainWindow::startTestAudio);
+    connect(this, &MainWindow::allRecordOver, this, &MainWindow::startTestAudio);
 
 // 手动模式 测试
     // 音频载入 -> 获取音频信息 并输出至CSV
@@ -210,18 +210,14 @@ bool MainWindow::isAutoMode()
 }
 
 // --------------------------------------------------------------------------
-void MainWindow::slot_onLMicRecordingOver()
+void MainWindow::slot_onLMicRecordingOver(bool done, const QString& result)
 { //录制结束 L
-
-//    log.blue("录制结束 L");
     m_recordCount[0] = true;
     emit checkAllRecordOver();
 }
 
-void MainWindow::slot_onRMicRecordingOver()
+void MainWindow::slot_onRMicRecordingOver(bool done, const QString& result)
 { //录制结束 R
-
-//    log.blue("录制结束 R");
     m_recordCount[1] = true;
     emit checkAllRecordOver();
 }
@@ -242,7 +238,18 @@ void MainWindow::onCheckAllRecordOver()
         }
         ui->btnTest->setEnabled(true);
         log.warn("录制流程结束.");
-        emit allRecordOver();
+
+        if(l_record_done | r_record_done){
+            // 正常
+            log.warn("结果:成功");
+            emit allRecordOver();
+        }else{
+            // 失败
+            log.warn("结果:失败");
+            log.warn("L:" + l_record_reason);
+            log.warn("R:" + r_record_reason);
+            printResult(false, "");
+        }
     }
 }
 
@@ -339,102 +346,6 @@ void MainWindow::loadConfig()
     }
 }
 
-// --------------------------------------------------------------------------
-void MainWindow::custom_do_sleep(quint64 duration)
-{
-        delaymsec(duration);
-        emit custom_cmd_done("NEXT");
-}
-
-
-// 自定义流程下 录制动作
-//void MainWindow::custom_do_record2(quint64 order,quint64 duration)
-//{
-//    // 输出 当前麦克风
-//    log.info(m_micL);
-//    log.info(m_micR);
-
-//    // 设定录制名称
-////    QString wavdir = ui->lineEdit4WavDir->text();
-//    static QStringList first_wav{"\\1L.wav", "\\1R.wav"};
-//    static QStringList second_wav{"\\2L.wav", "\\2R.wav"};
-
-//    fi.setFile(m_audioTestDir);
-//    if(!fi.isDir()){
-//        // 输出文件夹不存在
-//        log.warn("录制异常：输出文件夹不存在");
-//        emit custom_cmd_done("ERROR");
-//        return;
-//    }
-
-//    if(order == 1){
-////        m_pRecWorkerL->setOutputFile(m_audioTestDir + first_wav[0]);
-////        m_pRecWorkerR->setOutputFile(m_audioTestDir + first_wav[1]);
-//    }else if(order == 2){
-////        m_pRecWorkerL->setOutputFile(m_audioTestDir + second_wav[0]);
-////        m_pRecWorkerR->setOutputFile(m_audioTestDir + second_wav[1]);
-//    }else{
-//        log.warn("录制不能次数>2");
-//        emit custom_cmd_done("ERROR");
-//    }
-
-//    if(duration >0){
-//        //标志位置位
-//        m_recordCount[0]= false;
-//        m_recordCount[1]= false;
-
-//        log.blue("开始录制");
-
-//        emit sig_startRecording(duration);
-
-//    }else{
-//        log.warn("录制时长: 0 ms");
-//    }
-//}
-
-void MainWindow::custom_do_record(quint64 duration)
-{
-    // 输出 当前麦克风
-    log.info(m_micL);
-    log.info(m_micR);
-
-    // 设定录制名称
-    static QStringList wav_name{"\\L", "\\R"};
-
-    fi.setFile(m_audioTestDir);
-    if(!fi.isDir()){
-        // 输出文件夹不存在
-        log.warn("录制异常：输出文件夹不存在");
-        emit custom_cmd_done("ERROR");
-        return;
-    }
-
-//    m_pRecWorkerL->setRecordOutputFile(m_audioTestDir + wav_name[0]);
-//    m_pRecWorkerR->setRecordOutputFile(m_audioTestDir + wav_name[1]);
-
-//    //打开侦测
-//    bool openIntercept = true;
-//    m_pRecWorkerL->setIntercept(openIntercept);
-//    m_pRecWorkerR->setIntercept(openIntercept);
-
-//    // 侦测设定
-//    m_pRecWorkerL->setInterceptFreqRange(1000, 100);
-//    m_pRecWorkerL->setInterceptTimeout(10000);
-
-    if(duration >0){
-        //标志位置位
-        m_recordCount[0]= false;
-        m_recordCount[1]= false;
-
-        log.blue("开始录制");
-
-        // 麦克风开始录制
-        emit sig_startRecording();
-
-    }else{
-        log.warn("录制时长: 0 ms");
-    }
-}
 
 void MainWindow::slot_onAutoModeStateChanged(bool mode)
 {
@@ -699,8 +610,10 @@ void MainWindow::on_btnStartRecord_clicked()
 {//Start Record
 
     // 输出 当前麦克风
+    log.info("当前输入:");
     log.info(m_micL);
     log.info(m_micR);
+    log.info("");
 
     // 输出文件夹检测
     fi.setFile(m_audioTestDir);
@@ -1132,9 +1045,8 @@ ERROR_BOTH:
 
 void MainWindow::printResult(bool isOk, const QString& msg)
 {
-    qDebug() << "pass:"<<m_cmd_pass;
-    qDebug() << "fail:"<<m_cmd_fail;
-
+//    qDebug() << "pass:"<<m_cmd_pass;
+//    qDebug() << "fail:"<<m_cmd_fail;
     if(isOk){
         ui->widgetShowInfo->changeStatus2Pass();
         ui->widgetShowInfo->okNumPlusOne();
