@@ -55,27 +55,32 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="523"/>
+        <location filename="mainwindow.ui" line="489"/>
+        <source>侦听</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="mainwindow.ui" line="551"/>
         <source>测试(T)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="582"/>
+        <location filename="mainwindow.ui" line="610"/>
         <source>程序输出</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="563"/>
+        <location filename="mainwindow.ui" line="591"/>
         <source>测试结果</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="647"/>
+        <location filename="mainwindow.ui" line="675"/>
         <source>麦克风输入</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="640"/>
+        <location filename="mainwindow.ui" line="668"/>
         <source>音频测试</source>
         <oldsource>自动测试</oldsource>
         <translation type="unfinished"></translation>
@@ -126,17 +131,17 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="625"/>
+        <location filename="mainwindow.ui" line="653"/>
         <source>设定</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="633"/>
+        <location filename="mainwindow.ui" line="661"/>
         <source>机种管理</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="654"/>
+        <location filename="mainwindow.ui" line="682"/>
         <source>外部设备</source>
         <translation type="unfinished"></translation>
     </message>

@@ -409,17 +409,17 @@ void MainWindow::custom_do_record(quint64 duration)
         return;
     }
 
-    m_pRecWorkerL->setRecordOutputFile(m_audioTestDir + wav_name[0]);
-    m_pRecWorkerR->setRecordOutputFile(m_audioTestDir + wav_name[1]);
+//    m_pRecWorkerL->setRecordOutputFile(m_audioTestDir + wav_name[0]);
+//    m_pRecWorkerR->setRecordOutputFile(m_audioTestDir + wav_name[1]);
 
-    //打开侦测
-    bool openIntercept = true;
-    m_pRecWorkerL->setIntercept(openIntercept);
-    m_pRecWorkerR->setIntercept(openIntercept);
+//    //打开侦测
+//    bool openIntercept = true;
+//    m_pRecWorkerL->setIntercept(openIntercept);
+//    m_pRecWorkerR->setIntercept(openIntercept);
 
-    // 侦测设定
-    m_pRecWorkerL->setInterceptFreqRange(1000, 100);
-    m_pRecWorkerL->setInterceptTimeout(10000);
+//    // 侦测设定
+//    m_pRecWorkerL->setInterceptFreqRange(1000, 100);
+//    m_pRecWorkerL->setInterceptTimeout(10000);
 
     if(duration >0){
         //标志位置位
@@ -435,238 +435,6 @@ void MainWindow::custom_do_record(quint64 duration)
         log.warn("录制时长: 0 ms");
     }
 }
-
-void MainWindow::custom_do_record_done()
-{
-    if(!m_autoMode)return;
-    emit custom_cmd_done("NEXT");
-}
-
-void MainWindow::custom_do_set_order(const QString & first_speaker)
-{
-    if(first_speaker == "L"){
-        m_firstSpeaker = "L";
-    }else if(first_speaker == "R"){
-        m_firstSpeaker = "R";
-    }else{
-        m_firstSpeaker = "L";
-        log.warn("Custom Cmd [set order] ERROR");
-    }
-    log.warn("首次发声麦克风 : " + m_firstSpeaker);
-
-    emit custom_cmd_done("NEXT");
-}
-
-void MainWindow::custom_do_get_audio_info(int order, quint64 tick, quint64 tick_range, quint64 freq, quint64 freq_range)
-{
-
-    qint64 f1 = freq-freq_range;
-    qint64 f2 = freq+freq_range;
-
-    qint64 t1 = tick-tick_range;
-    qint64 t2 = tick+tick_range;
-
-    if(1 == order){
-        //校验
-//        if(t1<0 || t2>m_recordDuration1){
-//            //error
-//            log.warn("get audio info error!");
-//            log.warn("取样时间范围大于或小于录制时间！");
-//        }
-
-        m_testTime1[0] = t1;
-        m_testTime1[1] = t2;
-        m_accept_pitch1[0]  = f1;
-        m_accept_pitch1[1]  = f2;
-
-        emit custom_cmd_done("NEXT"); //参数设定成功
-
-    }else if(2 == order){
-        //校验
-//        if(t1<0 || t2>m_recordDuration2){
-//            //error
-//            log.warn("get audio info error!");
-//            log.warn("取样时间范围大于或小于录制时间！");
-//        }
-
-        m_testTime2[0] = t1;
-        m_testTime2[1] = t2;
-        m_accept_pitch2[0]  = f1;
-        m_accept_pitch2[1]  = f2;
-        emit custom_cmd_done("NEXT"); //参数设定成功
-
-    }else{
-        //error
-        log.warn("get audio info error!");
-        log.warn("不存在指定次序录制的音频!");
-
-        emit custom_cmd_done("ERROR"); //参数设定失败
-    }
-}
-
-void MainWindow::custom_do_set_intercept_timeout(quint64 duration)
-{
-    m_pRecWorkerL->setInterceptTimeout(duration);
-    m_pRecWorkerR->setInterceptTimeout(duration);
-
-    emit custom_cmd_done("NEXT");
-}
-
-void MainWindow::custom_do_set_intercept_freq(qint64 freq, quint64 range)
-{
-    m_pRecWorkerL->setInterceptFreqRange(freq, range);
-    m_pRecWorkerR->setInterceptFreqRange(freq, range);
-
-    emit custom_cmd_done("NEXT");
-}
-
-// 自定义测试流程结束
-void MainWindow::custom_do_autotest_end()
-{
-    qDebug() << "custom_do_autotest_end";
-
-    // 自定义测试流程 1 开始音频测试 音频载入前检测
-    startTestAudioInAutoMode();
-
-    // 自定义测试流程 2 音频载入 -> 获取音频信息
-    slot_getAudioInfo();
-
-    // 告知结束流程
-    emit custom_cmd_done("END"); //测试流程结束
-}
-
-void MainWindow::customTestAudio(const QString& ctl)
-{
-    static quint64 step = 1;
-    static QString cmd;
-    static QList<QString> cmd_args;
-
-    // 发生错误， 步骤置1
-    if(ctl == "ERROR"){
-        qDebug() << "[AutoTest ERROR]";
-        log.warn("[AutoTest ERROR]");
-        step = 1;
-        return;
-    }
-
-    if(ctl == "END"){
-        qDebug() << "[AutoTest End]";
-        log.info("[AutoTest End]");
-        step = 1;
-        return;
-    }
-
-
-    if(ctl == "NEXT" || ctl == "START"){
-        if(ctl == "START"){
-            qDebug() << "[AutoTest Start]";
-            log.info("[AutoTest Start]");
-
-
-            this->clearFileList(); //清理目录下录制+测试生成的文件
-            step = 1;
-        }
-        if(step < m_processTable_rows){
-
-        // 读取 自定义测试指令
-        cmd = m_processTable.at(step).at(1);
-
-        // 读取 自定义测试指令参数
-        cmd_args.clear();
-        for(int i = 2; i<m_processTable_cols ;++i){
-            QString arg = m_processTable.at(step).at(i);
-            if(arg.isEmpty()) break;
-            cmd_args.append(arg);
-        }
-
-        if(cmd.isEmpty()){
-            return;
-        }
-
-        qDebug() << "----------------";
-        qDebug() << QDateTime::currentDateTime().toString("hh:mm:ss.zzz");
-        QString str_args;
-        for(int i =0;i<cmd_args.size();++i){
-            str_args += cmd_args.at(i) + " ";
-        }
-        qDebug() << "CMD: "<<cmd;
-        qDebug() << str_args;
-        log.info(cmd + " " + str_args);
-        qDebug() << "----------------";
-
-        // ++step; //for debug
-        // emit custom_cmd_done("Debug"); // for debug
-        // 解析并执行自定义指令
-
-        ++step;
-        emit parseCmd(cmd, cmd_args);
-        }
-    }
-}
-
-void MainWindow::customCmdParser(const QString& cmd, const QList<QString>&cmd_args)
-{
-    // 解析 指令 + 参数 并执行.
-
-    if(cmd == "autotest_start"){
-        // do nothing
-    }else if(cmd == "sleep"){
-
-        quint64 duration = cmd_args.at(0).toUInt();
-        custom_do_sleep(duration);
-
-    }else if(cmd == "record"){
-        quint64 duration = cmd_args.at(0).toUInt();
-        custom_do_record(duration);
-
-    }else if(cmd == "set_intercept_timeout"){
-        quint64 duration = cmd_args.at(0).toUInt();
-
-        custom_do_set_intercept_timeout(duration);
-
-    }else if(cmd == "set_intercept_freq"){
-        qint64 freq= cmd_args.at(0).toInt();
-        quint64 range= cmd_args.at(1).toUInt();
-        custom_do_set_intercept_freq(freq, range);
-
-//    }else if(cmd == "player_start"){
-
-//        custom_do_player_start(cmd_args.at(0));
-
-//    }else if(cmd == "player_stop"){
-
-//        custom_do_player_stop();
-
-    }else if(cmd == "set_order"){
-
-        custom_do_set_order(cmd_args.at(0));
-
-    }else if(cmd == "get_audio_info"){
-
-        custom_do_get_audio_info(
-                    cmd_args.at(0).toInt(),
-                    cmd_args.at(1).toUInt(),
-                    cmd_args.at(2).toUInt(),
-                    cmd_args.at(3).toUInt(),
-                    cmd_args.at(4).toUInt()
-                    );
-
-    }else if(cmd == "autotest_end"){
-
-        // 假定参数设定完毕， 音频录制完毕
-        // 判断并输出结果
-        custom_do_autotest_end();
-
-
-    }else{
-        qDebug() << "未知指令";
-        log.warn("未知指令");
-        emit custom_cmd_done("END"); //测试流程结束
-    }
-}
-
-// --------------------------------------------------------------------------
-
 
 void MainWindow::slot_onAutoModeStateChanged(bool mode)
 {
@@ -1534,7 +1302,7 @@ void MainWindow::setting4Mic()
 
 
         // 侦测超时
-        connect(m_pRecWorkerL, &RecordWorker::interceptTimeout, this, &MainWindow::onInterceptTimeout);
+//        connect(m_pRecWorkerL, &RecordWorker::interceptTimeout, this, &MainWindow::onInterceptTimeout);
 
         // 侦测频率获取
         connect(m_pRecWorkerL, &RecordWorker::getFrequency, this, &MainWindow::slot_onGetFrequency);

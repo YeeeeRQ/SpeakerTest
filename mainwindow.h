@@ -92,35 +92,13 @@ private:
 
 // 启动时载入自定义流程 关联文件:process.xlsx
 private:
-    QVector<QVector<QString>> m_processTable;
-    int m_processTable_rows;
-    int m_processTable_cols;
-
-    bool m_customTestProcessIsOK = false;
-
-    void custom_do_sleep(quint64 duration);
-    void custom_do_record(quint64 duration);
-    void custom_do_set_order(const QString & first_speaker);
-    void custom_do_get_audio_info(int order, quint64 tick, quint64 tick_range, quint64 freq,quint64 freq_range);
-    void custom_do_set_intercept_timeout(quint64 duration); //设定侦测时长
-    void custom_do_set_intercept_freq(qint64 freq, quint64 range); //设定侦测频率范围
-    void custom_do_autotest_end();
-
     void printResult(bool isOk, const QString& msg);
 
 signals:
     void checkAllRecordOver();
     void allRecordOver();
 
-    void parseCmd(const QString& cmd, const QList<QString>&cmd_args);
-
-    void custom_cmd_done(const QString& ctl);
-
 private slots:
-    void custom_do_record_done();
-    void customTestAudio(const QString& ctl);
-    void customCmdParser(const QString& cmd, const QList<QString>&cmd_args);
-//    void processCmdParser(QString cmd);
     void onCheckAllRecordOver();
     void onInterceptTimeout(); //侦测超时
 
