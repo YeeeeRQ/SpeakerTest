@@ -42,6 +42,7 @@ set(PROJECT_SOURCES
 
         qmydisplaydevice.cpp qmydisplaydevice.h
         RecordWorker.h RecordWorker.cpp
+        DataSource.h DataSource.cpp
         AutoLine.h AutoLine.cpp
         CodeReader.cpp CodeReader.h
         config.cpp config.h
