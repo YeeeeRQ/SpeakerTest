@@ -146,7 +146,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="378"/>
+        <location filename="mainwindow.cpp" line="383"/>
         <source>双通道扬声器测试</source>
         <translation type="unfinished"></translation>
     </message>

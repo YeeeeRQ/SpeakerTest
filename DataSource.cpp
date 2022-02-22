@@ -32,6 +32,7 @@ DataSource::DataSource( QObject *parent) :
     m_outputFile = new QFile(this);
     m_audioData = new QByteArray;
     m_testAudioData = new QByteArray;
+    m_recordStatus = RecordStatus::IdleMode;
 }
 
 DataSource::~DataSource()
@@ -221,7 +222,7 @@ qint64 DataSource::writeData(const char * data, qint64 maxSize)
         }
 
         // 测试音频大小
-        static const quint64 size_300ms = 0.3 * (m_fmt.sampleRate() * m_fmt.sampleSize()/ 8);
+        static const quint64 size_300ms = 0.1 * (m_fmt.sampleRate() * m_fmt.sampleSize()/ 8);
 //        qDebug() << m_testAudioData->size();
         if(m_testAudioData->size() >= size_300ms){ //测试数据已达300ms
             // 次数统计
@@ -234,7 +235,7 @@ qint64 DataSource::writeData(const char * data, qint64 maxSize)
 
 //            qDebug() << "Freq : " << m_freq1 << " ~ " << m_freq2;
             if(freq > m_freq1 && freq < m_freq2){ // 满足条件
-                qDebug() << "In Range!!";
+                qDebug() << "In Range!!" << count ;
 
                 // 累计计数
                 if(prevFreqInRange){
@@ -245,19 +246,21 @@ qint64 DataSource::writeData(const char * data, qint64 maxSize)
                 prevFreqInRange = true;
             }else{
                 // 重置次数统计
+                qDebug() << "Not In Range!!" << count ;
                 count = 0;
                 prevFreqInRange = false;
             }
 
             // 连续X次满足指定频率
-            if(count > 2){
-                qDebug() << "Intercep Done!!";
+            if(count >= 5){
 
                 m_recordStatus = RecordStatus::IdleMode;
                 m_testAudioData->clear();
                 timeout_size = 0;
-
                 emit interceptDone(true);
+
+                qDebug() << "Intercept Done!!";
+                return maxSize;
             }
             // 清空缓存音频数据
             m_testAudioData->clear();

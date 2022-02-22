@@ -78,7 +78,7 @@ void RecordWorker::onDSRecordDone()
     Q_ASSERT(isRecording == true);
 
     isRecording = false;
-    emit recordDone(true, "");
+    emit recordDone(true, "RecordDone");
 }
 
 void RecordWorker::onDSInterceptDone(bool done)

@@ -212,12 +212,17 @@ bool MainWindow::isAutoMode()
 // --------------------------------------------------------------------------
 void MainWindow::slot_onLMicRecordingOver(bool done, const QString& result)
 { //录制结束 L
+    l_record_done = done;
+    l_record_reason = result;
+
     m_recordCount[0] = true;
     emit checkAllRecordOver();
 }
 
 void MainWindow::slot_onRMicRecordingOver(bool done, const QString& result)
 { //录制结束 R
+    r_record_done = done;
+    r_record_reason = result;
     m_recordCount[1] = true;
     emit checkAllRecordOver();
 }
@@ -1189,8 +1194,8 @@ void MainWindow::setting4Mic()
         connect(this, &MainWindow::sig_startRecording, m_pRecWorkerL, &RecordWorker::startRecord);
         connect(&m_recordThread4L, &QThread::finished, m_pRecWorkerL, &QObject::deleteLater);
 
-        connect(m_pRecWorkerL, SIGNAL(recordDone()), this, SLOT(slot_onLMicRecordingOver()));
-        connect(m_pRecWorkerL, SIGNAL(interceptTimeout()), this, SLOT(slot_onLMicRecordingOver()));
+        connect(m_pRecWorkerL, &RecordWorker::recordDone, this, &MainWindow::slot_onLMicRecordingOver);
+//        connect(m_pRecWorkerL, &RecordWorker::interceptTimeout, this, &MainWindow::slot_onLMicRecordingOver);
 
         connect(this, &MainWindow::sig_setRecordInputL, m_pRecWorkerL, &RecordWorker::setMic);
 
@@ -1202,8 +1207,8 @@ void MainWindow::setting4Mic()
         connect(this, &MainWindow::sig_startRecording, m_pRecWorkerR, &RecordWorker::startRecord);
         connect(&m_recordThread4R, &QThread::finished, m_pRecWorkerR, &QObject::deleteLater);
 
-        connect(m_pRecWorkerR, SIGNAL(recordDone()), this, SLOT(slot_onRMicRecordingOver()));
-        connect(m_pRecWorkerR, SIGNAL(interceptTimeout()), this, SLOT(slot_onRMicRecordingOver()));
+        connect(m_pRecWorkerR, &RecordWorker::recordDone, this, &MainWindow::slot_onRMicRecordingOver);
+//        connect(m_pRecWorkerR, SIGNAL(interceptTimeout()), this, SLOT(slot_onRMicRecordingOver()));
 
         connect(this, &MainWindow::sig_setRecordInputR, m_pRecWorkerR, &RecordWorker::setMic);
 
