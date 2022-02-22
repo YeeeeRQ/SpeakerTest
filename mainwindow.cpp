@@ -409,8 +409,8 @@ void MainWindow::custom_do_record(quint64 duration)
         return;
     }
 
-    m_pRecWorkerL->setOutputFile(m_audioTestDir + wav_name[0]);
-    m_pRecWorkerR->setOutputFile(m_audioTestDir + wav_name[1]);
+    m_pRecWorkerL->setRecordOutputFile(m_audioTestDir + wav_name[0]);
+    m_pRecWorkerR->setRecordOutputFile(m_audioTestDir + wav_name[1]);
 
     //打开侦测
     bool openIntercept = true;
@@ -429,7 +429,7 @@ void MainWindow::custom_do_record(quint64 duration)
         log.blue("开始录制");
 
         // 麦克风开始录制
-        emit sig_startRecording(duration);
+        emit sig_startRecording();
 
     }else{
         log.warn("录制时长: 0 ms");
@@ -793,7 +793,7 @@ void MainWindow::slot_startAutoTest()
     ui->widgetShowInfo->changeStatus2Recording();
 
     // 麦克风开始录制
-    emit sig_startRecording(m_wavDuration);
+    emit sig_startRecording();
 }
 
 //void MainWindow::slot_startCustomAutoTest()
@@ -945,40 +945,45 @@ void MainWindow::on_btnStartRecord_clicked()
     this->clearFileList();
 
     ///////////////////////////!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    QString output_l = QDir::toNativeSeparators(m_audioTestDir+ "\\L");
-    QString output_r = QDir::toNativeSeparators(m_audioTestDir+ "\\R");
-    m_pRecWorkerL->setOutputFile(output_l);
-    m_pRecWorkerR->setOutputFile(output_r);
-
-    // 打开频率侦测
-    bool openIntercept = true;
-    m_pRecWorkerL->setIntercept(openIntercept);
-    m_pRecWorkerR->setIntercept(openIntercept);
-
-    // 侦测设定
-    quint64 freq = setup4autotest->m_firstFreq;
-    quint64 range = setup4autotest->m_firstFreqRange;
-    quint64 timeout= setup4autotest->m_interceptTimeout;
-    m_pRecWorkerL->setInterceptFreqRange(freq, range);
-    m_pRecWorkerL->setInterceptTimeout(timeout);
-    m_pRecWorkerR->setInterceptFreqRange(freq, range);
-    m_pRecWorkerR->setInterceptTimeout(timeout);
-
     // Start Record
     m_wavDuration = ui->lineEditDurationOfRecord->text().toUInt();
 
-    if(m_wavDuration >0){
-        ui->btnStartRecord->setEnabled(false);
-        ui->btnTest->setEnabled(false);
+   if(m_wavDuration >0){
+       // 文件输出
+       QString output_l = QDir::toNativeSeparators(m_audioTestDir+ "\\L.wav");
+       QString output_r = QDir::toNativeSeparators(m_audioTestDir+ "\\R.wav");
+       m_pRecWorkerL->setRecord(m_wavDuration, output_l);
+       m_pRecWorkerR->setRecord(m_wavDuration, output_r);
 
-        //标志位置位
-        m_recordCount[0]= false;
-        m_recordCount[1]= false;
 
-        log.blue("开始录制");
-        ui->widgetShowInfo->startTimer();
-        ui->widgetShowInfo->changeStatus2Recording();
-        emit sig_startRecording(m_wavDuration);
+       // 频率侦测
+       bool openIntercept = ui->checkBox_Intercept->isChecked();
+       if(openIntercept){
+           quint64 freq = setup4autotest->m_firstFreq;
+           quint64 range = setup4autotest->m_firstFreqRange;
+           quint64 timeout= setup4autotest->m_interceptTimeout;
+
+
+           m_pRecWorkerL->setIntercept(openIntercept,
+                           timeout,
+                           freq,
+                           range);
+           m_pRecWorkerR->setIntercept(openIntercept,
+                           timeout,
+                           freq,
+                           range);
+       }
+       ui->btnStartRecord->setEnabled(false);
+       ui->btnTest->setEnabled(false);
+
+       //标志位置位
+       m_recordCount[0]= false;
+       m_recordCount[1]= false;
+
+       log.blue("开始录制");
+       ui->widgetShowInfo->startTimer();
+       ui->widgetShowInfo->changeStatus2Recording();
+       emit sig_startRecording();
 
     }else{
         log.warn("录制时长: 0 ms");

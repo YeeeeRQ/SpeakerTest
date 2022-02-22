@@ -6,17 +6,18 @@
 
 #include "DataSource.h"
 
-// !!!仅闲置时才可以设定属性！！！！！
+// !!!仅闲置时才可以设定属性
 
 // Todo:
 
-//RecordWorker
-// 手动|自动 模式设定
-// 手动不需要侦听频率
+// 侦听设定
+    // 侦听超时  XXXms
+    // 侦听频率范围 1K(±100Hz)
 
-//DataSource
-// 设定 侦听超时  XXXms
-// 设定 侦听频率范围 1K(±100Hz)
+// 录制设定
+    // 输出文件
+    // 录制时长
+    // 默认格式
 
 DataSource::DataSource( QObject *parent) :
     QIODevice(parent)
@@ -31,10 +32,6 @@ DataSource::DataSource( QObject *parent) :
     m_outputFile = new QFile(this);
     m_audioData = new QByteArray;
     m_testAudioData = new QByteArray;
-//    isOK = false;
-
-//    connect(this, &DataSource::write2WavFile, this, &DataSource::onWrite2WavFile);
-//    connect(this, &DataSource::interceptTimeout, this, &DataSource::onInterceptTimeout);
 }
 
 DataSource::~DataSource()
@@ -68,12 +65,12 @@ bool DataSource::setDuration(quint64 duration)
 
 bool DataSource::isIdle()
 {
-    return (record_status == RecordStatus::IdleMode);
+    return (m_recordStatus == RecordStatus::IdleMode);
 }
 
 RecordStatus DataSource::getRecordStatus()
 {
-    return record_status;
+    return m_recordStatus;
 }
 
 double DataSource::getAudioFrequency()
@@ -112,7 +109,6 @@ double DataSource::getAudioFrequency()
         double freq = std::accumulate(len1_pitch.begin(), len1_pitch.end(), 0.0) / len1_pitch.size();
 
 //            qDebug() << "Frequency :" << len1_pitch_avg;
-//        emit getFrequency(len1_pitch_avg);
 
         del_aubio_pitch(o);
         del_fvec(samples);
@@ -181,12 +177,12 @@ bool DataSource::changeRecordStatus(RecordStatus status)
         // 开始侦听模式
         if(RecordStatus::InterceptMode == status){
             m_testAudioData->clear();
-            record_status = status;
+            m_recordStatus = status;
         }
         // 开始录制模式
         if(RecordStatus::RecordingMode == status){
             m_audioData->clear();
-            record_status = status;
+            m_recordStatus = status;
         }
     }else{
         return false;
@@ -196,25 +192,24 @@ bool DataSource::changeRecordStatus(RecordStatus status)
 
 qint64 DataSource::writeData(const char * data, qint64 maxSize)
 {
-
-    if(record_status == RecordStatus::IdleMode){
+    if(m_recordStatus == RecordStatus::IdleMode){
         // do nothing
         return maxSize;
     }
 
-    if(record_status == RecordStatus::InterceptMode){
+    if(m_recordStatus == RecordStatus::InterceptMode){
         // 参数设定检测
 
         // 超时检测
         static quint64 timeout_size = 0;
 
         quint64 size4timeout =
-                (double)(m_duration4InterceptTimeout/1000.0) *
+                (double)(m_duration4Intercept/1000.0) *
                 (double)(m_fmt.sampleRate() * m_fmt.sampleSize()/ 8);
 
         if(timeout_size > size4timeout){
             //侦听超时
-            record_status = RecordStatus::IdleMode;
+            m_recordStatus = RecordStatus::IdleMode;
             m_testAudioData->clear();
             timeout_size = 0;
             emit interceptDone(false);
@@ -253,7 +248,7 @@ qint64 DataSource::writeData(const char * data, qint64 maxSize)
             if(count > 2){
                 qDebug() << "Intercep Done!!";
 
-                record_status = RecordStatus::IdleMode;
+                m_recordStatus = RecordStatus::IdleMode;
                 m_testAudioData->clear();
                 timeout_size = 0;
 
@@ -270,7 +265,7 @@ qint64 DataSource::writeData(const char * data, qint64 maxSize)
         return maxSize;
     }
 
-    if(record_status == RecordStatus::RecordingMode){
+    if(m_recordStatus == RecordStatus::RecordingMode){
         // 参数设定检测
 
         m_audioData->append(data, maxSize); //保存音频数据
@@ -282,7 +277,7 @@ qint64 DataSource::writeData(const char * data, qint64 maxSize)
             // 到达指定录制时长
             this->save2WAV();
 
-            record_status = RecordStatus::IdleMode;
+            m_recordStatus = RecordStatus::IdleMode;
             m_audioData->clear();
 
             emit recordDone();
@@ -303,128 +298,3 @@ qint64 DataSource::readData(char * data, qint64 maxSize)
     Q_UNUSED(maxSize)
     return -1;
 }
-
-
-// ---------------------------------------------------------------------------
-
-
-//const qint64 TIME_TRANSFORM = 1000 * 1000;              // 微妙转秒;
-//qint64 AddWavHeader(QString catheFileName , QString wavFileName)
-//{
-//    // 开始设置WAV的文件头
-//    WAVFILEHEADER WavFileHeader;
-//    qstrcpy(WavFileHeader.RiffName, "RIFF");
-//    qstrcpy(WavFileHeader.WavName, "WAVE");
-//    qstrcpy(WavFileHeader.FmtName, "fmt ");
-//    qstrcpy(WavFileHeader.DATANAME, "data");
-
-//    // 表示 FMT块 的长度
-//    WavFileHeader.nFmtLength = 16;
-//    // 表示 按照PCM 编码;
-//    WavFileHeader.nAudioFormat = 1;
-//    // 声道数目;
-//    WavFileHeader.nChannleNumber = 1;
-//    // 采样频率;
-//    //    WavFileHeader.nSampleRate = 8000;
-//    WavFileHeader.nSampleRate = 44100;
-
-//    // nBytesPerSample 和 nBytesPerSecond这两个值通过设置的参数计算得到;
-//    // 数据块对齐单位(每个采样需要的字节数 = 通道数 × 每次采样得到的样本数据位数 / 8 )
-//    WavFileHeader.nBytesPerSample = 2;
-//    // 波形数据传输速率
-//    // (每秒平均字节数 = 采样频率 × 通道数 × 每次采样得到的样本数据位数 / 8  = 采样频率 × 每个采样需要的字节数 )
-//    //    WavFileHeader.nBytesPerSecond = 16000;
-//    WavFileHeader.nBytesPerSecond = 88200;
-
-//    // 每次采样得到的样本数据位数;
-//    WavFileHeader.nBitsPerSample = 16;
-
-//    QFile cacheFile(catheFileName);
-//    QFile wavFile(wavFileName);
-
-//    if (!cacheFile.open(QIODevice::ReadWrite))
-//    {
-//        return -1;
-//    }
-//    if (!wavFile.open(QIODevice::WriteOnly))
-//    {
-//        return -2;
-//    }
-
-//    int nSize = sizeof(WavFileHeader);
-//    qint64 nFileLen = cacheFile.bytesAvailable();
-
-//    WavFileHeader.nRiffLength = nFileLen - 8 + nSize;
-//    WavFileHeader.nDataLength = nFileLen;
-
-//    // 先将wav文件头信息写入，再将音频数据写入;
-//    wavFile.write((char *)&WavFileHeader, nSize);
-//    wavFile.write(cacheFile.readAll());
-
-//    cacheFile.close();
-//    wavFile.close();
-
-//    return nFileLen;
-//}
-
-
-// 到达指定录制时长，保存录音文件
-//void DataSource::onWrite2WavFile()
-//{
-//    // wav文件保存完毕， 录制过程结束。
-
-//    m_outputFile->write(m_audioData->data(), m_audioData->size());
-//    m_outputFile->close();
-
-//    qDebug() << "output file : " << m_outputFile->fileName();
-//    AddWavHeader(m_outputFile->fileName(), m_outputFile->fileName() + ".wav");
-//    this->close();
-
-//    //清空音频数据
-//    m_audioData->clear();
-//    isOK=false;
-
-//    emit recordDone();
-//}
-
-//void DataSource::setIntercept(bool open)
-//{
-//    singleIntercept = open; //打开任务
-//    isInterceptDone = false;//设定未完成
-//    isInterceptTimeout = false;
-//}
-
-//void DataSource::setInterceptTimeout(quint64 duration)
-//{
-//    //
-//    return;
-//    interceptCheckTimer.singleShot(duration, this, [=](){
-//        if(!isInterceptDone){ //到点还未侦测到指定频率
-//            isInterceptDone = false;
-//            isInterceptTimeout = true;
-//            emit interceptTimeout(true); //发送超时信号
-//        }
-//    });
-//}
-
-//void DataSource::onInterceptTimeout(bool timeout)
-//{//侦测超时，停止录制
-//    isOK = false; //QIODevice 停止接收数据
-
-//    this->close(); //关闭 QIODevice
-
-//    m_outputFile->close(); // 关闭打开的文件
-
-//    m_testAudioData->clear();
-//    m_audioData->clear();
-
-
-//    //???????
-////    emit recordDone();
-//}
-
-//void DataSource::onInterceptDone(bool done)
-//{
-
-//}
-

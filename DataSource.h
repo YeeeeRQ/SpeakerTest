@@ -10,13 +10,6 @@
 #include <QTimer>
 #include <aubio/aubio.h>
 
-enum class RecordStatus:uint8_t
-{
-    IdleMode,
-    InterceptMode,
-    RecordingMode
-};
-
 struct WAVFILEHEADER
 {
     // RIFF 头
@@ -39,13 +32,19 @@ struct WAVFILEHEADER
     unsigned long   nDataLength;
 };
 
+enum class RecordStatus:uint8_t
+{
+    IdleMode,
+    InterceptMode,
+    RecordingMode
+};
+
 class DataSource : public QIODevice
 {
     Q_OBJECT
 public:
     explicit DataSource(QObject *parent = nullptr);
     ~DataSource();
-
 
 // 设定
 public:
@@ -67,13 +66,12 @@ public:
 protected:
     qint64 readData(char * data, qint64 maxSize);
     qint64 writeData(const char * data, qint64 maxSize);
-//    bool isOK = false;
 
 private:
-    RecordStatus record_status;
+    RecordStatus m_recordStatus;
 
     quint64 m_duration;
-    quint64 m_duration4InterceptTimeout;
+    quint64 m_duration4Intercept;
 
     QAudioFormat m_fmt; //缺省录制格式
     quint64 m_freq1 = 0;
@@ -90,30 +88,6 @@ signals:
     void getFrequency(double freq); //侦听状态下频率获取
     void interceptDone(bool done);   //侦听是否完成 true侦听完成 false侦听超时
     void recordDone();
-
-private slots:
-//    void onGetFrequency(double freq);
-//    void onInterceptDone(bool done);
-
-
-//    void resetStatus();
-//    void setIntercept(bool open); // 侦听 开关设定
-//    void interceptTimeout(bool timeout);   //侦听超时
-//signals:
-//    void write2WavFile();
-//private slots:
-//    void onWrite2WavFile();
-//private:
-//    bool isInterceptDone = false; //侦测是否完成
-//    bool isInterceptTimeout = false; //侦测是否超时
-//    QTimer interceptCheckTimer; //侦听超时检测
-
-//private slots:
-//    void onInterceptTimeout(bool is_timeout);
-
 };
-
-
-qint64 AddWavHeader(QString catheFileName , QString wavFileName);
 
 #endif // DATASOURCE_H
