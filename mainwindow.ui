@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1252</width>
-    <height>782</height>
+    <width>883</width>
+    <height>600</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -35,7 +35,7 @@ QHeaderView::section/*表头样式*/
 }</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout_16">
+   <layout class="QVBoxLayout" name="verticalLayout_14">
     <item>
      <widget class="QSplitter" name="splitter_2">
       <property name="orientation">
@@ -377,7 +377,7 @@ QHeaderView::section/*表头样式*/
                         </spacer>
                        </item>
                        <item>
-                        <widget class="QGroupBox" name="groupBox_3">
+                        <widget class="QGroupBox" name="groupBox4Record">
                          <property name="title">
                           <string/>
                          </property>
@@ -517,6 +517,200 @@ QHeaderView::section/*表头样式*/
                       </layout>
                      </item>
                      <item>
+                      <layout class="QHBoxLayout" name="horizontalLayout_22">
+                       <item>
+                        <spacer name="horizontalSpacer_13">
+                         <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>105</width>
+                           <height>29</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                       <item>
+                        <widget class="QGroupBox" name="groupBox4ShowFreq">
+                         <property name="title">
+                          <string/>
+                         </property>
+                         <layout class="QHBoxLayout" name="horizontalLayout_21">
+                          <item>
+                           <spacer name="horizontalSpacer_11">
+                            <property name="orientation">
+                             <enum>Qt::Horizontal</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                             <size>
+                              <width>40</width>
+                              <height>20</height>
+                             </size>
+                            </property>
+                           </spacer>
+                          </item>
+                          <item>
+                           <layout class="QHBoxLayout" name="horizontalLayout_13" stretch="1,0,1">
+                            <item>
+                             <layout class="QVBoxLayout" name="verticalLayout_13">
+                              <item>
+                               <layout class="QHBoxLayout" name="horizontalLayout_10">
+                                <item>
+                                 <widget class="QLabel" name="label_4">
+                                  <property name="font">
+                                   <font>
+                                    <pointsize>12</pointsize>
+                                   </font>
+                                  </property>
+                                  <property name="text">
+                                   <string>L:</string>
+                                  </property>
+                                  <property name="alignment">
+                                   <set>Qt::AlignCenter</set>
+                                  </property>
+                                 </widget>
+                                </item>
+                                <item>
+                                 <widget class="QLabel" name="label_LFreq">
+                                  <property name="minimumSize">
+                                   <size>
+                                    <width>100</width>
+                                    <height>0</height>
+                                   </size>
+                                  </property>
+                                  <property name="font">
+                                   <font>
+                                    <pointsize>12</pointsize>
+                                    <bold>true</bold>
+                                   </font>
+                                  </property>
+                                  <property name="text">
+                                   <string>000</string>
+                                  </property>
+                                  <property name="alignment">
+                                   <set>Qt::AlignCenter</set>
+                                  </property>
+                                 </widget>
+                                </item>
+                               </layout>
+                              </item>
+                              <item>
+                               <widget class="Line" name="line_3">
+                                <property name="orientation">
+                                 <enum>Qt::Horizontal</enum>
+                                </property>
+                               </widget>
+                              </item>
+                             </layout>
+                            </item>
+                            <item>
+                             <widget class="QLabel" name="label_8">
+                              <property name="minimumSize">
+                               <size>
+                                <width>50</width>
+                                <height>0</height>
+                               </size>
+                              </property>
+                              <property name="font">
+                               <font>
+                                <pointsize>12</pointsize>
+                               </font>
+                              </property>
+                              <property name="text">
+                               <string>Hz</string>
+                              </property>
+                              <property name="alignment">
+                               <set>Qt::AlignCenter</set>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <layout class="QVBoxLayout" name="verticalLayout_12">
+                              <item>
+                               <layout class="QHBoxLayout" name="horizontalLayout_12">
+                                <item>
+                                 <widget class="QLabel" name="label_RFreq">
+                                  <property name="minimumSize">
+                                   <size>
+                                    <width>100</width>
+                                    <height>0</height>
+                                   </size>
+                                  </property>
+                                  <property name="font">
+                                   <font>
+                                    <pointsize>12</pointsize>
+                                    <bold>true</bold>
+                                   </font>
+                                  </property>
+                                  <property name="text">
+                                   <string>000</string>
+                                  </property>
+                                  <property name="alignment">
+                                   <set>Qt::AlignCenter</set>
+                                  </property>
+                                 </widget>
+                                </item>
+                                <item>
+                                 <widget class="QLabel" name="label_5">
+                                  <property name="font">
+                                   <font>
+                                    <pointsize>12</pointsize>
+                                   </font>
+                                  </property>
+                                  <property name="text">
+                                   <string>:R</string>
+                                  </property>
+                                  <property name="alignment">
+                                   <set>Qt::AlignCenter</set>
+                                  </property>
+                                 </widget>
+                                </item>
+                               </layout>
+                              </item>
+                              <item>
+                               <widget class="Line" name="line_2">
+                                <property name="orientation">
+                                 <enum>Qt::Horizontal</enum>
+                                </property>
+                               </widget>
+                              </item>
+                             </layout>
+                            </item>
+                           </layout>
+                          </item>
+                          <item>
+                           <spacer name="horizontalSpacer_12">
+                            <property name="orientation">
+                             <enum>Qt::Horizontal</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                             <size>
+                              <width>40</width>
+                              <height>20</height>
+                             </size>
+                            </property>
+                           </spacer>
+                          </item>
+                         </layout>
+                        </widget>
+                       </item>
+                       <item>
+                        <spacer name="horizontalSpacer_14">
+                         <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>105</width>
+                           <height>29</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                      </layout>
+                     </item>
+                     <item>
                       <layout class="QHBoxLayout" name="horizontalLayout_15">
                        <item>
                         <spacer name="horizontalSpacer_7">
@@ -552,154 +746,6 @@ QHeaderView::section/*表头样式*/
                           </item>
                           <item>
                            <layout class="QHBoxLayout" name="horizontalLayout_11">
-                            <item>
-                             <widget class="QGroupBox" name="groupBox">
-                              <property name="title">
-                               <string/>
-                              </property>
-                              <layout class="QVBoxLayout" name="verticalLayout_14">
-                               <item>
-                                <layout class="QHBoxLayout" name="horizontalLayout_13" stretch="1,0">
-                                 <item>
-                                  <layout class="QVBoxLayout" name="verticalLayout_13">
-                                   <item>
-                                    <layout class="QHBoxLayout" name="horizontalLayout_10" stretch="0,1">
-                                     <item>
-                                      <widget class="QLabel" name="label_5">
-                                       <property name="font">
-                                        <font>
-                                         <pointsize>12</pointsize>
-                                        </font>
-                                       </property>
-                                       <property name="text">
-                                        <string>R:</string>
-                                       </property>
-                                       <property name="alignment">
-                                        <set>Qt::AlignCenter</set>
-                                       </property>
-                                      </widget>
-                                     </item>
-                                     <item>
-                                      <widget class="QLabel" name="label_RFreq">
-                                       <property name="minimumSize">
-                                        <size>
-                                         <width>100</width>
-                                         <height>0</height>
-                                        </size>
-                                       </property>
-                                       <property name="font">
-                                        <font>
-                                         <pointsize>12</pointsize>
-                                        </font>
-                                       </property>
-                                       <property name="text">
-                                        <string>000</string>
-                                       </property>
-                                       <property name="alignment">
-                                        <set>Qt::AlignCenter</set>
-                                       </property>
-                                      </widget>
-                                     </item>
-                                    </layout>
-                                   </item>
-                                   <item>
-                                    <layout class="QHBoxLayout" name="horizontalLayout_12" stretch="0,1">
-                                     <item>
-                                      <widget class="QLabel" name="label_4">
-                                       <property name="font">
-                                        <font>
-                                         <pointsize>12</pointsize>
-                                        </font>
-                                       </property>
-                                       <property name="text">
-                                        <string>L:</string>
-                                       </property>
-                                       <property name="alignment">
-                                        <set>Qt::AlignCenter</set>
-                                       </property>
-                                      </widget>
-                                     </item>
-                                     <item>
-                                      <widget class="QLabel" name="label_LFreq">
-                                       <property name="minimumSize">
-                                        <size>
-                                         <width>100</width>
-                                         <height>0</height>
-                                        </size>
-                                       </property>
-                                       <property name="font">
-                                        <font>
-                                         <pointsize>12</pointsize>
-                                        </font>
-                                       </property>
-                                       <property name="text">
-                                        <string>000</string>
-                                       </property>
-                                       <property name="alignment">
-                                        <set>Qt::AlignCenter</set>
-                                       </property>
-                                      </widget>
-                                     </item>
-                                    </layout>
-                                   </item>
-                                  </layout>
-                                 </item>
-                                 <item>
-                                  <layout class="QVBoxLayout" name="verticalLayout_12">
-                                   <item>
-                                    <spacer name="verticalSpacer">
-                                     <property name="orientation">
-                                      <enum>Qt::Vertical</enum>
-                                     </property>
-                                     <property name="sizeType">
-                                      <enum>QSizePolicy::Minimum</enum>
-                                     </property>
-                                     <property name="sizeHint" stdset="0">
-                                      <size>
-                                       <width>20</width>
-                                       <height>5</height>
-                                      </size>
-                                     </property>
-                                    </spacer>
-                                   </item>
-                                   <item>
-                                    <widget class="QLabel" name="label_8">
-                                     <property name="font">
-                                      <font>
-                                       <pointsize>12</pointsize>
-                                      </font>
-                                     </property>
-                                     <property name="text">
-                                      <string>Hz</string>
-                                     </property>
-                                     <property name="alignment">
-                                      <set>Qt::AlignCenter</set>
-                                     </property>
-                                    </widget>
-                                   </item>
-                                   <item>
-                                    <spacer name="verticalSpacer_4">
-                                     <property name="orientation">
-                                      <enum>Qt::Vertical</enum>
-                                     </property>
-                                     <property name="sizeType">
-                                      <enum>QSizePolicy::Minimum</enum>
-                                     </property>
-                                     <property name="sizeHint" stdset="0">
-                                      <size>
-                                       <width>20</width>
-                                       <height>5</height>
-                                      </size>
-                                     </property>
-                                    </spacer>
-                                   </item>
-                                  </layout>
-                                 </item>
-                                </layout>
-                               </item>
-                              </layout>
-                             </widget>
-                            </item>
                             <item>
                              <spacer name="horizontalSpacer_10">
                               <property name="orientation">
@@ -923,7 +969,7 @@ QHeaderView::section/*表头样式*/
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1252</width>
+     <width>883</width>
      <height>22</height>
     </rect>
    </property>

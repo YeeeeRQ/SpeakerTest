@@ -62,11 +62,13 @@ public slots:
     void onDSRecordDone();
     void onDSInterceptDone(bool done);
     void onDSGetFrequency(double freq);
+    void onDSStatusChanged(RecordStatus status);
 
 signals:
     void getFrequency(double freq); //侦听状态下频率获取
 //    void interceptDone(bool done);   //侦听是否完成 true侦听完成 false侦听超时
     void recordDone(bool done, const QString& result); // 录制结束
+    void statusChanged(RecordStatus status);
 };
 
 #endif // RECORDWORKER_H

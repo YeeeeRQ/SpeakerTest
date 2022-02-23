@@ -47,6 +47,7 @@ public:
     void changeStatus2Testing();
     void changeStatus2Recording();
     void changeStatus2Processing();
+    void changeStatus2Intercept();
     void changeStatus2Pass();
     void changeStatus2Fail();
     void changeStatus2Done();

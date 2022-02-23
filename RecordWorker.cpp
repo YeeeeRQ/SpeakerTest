@@ -32,6 +32,7 @@ RecordWorker::RecordWorker(QObject *parent)
     connect(ds, &DataSource::recordDone, this, &RecordWorker::onDSRecordDone);
     connect(ds, &DataSource::interceptDone, this, &RecordWorker::onDSInterceptDone);
     connect(ds, &DataSource::getFrequency,this, &RecordWorker::onDSGetFrequency);
+    connect(ds, &DataSource::statusChanged,this, &RecordWorker::onDSStatusChanged);
 }
 
 RecordWorker::~RecordWorker()
@@ -99,6 +100,11 @@ void RecordWorker::onDSInterceptDone(bool done)
 void RecordWorker::onDSGetFrequency(double freq)
 {
     emit getFrequency(freq);
+}
+
+void RecordWorker::onDSStatusChanged(RecordStatus status)
+{
+    emit statusChanged(status);
 }
 
 bool RecordWorker::setMic(quint64 idx)

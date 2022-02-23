@@ -91,6 +91,7 @@ signals:
     void getFrequency(double freq); //侦听状态下频率获取
     void interceptDone(bool done);   //侦听是否完成 true侦听完成 false侦听超时
     void recordDone();
+    void statusChanged(RecordStatus);
 private slots:
     void onInterceptTimeout();
 };

@@ -31,6 +31,7 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
+QString mkMutiDir(const QString path);
 
 class MainWindow : public QMainWindow
 {
@@ -163,12 +164,13 @@ private slots:
     void slot_testAudio();    // for startTestAudio
     void slot_onAudioTestFinished(); //音频检测后根据csv判断结果
 
-    void slot_getAudioInfo();
-
     void loadModel(QString dbfile);
 
     void slot_onGetRFrequency(qint64 freq);
     void slot_onGetLFrequency(qint64 freq);
+
+public slots:
+    void onRecordWorkerStatusChanged(RecordStatus status);
 
 private:
     void fordebug();

@@ -201,11 +201,13 @@ bool DataSource::changeRecordStatus(RecordStatus status)
         if(RecordStatus::InterceptMode == status){
             m_testAudioData->clear();
             m_recordStatus = status;
+            emit statusChanged(status);
         }
         // 开始录制模式
         if(RecordStatus::RecordingMode == status){
             m_audioData->clear();
             m_recordStatus = status;
+            emit statusChanged(status);
         }
     }else{
         return false;

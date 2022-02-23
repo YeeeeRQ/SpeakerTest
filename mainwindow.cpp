@@ -7,14 +7,13 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 
-#define WAV_FILE_L  "\\L.wav"
-#define WAV_FILE_R  "\\R.wav"
+#define WAV_FILE_L  "/L.wav"
+#define WAV_FILE_R  "/R.wav"
 
-#define CONFIG_FILE "\\Config.ini"
-#define DATABASE_FILE "\\Model.db"
+#define CONFIG_FILE "/Config.ini"
+#define DATABASE_FILE "/Model.db"
 
 //Todo:
-   // 侦听频率显示
 
 // --------------------------------------------------------------------------
 MainWindow::MainWindow(QWidget *parent)
@@ -35,54 +34,34 @@ MainWindow::MainWindow(QWidget *parent)
     // UI载入结束
     connect(this, &MainWindow::MainWindowLoaded, this, &MainWindow::onMainWindowLoaded);
 
-    // 模式切换 （自动|手动）
+    // 模式切换 （自动|手动）后UI变更
     connect(this, &MainWindow::sig_autoModeStateChanged, this, &MainWindow::slot_onAutoModeStateChanged);
 
     // 载入机种列表
     connect(this, &MainWindow::sig_loadModel, this, &MainWindow::loadModel);
 
-    // 两麦克风输入录制结束 检查
+    // 两麦克风输入录制结束检查
     connect(this, &MainWindow::checkAllRecordOver, this, &MainWindow::onCheckAllRecordOver);
 
     // 读取CSV, 判断结果
     connect(this, &MainWindow::sig_audioTestFinished, this, &MainWindow::slot_onAudioTestFinished);
 
 // Test --------------------------------------------------------------------------------------------
-
-// 自动模式 接收到 AutoLine Start 指令，开始进行测试
+    /*
+     * 1. Intercept
+     * 2. Recording
+     * 3. Get Audio Info
+     * 4. Analyse
+     * 5. Print Result
+     */
+    // 自动模式 接收到 AutoLine Start 指令，开始进行测试
     connect(this, &MainWindow::sig_startAutoTest, this, &MainWindow::slot_startAutoTest);
+
+    // 两麦克风输入录制完毕后动作
     connect(this, &MainWindow::allRecordOver, this, &MainWindow::startTestAudio);
 
-// 手动模式 测试
     // 音频载入 -> 获取音频信息 并输出至CSV
     connect(this, &MainWindow::sig_startTestAudio, this, &MainWindow::slot_testAudio);
-
-
-// Test --------------------------------------------------------------------------------------------
-//    void processCmdParser(QString cmd);
-
-// 自定义测试流程
-    // 自定义测试流程 0 信号接收
-//    connect(this, &MainWindow::sig_startAutoTest, this, &MainWindow::slot_startCustomAutoTest);
-    // 自定义测试流程 1 指令读取流程
-//    connect(this, &MainWindow::custom_cmd_done, this, &MainWindow::customTestAudio);
-
-    // 自定义测试流程 录制结束动作
-//    connect(this, &MainWindow::allRecordOver, this, &MainWindow::custom_do_record_done);
-
-    // 自定义测试流程 指令解析动作
-//    connect(this, &MainWindow::parseCmd, this, &MainWindow::customCmdParser);
-
-    // 自定义测试流程 0 指令读取 -> 录制流程 -> 测试参数设定 完毕；开始进行测试，输出结果.
-//  void MainWindow::custom_do_autotest_end()
-
-    // 自定义测试流程 1 开始音频测试 音频载入前检测
-//	void MainWindow::startTestAudioInAutoMode()
-
-    // 自定义测试流程 2 音频载入 -> 获取音频信息
-//	void MainWindow::slot_getAudioInfo()
-
-// Test --------------------------------------------------------------------------------------------
 }
 
 MainWindow::~MainWindow()
@@ -130,7 +109,7 @@ void MainWindow::clearFileList()
         "L.wav"
     };
     for(int i =0;i<list.size();++i){
-        QFile file_temp(m_audioTestDir + "\\" +list[i]);
+        QFile file_temp(m_audioTestDir + "/" +list[i]);
 
         fi.setFile(file_temp);
         if(fi.isFile()){
@@ -312,7 +291,7 @@ void MainWindow::loadConfig()
     QString temp_dir = conf.Get("Audio", "Path").toString();
     if(QFile::exists(temp_dir)){
         m_workDir = conf.Get("Audio", "Path").toString();
-        m_audioTestDir = m_workDir + "\\temp";
+        m_audioTestDir = m_workDir + "/temp";
     }else{
         m_workDir.clear();
         m_audioTestDir.clear();
@@ -354,11 +333,19 @@ void MainWindow::loadConfig()
 
 void MainWindow::slot_onAutoModeStateChanged(bool mode)
 {
+
+    // UI 变化
     bool enable = mode?false:true;
 
     ui->groupBox4AppSetting->setEnabled(enable);
     ui->groupBox4SelectModel->setEnabled(enable);
-    ui->groupBox4Test->setEnabled(enable);
+
+//    ui->groupBox4Test->setEnabled(enable);
+    ui->btnLoadTempWavDir->setEnabled(enable);
+    ui->btnLoadWavDir->setEnabled(enable);
+    ui->btnTest->setEnabled(enable);
+    ui->groupBox4Record->setEnabled(enable);
+
     ui->groupBox4ProductID->setEnabled(enable);
 }
 
@@ -461,22 +448,75 @@ void MainWindow::setWavDir4UI(const QString & dir)
 ///////////////////////////////////////////////////////////////////
 void MainWindow::slot_startAutoTest()
 {
+    static QDir dir;
+
     QString model_name = ui->comboBoxModelName->currentText();
     QString product_id = ui->lineEdit4ProductID->text();
 
     QString curDate = QDate::currentDate().toString("yyyy-MM-dd");
-    QString curTime = QTime::currentTime().toString("hh:mm:ss");
+    QString curTime = QTime::currentTime().toString("hh_mm_ss_zzz");
+
+    // 主目录 + 测试目录 : m_workDir + m_audioTestDir
+
+    // 根据 [机种名] - [日期] - [产品ID + 测试时间] 创建文件夹(单次测试目录)
+
+    // 变更工作目录至新文件夹
+
+
+    if(m_workDir.isEmpty()){
+        log.warn("主目录为空!");
+        return;
+    }
+
+    fi.setFile(m_workDir);
+    dir.setPath(fi.path());
+    if(!dir.exists(m_workDir)){
+        dir.mkdir(m_workDir);
+    }
+    if(!fi.isDir()){
+        log.warn("主输出目录不存在!");
+        return;
+    }
+
+    m_audioTestDir = m_workDir;
+    m_audioTestDir.append("/" + model_name);
+    m_audioTestDir.append("/" + curDate);
+    m_audioTestDir.append("/" + curTime+ "__" + product_id);
+    m_audioTestDir.append("/");
+    qDebug() << "主目录 :" <<m_workDir;
+    qDebug() << "测试目录:" <<m_audioTestDir;
+
+    fi.setFile(m_audioTestDir);
+    dir.setPath(fi.path());
+    if(!dir.exists()){
+        mkMutiDir(m_audioTestDir);
+    }
+    if(!fi.isDir()){
+        log.warn("测试目录不存在!");
+        return;
+    }
+
+
+    ui->lineEdit4WavDir->setText(m_audioTestDir);
+    ui->lineEdit4WavDir->setToolTip(m_audioTestDir);
+
+//    return ; //for debug
+
+    // 开始测试流程
 
     // 录制时长
     m_wavDuration = ui->lineEditDurationOfRecord->text().toUInt();
 
-    log.blue("开始录制");
+//    log.blue("开始录制");
+    qDebug() << "录制时长:" << m_wavDuration << "ms";
 
     ui->widgetShowInfo->startTimer();
-    ui->widgetShowInfo->changeStatus2Recording();
+//    ui->widgetShowInfo->changeStatus2Recording();
 
     // 麦克风开始录制
-    emit sig_startRecording();
+//    emit sig_startRecording();
+
+    this->on_btnStartRecord_clicked();
 }
 
 //void MainWindow::slot_startCustomAutoTest()
@@ -632,11 +672,12 @@ void MainWindow::on_btnStartRecord_clicked()
     ///////////////////////////!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     // Start Record
     m_wavDuration = ui->lineEditDurationOfRecord->text().toUInt();
+    qDebug()<< "录制时长：" << m_wavDuration;
 
    if(m_wavDuration >0){
        // 文件输出
-       QString output_l = QDir::toNativeSeparators(m_audioTestDir+ "\\L.wav");
-       QString output_r = QDir::toNativeSeparators(m_audioTestDir+ "\\R.wav");
+       QString output_l = QDir::toNativeSeparators(m_audioTestDir+ "/L.wav");
+       QString output_r = QDir::toNativeSeparators(m_audioTestDir+ "/R.wav");
        m_pRecWorkerL->setRecord(m_wavDuration, output_l);
        m_pRecWorkerR->setRecord(m_wavDuration, output_r);
 
@@ -644,6 +685,7 @@ void MainWindow::on_btnStartRecord_clicked()
        bool openIntercept = ui->checkBox_Intercept->isChecked();
        qDebug() << "Open Intercept:" << openIntercept;
        if(openIntercept){
+
            quint64 freq = setup4autotest->m_firstFreq;
            quint64 range = setup4autotest->m_firstFreqRange;
            quint64 timeout= setup4autotest->m_interceptTimeout;
@@ -659,6 +701,7 @@ void MainWindow::on_btnStartRecord_clicked()
                            timeout,
                            freq,
                            range);
+
        }else{
            m_pRecWorkerL->setIntercept(false);
            m_pRecWorkerR->setIntercept(false);
@@ -670,9 +713,9 @@ void MainWindow::on_btnStartRecord_clicked()
        m_recordCount[0]= false;
        m_recordCount[1]= false;
 
-       log.blue("开始录制");
+//       log.blue("开始录制");
        ui->widgetShowInfo->startTimer();
-       ui->widgetShowInfo->changeStatus2Recording();
+//       ui->widgetShowInfo->changeStatus2Recording();
        emit sig_startRecording();
 
     }else{
@@ -682,12 +725,13 @@ void MainWindow::on_btnStartRecord_clicked()
 
 // --------------------------------------------------------------------------
 
-// 手动模式下开始测试
+// ~~XX模式~~(划掉) 下开始测试
 void MainWindow::startTestAudio()
 {
-    if(m_autoMode){
-        return ;
-    }
+    // debug
+//    if(m_autoMode){
+//        return ;
+//    }
 
     bool fileIsOK= true;
 
@@ -771,7 +815,7 @@ void MainWindow::startTestAudioInAutoMode()
 
 // --------------------------------------------------------------------------
 
-// 手动模式下开始测试->获取音频信息
+// 开始测试->获取音频信息
 void MainWindow::slot_testAudio()
 {
     //调用ConsoleAppAudioTest.exe 输出CSV测试结果
@@ -799,34 +843,6 @@ void MainWindow::slot_testAudio()
         ui->btnStartRecord->setEnabled(true);
     }
     ui->btnTest->setEnabled(true);
-    emit sig_audioTestFinished();
-    log.info("...");
-}
-
-// 自定义测试流程 音频载入 -> 获取音频信息
-void MainWindow::slot_getAudioInfo()
-{
-    //调用ConsoleAppAudioTest.exe 输出CSV测试结果
-//    QString target_dir = ui->lineEdit4WavDir->text().trimmed();
-    QString target_dir = m_audioTestDir;
-
-    QString app = QDir::toNativeSeparators(QCoreApplication::applicationDirPath() + "\\AudioTest\\ConsoleAppAudioTest.exe");
-
-//    QString cmd = app + " -a " + target_dir;
-    QString cmd = app + " " + target_dir;
-    cmd += " " +  QString::number(m_testTime1[0]);
-    cmd += " " +  QString::number(m_testTime1[1]);
-    cmd += " " +  QString::number(m_testTime2[0]);
-    cmd += " " +  QString::number(m_testTime2[1]);
-
-    qDebug() << app;
-    qDebug() << cmd;
-    log.warn(app);
-    log.warn(cmd);
-
-    // system(cmd.toLatin1());
-    system_hide((char*)cmd.toLatin1().data());
-
     emit sig_audioTestFinished();
     log.info("...");
 }
@@ -869,6 +885,18 @@ void MainWindow::loadModel(QString dbfile)
 void MainWindow::slot_onGetLFrequency(qint64 freq)
 {
     ui->label_LFreq->setText(QString::number(freq));
+}
+
+void MainWindow::onRecordWorkerStatusChanged(RecordStatus status)
+{
+    if(status == RecordStatus::InterceptMode){
+        log.warn("侦听");
+        ui->widgetShowInfo->changeStatus2Intercept();
+    }
+    if(status == RecordStatus::RecordingMode){
+        log.warn("录制");
+        ui->widgetShowInfo->changeStatus2Recording();
+    }
 }
 
 void MainWindow::slot_onGetRFrequency(qint64 freq)
@@ -1195,6 +1223,9 @@ void MainWindow::setting4Mic()
         ui->btnStartRecord->setEnabled(false); //关闭录制按钮
     }else{
 
+        // 注册新类型
+        qRegisterMetaType<RecordStatus>("RecordStatus");
+
         m_pRecWorkerL = new RecordWorker;
         m_pRecWorkerL->moveToThread(&m_recordThread4L);
 
@@ -1203,7 +1234,6 @@ void MainWindow::setting4Mic()
         connect(&m_recordThread4L, &QThread::finished, m_pRecWorkerL, &QObject::deleteLater);
 
         connect(m_pRecWorkerL, &RecordWorker::recordDone, this, &MainWindow::slot_onLMicRecordingOver);
-//        connect(m_pRecWorkerL, &RecordWorker::interceptTimeout, this, &MainWindow::slot_onLMicRecordingOver);
 
         connect(this, &MainWindow::sig_setRecordInputL, m_pRecWorkerL, &RecordWorker::setMic);
 
@@ -1216,22 +1246,19 @@ void MainWindow::setting4Mic()
         connect(&m_recordThread4R, &QThread::finished, m_pRecWorkerR, &QObject::deleteLater);
 
         connect(m_pRecWorkerR, &RecordWorker::recordDone, this, &MainWindow::slot_onRMicRecordingOver);
-//        connect(m_pRecWorkerR, SIGNAL(interceptTimeout()), this, SLOT(slot_onRMicRecordingOver()));
 
         connect(this, &MainWindow::sig_setRecordInputR, m_pRecWorkerR, &RecordWorker::setMic);
-
 
         // 启动录制线程
         m_recordThread4L.start();
         m_recordThread4R.start();
 
-
-        // 侦测超时
-//        connect(m_pRecWorkerL, &RecordWorker::interceptTimeout, this, &MainWindow::onInterceptTimeout);
-
         // 侦测频率获取
         connect(m_pRecWorkerL, &RecordWorker::getFrequency, this, &MainWindow::slot_onGetLFrequency);
         connect(m_pRecWorkerR, &RecordWorker::getFrequency, this, &MainWindow::slot_onGetRFrequency);
+
+        // 状态变更
+        connect(m_pRecWorkerL, &RecordWorker::statusChanged, this, &MainWindow::onRecordWorkerStatusChanged);
     }
 }
 
@@ -1340,3 +1367,15 @@ void MainWindow::on_btnOpenWithExplorer_clicked()
     QProcess::startDetached(explorer,param);
 }
 
+QString mkMutiDir(const QString path){
+    QDir dir(path);
+    if ( dir.exists(path)){
+        return path;
+    }
+    QString parentDir = mkMutiDir(path.mid(0,path.lastIndexOf('/')));
+    QString dirname = path.mid(path.lastIndexOf('/') + 1);
+    QDir parentPath(parentDir);
+    if ( !dirname.isEmpty() )
+        parentPath.mkpath(dirname);
+    return parentDir + "/" + dirname;
+}

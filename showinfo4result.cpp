@@ -104,7 +104,7 @@ void ShowInfo4Result::changeStatus2Start()
     ui->label_Status->setText("开始");
     ui->label_Status->setStyleSheet(
                 "QLabel{"
-                "color:rgb(238,238,0)"
+                "color:rgb(67,205,128)"
                 "}"
                 );
 }
@@ -161,6 +161,15 @@ void ShowInfo4Result::changeStatus2Recording()
     ui->label_Status->setStyleSheet(
                 "QLabel{"
                 "color:rgb(205, 51, 51)"
+                "}"
+                );
+}
+void ShowInfo4Result::changeStatus2Intercept()
+{
+    ui->label_Status->setText("侦听中");
+    ui->label_Status->setStyleSheet(
+                "QLabel{"
+                "color:rgb(55, 51, 51)"
                 "}"
                 );
 }
