@@ -55,7 +55,6 @@ private:
 
     // 底部状态栏
     QLabel * label_startUpTime; //记录启动时间
-    QLabel * label_audioFreq;   //音频频率
 
     // Mic Device
     QSet<QString> m_audioInputs;
@@ -168,7 +167,8 @@ private slots:
 
     void loadModel(QString dbfile);
 
-    void slot_onGetFrequency(qint64 freq);
+    void slot_onGetRFrequency(qint64 freq);
+    void slot_onGetLFrequency(qint64 freq);
 
 private:
     void fordebug();

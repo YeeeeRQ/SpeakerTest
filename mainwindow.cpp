@@ -387,10 +387,6 @@ void MainWindow::Setting4MainWindow()
     label_startUpTime = new QLabel("启动时间 : " + cur.toString("yyyy-MM-dd hh:mm:ss"),this);
     ui->statusbar->addWidget(label_startUpTime);
 
-    label_audioFreq = new QLabel("频率:~Hz", this);
-    ui->statusbar->addWidget(label_audioFreq);
-
-
 // QPlainTextEdit log 输出设定
 //    textedit4log.setEnabled(false);
 //    textedit4log.verticalScrollBar()->hide();
@@ -406,6 +402,9 @@ void MainWindow::Setting4MainWindow()
                 "background-color:rgba(255,255,200, 0)"
                 "}"
                 );
+    textedit4log.setMaximumBlockCount(150);
+    textedit4log.setUndoRedoEnabled(false);
+//    setMaximumBlockCount(int)函数控制总行数，并且使用setUndoRedoEnabled(false),可以有效控制内存增长。
 
     // 初始化默认录制时长
     ui->lineEditDurationOfRecord->setText(QString::number(m_wavDuration));
@@ -641,15 +640,17 @@ void MainWindow::on_btnStartRecord_clicked()
        m_pRecWorkerL->setRecord(m_wavDuration, output_l);
        m_pRecWorkerR->setRecord(m_wavDuration, output_r);
 
-
        // 频率侦测
        bool openIntercept = ui->checkBox_Intercept->isChecked();
+       qDebug() << "Open Intercept:" << openIntercept;
        if(openIntercept){
            quint64 freq = setup4autotest->m_firstFreq;
            quint64 range = setup4autotest->m_firstFreqRange;
            quint64 timeout= setup4autotest->m_interceptTimeout;
 
-
+           qDebug() << "Timeout: " << timeout;
+           qDebug() << "Freq   : " << freq;
+           qDebug() << "Range  : ±" << range;
            m_pRecWorkerL->setIntercept(openIntercept,
                            timeout,
                            freq,
@@ -658,6 +659,9 @@ void MainWindow::on_btnStartRecord_clicked()
                            timeout,
                            freq,
                            range);
+       }else{
+           m_pRecWorkerL->setIntercept(false);
+           m_pRecWorkerR->setIntercept(false);
        }
        ui->btnStartRecord->setEnabled(false);
        ui->btnTest->setEnabled(false);
@@ -862,10 +866,14 @@ void MainWindow::loadModel(QString dbfile)
 
 }
 
-void MainWindow::slot_onGetFrequency(qint64 freq)
+void MainWindow::slot_onGetLFrequency(qint64 freq)
 {
-    QString text("频率:%1Hz");
-    label_audioFreq->setText(text.arg(freq));
+    ui->label_LFreq->setText(QString::number(freq));
+}
+
+void MainWindow::slot_onGetRFrequency(qint64 freq)
+{
+    ui->label_RFreq->setText(QString::number(freq));
 }
 
 
@@ -1222,7 +1230,8 @@ void MainWindow::setting4Mic()
 //        connect(m_pRecWorkerL, &RecordWorker::interceptTimeout, this, &MainWindow::onInterceptTimeout);
 
         // 侦测频率获取
-        connect(m_pRecWorkerL, &RecordWorker::getFrequency, this, &MainWindow::slot_onGetFrequency);
+        connect(m_pRecWorkerL, &RecordWorker::getFrequency, this, &MainWindow::slot_onGetLFrequency);
+        connect(m_pRecWorkerR, &RecordWorker::getFrequency, this, &MainWindow::slot_onGetRFrequency);
     }
 }
 

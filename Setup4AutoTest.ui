@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>746</width>
-    <height>467</height>
+    <height>474</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -570,7 +570,7 @@ QHeaderView::section/*表头样式*/
                 <item>
                  <widget class="QLabel" name="label_25">
                   <property name="text">
-                   <string> ms </string>
+                   <string>Hz</string>
                   </property>
                  </widget>
                 </item>

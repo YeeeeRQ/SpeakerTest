@@ -1,7 +1,7 @@
 ﻿#include "simplelog.h"
 #include <QTime>
 
-#define LINELIMIT 100
+#define LINELIMIT 200
 
 SimpleLog::SimpleLog()
 {
@@ -83,8 +83,8 @@ void SimpleLog::printWithColor(QString s, QString color)
 
 void SimpleLog::checkOutput()
 {
-    if(output->blockCount() > LINELIMIT)
-    {
-        output->clear();
-    }
+//    if(output->blockCount() > LINELIMIT)
+//    {
+//        output->clear();
+//    }
 }

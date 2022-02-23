@@ -50,20 +50,30 @@ void DataSource::setAudioFormat(QAudioFormat fmt)
 bool DataSource::setOutputFile(QString filename)
 {
     m_outputFile->setFileName(filename);
-    return m_outputFile->open(QIODevice::WriteOnly|QIODevice::Truncate);
+    if(m_outputFile->isOpen()){
+        return true;
+    }else{
+        return m_outputFile->open(QIODevice::WriteOnly|QIODevice::Truncate);
+    }
 }
 
 void DataSource::setInterceptTimeout(quint64 duration)
 {
     this->m_duration4Intercept = duration;
 
-//    this->m_size4timeout =
-//            (m_duration4Intercept/1000.0) * (m_fmt.sampleRate() * m_fmt.sampleSize()/ 8);
 
-    timer.singleShot(duration, this, [=](){
-        this->m_isTimeout = true;
-    });
+    Q_ASSERT(this->m_isTimeout == false);
+    timer.setInterval(duration);
+    timer.start();
+    connect(&timer, &QTimer::timeout, this, &DataSource::onInterceptTimeout);
 }
+
+void DataSource::onInterceptTimeout()
+{
+    timer.stop();
+    this->m_isTimeout = true;
+}
+
 
 bool DataSource::setDuration(quint64 duration)
 {
@@ -214,14 +224,16 @@ qint64 DataSource::writeData(const char * data, qint64 maxSize)
         // 参数设定检测
 
         // 超时检测
-//        static quint64 timeout_size = 0;
-//        if(timeout_size >= m_size4timeout){
         if(m_isTimeout){
             //侦听超时
-            m_recordStatus = RecordStatus::IdleMode;
-            m_testAudioData->clear();
-//            timeout_size = 0;
+
             m_isTimeout = false;
+            disconnect(&timer, &QTimer::timeout, this, &DataSource::onInterceptTimeout);
+
+            m_recordStatus = RecordStatus::IdleMode;
+            m_audioData->clear();
+            m_testAudioData->clear();
+
             emit interceptDone(false);
         }
 
@@ -235,7 +247,7 @@ qint64 DataSource::writeData(const char * data, qint64 maxSize)
 
             double freq  = this->getAudioFrequency();
 
-            emit getFrequency(freq);
+            emit getFrequency(freq); //Todo: 降低获取频率
 
 //            qDebug() << "Freq : " << m_freq1 << " ~ " << m_freq2;
             if(freq > m_freq1 && freq < m_freq2){ // 满足条件
@@ -258,9 +270,10 @@ qint64 DataSource::writeData(const char * data, qint64 maxSize)
             // 连续X次满足指定频率
             if(count >= 5){
 
+                disconnect(&timer, &QTimer::timeout, this, &DataSource::onInterceptTimeout);
+
                 m_recordStatus = RecordStatus::IdleMode;
                 m_testAudioData->clear();
-//                timeout_size = 0;
                 emit interceptDone(true);
 
                 qDebug() << "Intercept Done!!";
@@ -272,7 +285,6 @@ qint64 DataSource::writeData(const char * data, qint64 maxSize)
 
         m_testAudioData->append(data, maxSize); //保存音频数据 for test
 
-//        timeout_size += maxSize; //累计测试数据大小
         return maxSize;
     }
 

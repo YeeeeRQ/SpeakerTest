@@ -46,13 +46,13 @@ private:
 private:
     void setRecordDuration(quint64 duration);
     bool setRecordOutputFile(const QString& filename); // 录制输出文件
-    void setIntercept(bool open); // 侦听 开关设定
     void setInterceptTimeout(quint64 duration); // 侦听 超时设定
     void setInterceptFreqRange(quint64 freq, quint64 range); // 侦听 频率范围设定
 
 public:
     bool setRecord(quint64 duration, const QString& filename);
     void setIntercept(bool open, quint64 duration, quint64 freq, quint64 range);
+    void setIntercept(bool open); // 侦听 开关设定
 
 public slots:
     bool setMic(quint64 idx); // 输入麦克风
