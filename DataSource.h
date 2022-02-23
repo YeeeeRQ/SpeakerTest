@@ -70,8 +70,11 @@ protected:
 private:
     RecordStatus m_recordStatus;
 
-    quint64 m_duration;
-    quint64 m_duration4Intercept;
+    quint64 m_duration = 0;
+    quint64 m_duration4Intercept = 0;
+//    quint64 m_size4timeout = 0;
+    QTimer timer;
+    bool m_isTimeout = false;
 
     QAudioFormat m_fmt; //缺省录制格式
     quint64 m_freq1 = 0;
