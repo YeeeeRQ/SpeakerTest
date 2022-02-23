@@ -453,6 +453,13 @@ void MainWindow::slot_startAutoTest()
     QString model_name = ui->comboBoxModelName->currentText();
     QString product_id = ui->lineEdit4ProductID->text();
 
+    if(model_name.isEmpty()){
+        model_name = "UNKOWN_MODEL";
+    }
+    if(product_id.isEmpty()){
+        product_id = "DefaultID";
+    }
+
     QString curDate = QDate::currentDate().toString("yyyy-MM-dd");
     QString curTime = QTime::currentTime().toString("hh_mm_ss_zzz");
 
@@ -538,13 +545,6 @@ void MainWindow::slot_startAutoTest()
 
 //    QString model_name = ui->comboBoxModelName->currentText();
 //    QString product_id = ui->lineEdit4ProductID->text();
-
-//    if(model_name.isEmpty()){
-//        model_name = "UNKOWN_MODEL";
-//    }
-//    if(product_id.isEmpty()){
-//        product_id = "000000000000";
-//    }
 //    log.info("开始自定义测试流程");
 //    qDebug() << "Model Name: "<< model_name;
 //    qDebug() << "Product ID:"<< product_id;
@@ -911,7 +911,7 @@ void MainWindow::slot_onAudioTestFinished()
 
     //    QString csv_file = current_AudioTestDir + "\\test.csv";
 //    QString csv_file = ui->lineEdit4WavDir->text().trimmed() + "\\test.csv";
-    QString csv_file = m_audioTestDir+ "\\test.csv";
+    QString csv_file = m_audioTestDir+ "/test.csv";
     qDebug() << csv_file;
     log.blue(csv_file);
 
@@ -954,7 +954,6 @@ void MainWindow::slot_onAudioTestFinished()
         log.warn("2. 尝试检查设定的音频信息获取时段是否有误。");
         return;
     }
-
 
     // 判断 Pass | Fail
 

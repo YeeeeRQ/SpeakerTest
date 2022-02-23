@@ -675,11 +675,13 @@
     </message>
     <message>
         <location filename="TempForm.ui" line="467"/>
+        <location filename="TempForm.ui" line="755"/>
         <source>②</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="TempForm.ui" line="701"/>
+        <location filename="TempForm.ui" line="728"/>
         <source>①</source>
         <translation type="unfinished"></translation>
     </message>
