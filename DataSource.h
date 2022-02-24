@@ -90,6 +90,7 @@ private:
 
     void save2WAV();
     double getAudioFrequency();
+    double getAudioFrequency(quint64 interceptFreq);
 
 signals:
     void getFrequency(double freq); //侦听状态下频率获取

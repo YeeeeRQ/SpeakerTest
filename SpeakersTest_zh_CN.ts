@@ -58,7 +58,8 @@
     </message>
     <message>
         <location filename="mainwindow.ui" line="488"/>
-        <source>停止</source>
+        <source>终止</source>
+        <oldsource>停止</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -164,7 +165,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="385"/>
+        <location filename="mainwindow.cpp" line="407"/>
         <source>双通道扬声器测试</source>
         <translation type="unfinished"></translation>
     </message>

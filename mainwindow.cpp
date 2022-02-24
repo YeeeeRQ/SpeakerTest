@@ -64,6 +64,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     // 音频载入 -> 获取音频信息 并输出至CSV
     connect(this, &MainWindow::sig_startTestAudio, this, &MainWindow::slot_testAudio);
+
+
+    this->grabKeyboard();
 }
 
 MainWindow::~MainWindow()
@@ -99,6 +102,25 @@ void MainWindow::closeEvent(QCloseEvent *event)
     }else{
         event->ignore();
     }
+}
+void MainWindow::keyPressEvent(QKeyEvent *ev)
+{
+    qDebug() << ev->key();
+    // Tab 切换模式
+    if(ev->key() == Qt::Key_S){
+        this->on_btnSwitchRunningMode_clicked();
+    }
+
+    // Enter 开始录制
+    if(ev->key() == Qt::Key_F){
+        this->on_btnStartRecord_clicked();
+    }
+
+    if(ev->key() == Qt::Key_T){
+        this->on_btnStopRecord_clicked();
+    }
+
+    QWidget::keyPressEvent(ev);
 }
 
 void MainWindow::clearFileList()

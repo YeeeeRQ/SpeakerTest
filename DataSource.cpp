@@ -96,6 +96,68 @@ RecordStatus DataSource::getRecordStatus()
     return m_recordStatus;
 }
 
+double DataSource::getAudioFrequency(quint64 interceptFreq)
+{
+    // 测试音频大小
+//        qDebug() << "cache :" << m_testAudioData->size();
+
+        uint_t samplerate = m_fmt.sampleRate();
+//        uint_t samplerate = 44100;
+        uint_t win_s = 1024;
+        uint_t hop_size = win_s / 4;
+
+        fvec_t* samples = new_fvec(hop_size);
+        fvec_t* pitch_out = new_fvec(2);
+
+        std::vector<uint_t> v_point;
+        std::vector<uint_t> len1_pitch;
+        aubio_pitch_t* o = new_aubio_pitch("default", win_s, hop_size, samplerate);
+
+        // 按2字节(16bit)长度读取，256一组， 封装samples
+        for(quint64 i = 0; i< m_testAudioData->size() ;i+=2 ){
+            quint16 point =((quint16)m_testAudioData->at(i+1) << 8) | ((quint16)m_testAudioData->at(i) &0x00ff);
+            v_point.push_back(point);
+        }
+//            qDebug() << "v_point size:" << v_point.size();
+
+        for(quint64 i = 0 ; i < v_point.size()/hop_size; ++i){
+            for(quint64 j =0; j< hop_size; ++j){
+                samples->data[j] = v_point.at(i*hop_size+j);
+            }
+
+            aubio_pitch_do(o, samples, pitch_out);
+            len1_pitch.push_back(pitch_out->data[0]);
+        }
+
+        del_aubio_pitch(o);
+        del_fvec(samples);
+        del_fvec(pitch_out);
+        aubio_cleanup();
+
+        double freq = std::accumulate(len1_pitch.begin(), len1_pitch.end(), 0.0) / len1_pitch.size();
+
+        double itcpFreq1 = interceptFreq - 50;
+        double itcpFreq2 = interceptFreq + 50;
+        if(freq < itcpFreq2 && freq > itcpFreq1)
+        {
+            quint64 cnt = 0;
+            for(auto f:len1_pitch){
+                if(f < itcpFreq2 && f< itcpFreq1){
+                    cnt++;
+                }
+            }
+            if(cnt == len1_pitch.size()){
+                freq = interceptFreq;
+            }else{
+                freq = -1;
+            }
+        }
+
+//            qDebug() << "Frequency :" << len1_pitch_avg;
+        return freq;
+}
+
+
 double DataSource::getAudioFrequency()
 {
     // 测试音频大小

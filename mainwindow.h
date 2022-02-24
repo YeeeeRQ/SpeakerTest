@@ -11,7 +11,7 @@
 #include <QMediaPlayer>
 #include <QMediaPlaylist>
 #include <QAudioRecorder>
-
+#include <QKeyEvent>
 #include "CodeReader.h"
 #include "AutoLine.h"
 
@@ -41,6 +41,7 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     void closeEvent(QCloseEvent *event); //
+    void keyPressEvent(QKeyEvent *ev);
 
 private:
     QFileInfo fi;
