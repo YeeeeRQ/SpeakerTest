@@ -127,7 +127,7 @@ private:
     QString m_cmd_fail;  // 测试失败发送
 
     CodeReader* m_CodeReader; // CodeReader
-    AutoLine* m_SigGenerator; // SigGenerator
+//    AutoLine* m_SigGenerator; // SigGenerator
 
 
 signals:

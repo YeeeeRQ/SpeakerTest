@@ -138,8 +138,8 @@ void MainWindow::onMainWindowLoaded()
     QString readesn_com = conf.Get("ReadEsn", "Com").toString();
     qint32 readesn_baud = conf.Get("ReadEsn", "Baud").toInt();
 
-    QString siggen_com = conf.Get("PG", "Com").toString();
-    qint32 siggen_baud = conf.Get("PG", "Baud").toInt();
+//    QString siggen_com = conf.Get("PG", "Com").toString();
+//    qint32 siggen_baud = conf.Get("PG", "Baud").toInt();
 
 // 连接外部设备
 
@@ -164,14 +164,14 @@ void MainWindow::onMainWindowLoaded()
     }
 
     // 连接 SigGenerator
-    if(m_SigGenerator){
-        bool open = m_SigGenerator->connectDevice(siggen_com, siggen_baud);
-        if(open){
-            log.info("SigGeneratro COM 打开.");
-        }else{
-            log.info("SigGeneratro COM 打开失败.");
-        }
-    }
+//    if(m_SigGenerator){
+//        bool open = m_SigGenerator->connectDevice(siggen_com, siggen_baud);
+//        if(open){
+//            log.info("SigGeneratro COM 打开.");
+//        }else{
+//            log.info("SigGeneratro COM 打开失败.");
+//        }
+//    }
 
 
 }
@@ -264,9 +264,9 @@ void MainWindow::initConfig()
     conf.Set("ReadEsn","Baud",9600);
 
     // PG
-    conf.Set("PG","Enable",true);
-    conf.Set("PG","Com","COM5");
-    conf.Set("PG","Baud",9600);
+//    conf.Set("PG","Enable",true);
+//    conf.Set("PG","Com","COM5");
+//    conf.Set("PG","Baud",9600);
 
     // MNT
 //    conf.Set("MNT","Enable",true);
@@ -397,7 +397,8 @@ void MainWindow::Setting4MainWindow()
     ui->lineEditDurationOfRecord->setText(QString::number(m_wavDuration));
 
 // 输入验证
-    auto* durationValidator = new QIntValidator(0, 20000,this);
+//    auto* durationValidator = new QIntValidator(0, 20000,this);
+    QIntValidator* durationValidator = new QIntValidator(1000, 20000,this);
     ui->lineEditDurationOfRecord->setValidator(durationValidator);
 
 
@@ -674,7 +675,7 @@ void MainWindow::on_btnStartRecord_clicked()
     m_wavDuration = ui->lineEditDurationOfRecord->text().toUInt();
     qDebug()<< "录制时长：" << m_wavDuration;
 
-   if(m_wavDuration >0){
+   if(m_wavDuration >= 1000){
        // 文件输出
        QString output_l = QDir::toNativeSeparators(m_audioTestDir+ "/L.wav");
        QString output_r = QDir::toNativeSeparators(m_audioTestDir+ "/R.wav");
@@ -719,7 +720,8 @@ void MainWindow::on_btnStartRecord_clicked()
        emit sig_startRecording();
 
     }else{
-        log.warn("录制时长: 0 ms");
+        log.warn("录制时长不能小于1000ms");
+        return;
     }
 }
 
@@ -1203,8 +1205,8 @@ void MainWindow::Setting4Devices()
     connect(m_CodeReader, &CodeReader::connectStatusChanged, this, &MainWindow::slot_onCodeReaderConnectStatusChanged);
 
     // PG
-    m_SigGenerator = new AutoLine;
-    connect(m_SigGenerator, &AutoLine::connectStatusChanged, this, &MainWindow::slot_onAutoLineConnectStatusChanged);
+//    m_SigGenerator = new AutoLine;
+//    connect(m_SigGenerator, &AutoLine::connectStatusChanged, this, &MainWindow::slot_onAutoLineConnectStatusChanged);
 }
 
 void MainWindow::setting4Mic()
