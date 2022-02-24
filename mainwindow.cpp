@@ -215,17 +215,24 @@ void MainWindow::onCheckAllRecordOver()
        m_recordCount[1] == true){
         m_recordCount[0]= false;
         m_recordCount[1]= false;
-        ui->widgetShowInfo->stopTimer();
-        ui->widgetShowInfo->changeStatus2Done();
-        if(m_audioInputs.count() < 2){
-            ui->btnStartRecord->setEnabled(false); //关闭录制按钮
-        }else{
-            ui->btnStartRecord->setEnabled(true);
-        }
-        ui->btnTest->setEnabled(true);
+
+//        ui->widgetShowInfo->stopTimer();
+//        ui->widgetShowInfo->changeStatus2Done();
+//        if(m_audioInputs.count() < 2){
+//            ui->btnStartRecord->setEnabled(false); //关闭录制按钮
+//        }else{
+//            ui->btnStartRecord->setEnabled(true);
+//        }
+//        ui->btnTest->setEnabled(true);
+
+//        emit sig_stopRecording();
+
+        m_isRecording = false;
+        emit recordStatusChanged(false);
+
         log.warn("录制流程结束.");
 
-        if(l_record_done | r_record_done){
+        if(l_record_done && r_record_done){
             // 正常
             log.warn("结果:成功");
             emit allRecordOver();
@@ -800,6 +807,7 @@ void MainWindow::onRecordStatusChanged(bool is_recording)
        ui->widgetShowInfo->changeStatus2Recording();
        emit sig_startRecording();
     }else{
+
        ui->btnStopRecord->setEnabled(false);
        ui->btnStartRecord->setEnabled(true);
        ui->btnTest->setEnabled(true);
@@ -807,7 +815,8 @@ void MainWindow::onRecordStatusChanged(bool is_recording)
        ui->checkBox_Intercept->setEnabled(true);
 
        ui->widgetShowInfo->stopTimer();
-       ui->widgetShowInfo->changeStatus2Waiting();
+//       ui->widgetShowInfo->changeStatus2Waiting();
+        ui->widgetShowInfo->changeStatus2Done();
        emit sig_stopRecording();
     }
 }
@@ -889,11 +898,11 @@ void MainWindow::slot_onGetLFrequency(qint64 freq)
 void MainWindow::onRecordWorkerStatusChanged(RecordStatus status)
 {
     if(status == RecordStatus::InterceptMode){
-        log.warn("侦听");
+        log.blue("侦听");
         ui->widgetShowInfo->changeStatus2Intercept();
     }
     if(status == RecordStatus::RecordingMode){
-        log.warn("录制");
+        log.blue("录制");
         ui->widgetShowInfo->changeStatus2Recording();
     }
 }
@@ -1383,7 +1392,7 @@ QString mkMutiDir(const QString path){
 void MainWindow::on_btnStopRecord_clicked()
 {
     m_isRecording = false;
-    emit sig_stopRecording();
+//    emit sig_stopRecording();
     emit recordStatusChanged(m_isRecording);
 }
 
