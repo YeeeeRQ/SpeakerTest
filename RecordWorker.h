@@ -31,6 +31,9 @@ class RecordWorker : public QObject
 public:
     explicit RecordWorker(QObject *parent = nullptr);
     ~RecordWorker();
+private:
+    RecordWorker(const RecordWorker&) = delete;
+    RecordWorker& operator=(const RecordWorker&) = delete;
 
 private:
     QAudioFormat fmt; //缺省录制格式
@@ -58,6 +61,7 @@ public slots:
     bool setMic(quint64 idx); // 输入麦克风
 //    void startRecord(quint64 duration); //开启录制流程
     void startRecord(); //开启录制流程
+    void stopRecord();
 
     void onDSRecordDone();
     void onDSInterceptDone(bool done);

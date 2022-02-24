@@ -27,7 +27,7 @@ Setup4AutoTest::Setup4AutoTest(QWidget *parent) :
     ui->lineEdit_FirstFreq->setValidator(freqValidator);
     ui->lineEdit_FirstFreqRange->setValidator(durationRangeValidator);
 
-    auto * timeoutValidator = new  QIntValidator(0, 300000,this);
+    auto * timeoutValidator = new  QIntValidator(1000, 300000,this);
     ui->lineEdit_InterceptTimeout->setValidator(timeoutValidator);
 }
 

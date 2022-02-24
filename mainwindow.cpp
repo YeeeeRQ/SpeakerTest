@@ -37,6 +37,8 @@ MainWindow::MainWindow(QWidget *parent)
     // 模式切换 （自动|手动）后UI变更
     connect(this, &MainWindow::sig_autoModeStateChanged, this, &MainWindow::slot_onAutoModeStateChanged);
 
+    connect(this, &MainWindow::recordStatusChanged, this, &MainWindow::onRecordStatusChanged);
+
     // 载入机种列表
     connect(this, &MainWindow::sig_loadModel, this, &MainWindow::loadModel);
 
@@ -707,21 +709,25 @@ void MainWindow::on_btnStartRecord_clicked()
            m_pRecWorkerL->setIntercept(false);
            m_pRecWorkerR->setIntercept(false);
        }
-       ui->btnStartRecord->setEnabled(false);
-       ui->btnTest->setEnabled(false);
+//       ui->btnStartRecord->setEnabled(false);
+//       ui->btnTest->setEnabled(false);
 
        //标志位置位
        m_recordCount[0]= false;
        m_recordCount[1]= false;
 
 //       log.blue("开始录制");
-       ui->widgetShowInfo->startTimer();
+
+       m_isRecording = true;
+       emit recordStatusChanged(m_isRecording);
+
+//       ui->widgetShowInfo->startTimer();
 //       ui->widgetShowInfo->changeStatus2Recording();
-       emit sig_startRecording();
+//       emit sig_startRecording();
 
     }else{
-        log.warn("录制时长不能小于1000ms");
-        return;
+       log.warn("录制时长不能小于1000ms");
+       return;
     }
 }
 
@@ -781,38 +787,29 @@ void MainWindow::startTestAudio()
     }
 }
 
-// 自定义测试流程 1 开始音频测试 音频载入前检测
-void MainWindow::startTestAudioInAutoMode()
+void MainWindow::onRecordStatusChanged(bool is_recording)
 {
+    if(is_recording){
+       ui->btnStopRecord->setEnabled(true);
+       ui->btnStartRecord->setEnabled(false);
+       ui->btnTest->setEnabled(false);
+       ui->lineEditDurationOfRecord->setEnabled(false);
+       ui->checkBox_Intercept->setEnabled(false);
 
-    //WAV文件输入检测
-    QString wav1L =  QDir::toNativeSeparators(m_audioTestDir + "\\1L.wav");
-    QString wav1R =  QDir::toNativeSeparators(m_audioTestDir + "\\1R.wav");
+       ui->widgetShowInfo->startTimer();
+       ui->widgetShowInfo->changeStatus2Recording();
+       emit sig_startRecording();
+    }else{
+       ui->btnStopRecord->setEnabled(false);
+       ui->btnStartRecord->setEnabled(true);
+       ui->btnTest->setEnabled(true);
+       ui->lineEditDurationOfRecord->setEnabled(true);
+       ui->checkBox_Intercept->setEnabled(true);
 
-    QString wav2L =  QDir::toNativeSeparators(m_audioTestDir + "\\2L.wav");
-    QString wav2R =  QDir::toNativeSeparators(m_audioTestDir + "\\2R.wav");
-
-    qDebug() << "workdir: " << m_audioTestDir;
-    qDebug() << "wav1l: " << wav1L;
-    qDebug() << "wav1r: " << wav1R;
-    qDebug() << "wav2l: " << wav2L;
-    qDebug() << "wav2r: " << wav2R;
-
-    if(m_audioTestDir.isEmpty()){
-        log.warn("未指定音频存放目录！");
-        return;
+       ui->widgetShowInfo->stopTimer();
+       ui->widgetShowInfo->changeStatus2Waiting();
+       emit sig_stopRecording();
     }
-    if(!QFile::exists(wav1L) || !QFile::exists(wav1R)){
-        log.warn("指定目录下时段1的音频不存在！");
-        return;
-    }
-    if(!QFile::exists(wav2L) || !QFile::exists(wav2R)){
-        log.warn("指定目录下时段2的音频不存在！");
-        return;
-    }
-
-    log.info("载入音频成功.");
-    log.info("开始测试");
 }
 
 // --------------------------------------------------------------------------
@@ -1232,6 +1229,7 @@ void MainWindow::setting4Mic()
 
         // 录音前提：设定好2个麦克风输入
         connect(this, &MainWindow::sig_startRecording, m_pRecWorkerL, &RecordWorker::startRecord);
+        connect(this, &MainWindow::sig_stopRecording, m_pRecWorkerL, &RecordWorker::stopRecord);
         connect(&m_recordThread4L, &QThread::finished, m_pRecWorkerL, &QObject::deleteLater);
 
         connect(m_pRecWorkerL, &RecordWorker::recordDone, this, &MainWindow::slot_onLMicRecordingOver);
@@ -1244,6 +1242,7 @@ void MainWindow::setting4Mic()
         m_pRecWorkerR->moveToThread(&m_recordThread4R);
 
         connect(this, &MainWindow::sig_startRecording, m_pRecWorkerR, &RecordWorker::startRecord);
+        connect(this, &MainWindow::sig_stopRecording, m_pRecWorkerR, &RecordWorker::stopRecord);
         connect(&m_recordThread4R, &QThread::finished, m_pRecWorkerR, &QObject::deleteLater);
 
         connect(m_pRecWorkerR, &RecordWorker::recordDone, this, &MainWindow::slot_onRMicRecordingOver);
@@ -1380,3 +1379,11 @@ QString mkMutiDir(const QString path){
         parentPath.mkpath(dirname);
     return parentDir + "/" + dirname;
 }
+
+void MainWindow::on_btnStopRecord_clicked()
+{
+    m_isRecording = false;
+    emit sig_stopRecording();
+    emit recordStatusChanged(m_isRecording);
+}
+

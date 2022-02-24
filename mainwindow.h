@@ -90,6 +90,14 @@ private:
     void startTestAudio();
     void startTestAudioInAutoMode();
 
+private:
+    bool m_isRecording = false;
+signals:
+   void recordStatusChanged(bool is_recording);
+private slots:
+   void onRecordStatusChanged(bool is_recording);
+
+
 // 启动时载入自定义流程 关联文件:process.xlsx
 private:
     void printResult(bool isOk, const QString& msg);
@@ -133,7 +141,8 @@ private:
 signals:
     void sig_startAutoTest(); //已接收到读卡器开始指令 自动测试流程开始信号
 //    void sig_startRecording(quint64 duration); // 目录+时长以确定，开始录音
-    void sig_startRecording(); // 开始录音信号
+    void sig_startRecording(); // 开始录制信号
+    void sig_stopRecording(); // 停止录制信号！！！！！！！！！！！！！！！自动模式下不要使用
 
 //    void sig_startRecording(quint64 duration, QFile& file); // 目录+时长以确定，开始录音
     void sig_startTestAudio(); // 手动模式 录音文件已就绪， 开始测试
@@ -222,6 +231,7 @@ private slots:
     void on_btnTest_clicked();
     void on_btnLockOption4Model_clicked();
     void on_btnOpenWithExplorer_clicked();
+    void on_btnStopRecord_clicked();
 };
 #endif // MAINWINDOW_H
 

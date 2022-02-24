@@ -45,6 +45,10 @@ class DataSource : public QIODevice
 public:
     explicit DataSource(QObject *parent = nullptr);
     ~DataSource();
+private:
+    DataSource(const DataSource&) = delete;
+    DataSource& operator =(const DataSource&) = delete;
+
 
 // 设定
 public:

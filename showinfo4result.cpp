@@ -116,7 +116,7 @@ void ShowInfo4Result::changeStatus2Waiting()
     ui->label_Status->setText("等待");
     ui->label_Status->setStyleSheet(
                 "QLabel{"
-                "color:rgb(238,238,0)"
+                "color:rgb(200,200,30)"
                 "}"
                 );
 }

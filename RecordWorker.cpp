@@ -74,6 +74,14 @@ void RecordWorker::startRecord()
     }
 }
 
+void RecordWorker::stopRecord()
+{
+    Q_ASSERT(ds->isIdle() == false);
+
+    isRecording = false;
+    ds->changeRecordStatus(RecordStatus::IdleMode);
+}
+
 void RecordWorker::onDSRecordDone()
 {
     Q_ASSERT(isRecording == true);

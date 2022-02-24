@@ -201,16 +201,31 @@ bool DataSource::changeRecordStatus(RecordStatus status)
         if(RecordStatus::InterceptMode == status){
             m_testAudioData->clear();
             m_recordStatus = status;
-            emit statusChanged(status);
+            emit statusChanged(m_recordStatus);
         }
         // 开始录制模式
         if(RecordStatus::RecordingMode == status){
             m_audioData->clear();
             m_recordStatus = status;
-            emit statusChanged(status);
+            emit statusChanged(m_recordStatus);
         }
-    }else{
-        return false;
+    }else{//  !!!!!!!!!!!自动模式下不准使用!!!!!!!!!!!!!
+        // 停止侦听|录制
+        m_recordStatus = status;
+        emit statusChanged(m_recordStatus);
+
+        // 停止计时器
+        if(timer.isActive()){
+            m_isTimeout = false;
+            disconnect(&timer, &QTimer::timeout, this, &DataSource::onInterceptTimeout);
+        }
+
+        // 缓存数据清空
+        m_testAudioData->clear();
+        m_audioData->clear();
+
+
+//		return false;
     }
     return true;
 }
