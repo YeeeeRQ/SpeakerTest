@@ -356,6 +356,12 @@ void MainWindow::slot_onAutoModeStateChanged(bool mode)
     ui->groupBox4Record->setEnabled(enable);
 
     ui->groupBox4ProductID->setEnabled(enable);
+
+
+    //自动切手动 -> 自动载入临时目录
+    if(mode == false){
+        this->on_btnLoadTempWavDir_clicked();
+    }
 }
 
 
@@ -600,6 +606,16 @@ void MainWindow::slot_onAutoTestConfigChanged()
 
     // 载入主目录
     m_workDir = conf.Get("Audio", "Path").toString();
+
+    // 载入测试设定
+//    m_testTime1_= conf.Get("AudioTest", "duration1").toString();
+//    m_testTime1[0] = conf.Get("AudioTest", "duration1").toString().toUInt();
+//    m_testTime1[1] = conf.Get("AudioTest", "duration2").toString().toUInt();
+//    m_testTime1[1] = conf.Get("AudioTest", "duration2").toString().toUInt();
+
+
+
+
     // do nothing
 }
 
@@ -830,7 +846,7 @@ void MainWindow::slot_testAudio()
 //    QString target_dir = ui->lineEdit4WavDir->text().trimmed();
     QString target_dir = m_audioTestDir;
 
-    QString app = QDir::toNativeSeparators(QCoreApplication::applicationDirPath() + "\\AudioTest\\ConsoleAppAudioTest.exe");
+    QString app = QDir::toNativeSeparators(QCoreApplication::applicationDirPath() + "/AudioTest/ConsoleAppAudioTest.exe");
 
     QString cmd = app + " " + target_dir;
     cmd += " " +  QString::number(setup4autotest->m_duration1);
@@ -1017,11 +1033,23 @@ void MainWindow::slot_onAudioTestFinished()
      *  时段2 强度等级
      */
 
+    // 频率范围
+    quint64 freq1Range = setup4autotest->m_duration1freqRange;
+    quint64 freq2Range = setup4autotest->m_duration2freqRange;
+    m_accept_pitch1[0] = setup4autotest->m_duration1freq - freq1Range;
+    m_accept_pitch1[1] = setup4autotest->m_duration1freq + freq1Range;
+    m_accept_pitch2[0] = setup4autotest->m_duration2freq - freq2Range;
+    m_accept_pitch2[1] = setup4autotest->m_duration2freq + freq2Range;
+
+    qDebug() << m_accept_pitch1[0] << " - " << m_accept_pitch1[1];
+    qDebug() << m_accept_pitch2[0] << " - " << m_accept_pitch2[1];
+
     log.info("时段1: ");
     // 时段1 左侧
     if(lpitch1 > m_accept_pitch1[0] && lpitch1 < m_accept_pitch1[1]){
         log.info("左侧频率正常");
     }else{
+        log.warn("左侧频率异常");
         goto ERROR_L;
     }
 
@@ -1029,7 +1057,8 @@ void MainWindow::slot_onAudioTestFinished()
     if(rpitch1 > m_accept_pitch1[0] && rpitch1 < m_accept_pitch1[1]){
         log.info("右侧频率正常");
     }else{
-        goto ERROR_L;
+        log.warn("右侧频率异常");
+        goto ERROR_R;
     }
 
     log.info("时段2: ");
@@ -1037,12 +1066,14 @@ void MainWindow::slot_onAudioTestFinished()
     if(lpitch2 > m_accept_pitch2[0] && lpitch2 < m_accept_pitch2[1]){
         log.info("左侧频率正常");
     }else{
+        log.warn("左侧频率异常");
         goto ERROR_L;
     }
     // 时段2右侧
     if(rpitch2 > m_accept_pitch2[0] && rpitch2 < m_accept_pitch2[1]){
         log.info("右侧频率正常");
     }else{
+        log.warn("右侧频率异常");
         goto ERROR_R;
     }
 
@@ -1050,11 +1081,13 @@ void MainWindow::slot_onAudioTestFinished()
         if(llevel1 > rlevel1){
             log.info("时段1 左侧强 > 右侧弱 正常");
         }else{
+            log.warn("时段1 左侧弱 < 右侧强 异常");
             goto ERROR_BOTH;
         }
         if(llevel2 < rlevel2){
             log.info("时段2 左侧弱 < 右侧强 正常");
         }else{
+            log.warn("时段2 左侧强 > 右侧弱 异常");
             goto ERROR_BOTH;
         }
     }
@@ -1063,11 +1096,13 @@ void MainWindow::slot_onAudioTestFinished()
         if(llevel1 < rlevel1){
             log.info("时段1 左侧弱 < 右侧强 正常");
         }else{
+            log.info("时段1 左侧强 > 右侧弱 异常");
             goto ERROR_BOTH;
         }
         if(llevel2 > rlevel2){
             log.info("时段2 左侧强 > 右侧弱 正常");
         }else{
+            log.info("时段2 左侧弱 < 右侧强 异常");
             goto ERROR_BOTH;
         }
     }

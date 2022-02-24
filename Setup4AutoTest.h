@@ -34,10 +34,12 @@ public:
     quint64 m_duration1 = 0; // 测试时段1
     quint64 m_duration1range = 0;
     quint64 m_duration1freq= 0;
+    quint64 m_duration1freqRange= 0;
 
     quint64 m_duration2 = 0; // 测试时段2
     quint64 m_duration2range = 0;
     quint64 m_duration2freq= 0;
+    quint64 m_duration2freqRange= 0;
 
     quint64 m_firstFreq = 0; // 侦测频率
     quint64 m_firstFreqRange = 0;

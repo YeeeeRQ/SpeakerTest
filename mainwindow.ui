@@ -515,6 +515,9 @@ QHeaderView::section/*表头样式*/
                               <property name="text">
                                <string>侦听</string>
                               </property>
+                              <property name="checked">
+                               <bool>true</bool>
+                              </property>
                              </widget>
                             </item>
                            </layout>
@@ -806,7 +809,7 @@ QHeaderView::section/*表头样式*/
                                </font>
                               </property>
                               <property name="text">
-                               <string>测试(T)</string>
+                               <string>测试</string>
                               </property>
                              </widget>
                             </item>
@@ -949,13 +952,6 @@ QHeaderView::section/*表头样式*/
                 <widget class="QPushButton" name="btnSetting4Mic">
                  <property name="text">
                   <string>麦克风输入</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QPushButton" name="btnSetting4Devices">
-                 <property name="text">
-                  <string>外部设备</string>
                  </property>
                 </widget>
                </item>
