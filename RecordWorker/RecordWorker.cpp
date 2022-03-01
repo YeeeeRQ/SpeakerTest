@@ -68,8 +68,10 @@ void RecordWorker::startRecord()
 
     isRecording = true;
     if(m_openIntercept){
+        qDebug() << QTime::currentTime() <<" Intercept Mode";
         ds->changeRecordStatus(RecordStatus::InterceptMode);
     }else{
+        qDebug() << QTime::currentTime() <<" Recording Mode";
         ds->changeRecordStatus(RecordStatus::RecordingMode);
     }
 }
@@ -80,6 +82,11 @@ void RecordWorker::stopRecord()
 
     isRecording = false;
     ds->changeRecordStatus(RecordStatus::IdleMode);
+}
+
+bool RecordWorker::isIdle()
+{
+    return ds->isIdle();
 }
 
 void RecordWorker::onDSRecordDone()
@@ -96,10 +103,15 @@ void RecordWorker::onDSInterceptDone(bool done)
     Q_ASSERT(ds->isIdle() == true);
 
     if(done){
-        // 侦听到指定频率
-        ds->changeRecordStatus(RecordStatus::RecordingMode);
+        // 侦听到指定频率 -> 立即开始录制
+        // ds->changeRecordStatus(RecordStatus::RecordingMode);
+
+        // 发射侦听完成信号
+        emit interceptDone();
+
+
     }else{
-        //超时了
+        // 侦听超时 ->录制流程直接结束(不发射侦听完成信号)
         isRecording = false;
         emit recordDone(done, "侦听超时");
     }
@@ -137,16 +149,16 @@ bool RecordWorker::setMic(quint64 idx)
     return true;
 }
 
-void RecordWorker::setIntercept(bool open, quint64 duration, quint64 freq, quint64 range)
+void RecordWorker::openIntercept(quint64 duration, quint64 freq, quint64 range)
 {
-    this->setIntercept(open);
+    m_openIntercept = true;
     this->setInterceptTimeout(duration);
     this->setInterceptFreqRange(freq, range);
 }
 
-void RecordWorker::setIntercept(bool open)
+void RecordWorker::closeIntercept()
 {
-    m_openIntercept = open;
+    m_openIntercept = false;
 }
 
 void RecordWorker::setInterceptTimeout(quint64 duration)
@@ -158,65 +170,3 @@ void RecordWorker::setInterceptFreqRange(quint64 freq, quint64 range)
 {
     ds->setInterceptFreqRange(freq, range);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//void RecordWorker::onInterceptTimeout()
-//{
-//    audioInput->stop(); //关闭麦克风输入
-//    ds->resetStatus(); //ds状态重置
-////    isRecording = false;
-
-//    emit interceptTimeout(); // 告知上游, 侦测超时， 录制失败
-//    record_status = RecordStatus::IdleMode;
-//}
-
-
-//bool RecordWorker::setExclusive()
-//{
-//    if(!ds)return false;
-//    if(!audioInput) return false;
-
-//    if(ds->open(QIODevice::WriteOnly)){
-//        audioInput->start(ds);
-//    }else{
-//        return false;
-//    }
-//    return true;
-//}
-
-//    connect(ds, &DataSource::interceptTimeout, this, &RecordWorker::onInterceptTimeout);
-
-//void RecordWorker::startRecord(quint64 duration)
-
-//    if(record_status == RecordStatus::RecordingMode) return;
-
-//    if(!ds->setDuration(duration)){
-//        qDebug() << "设定输出文件时长失败!";
-//    }
-    //    curDevice = QAudioDeviceInfo::defaultInputDevice(); // 选择缺省设备
-
-//    if (!curDevice.isFormatSupported(fmt))
-//    {
-//        qDebug() << "Dev is Null: " <<curDevice.isNull();
-//        qDebug() << "测试失败，输入设备不支持此设置";
-//        return;
-//    }
-
-//    isRecording = true;
-//    record_status = RecordStatus::RecordingMode;

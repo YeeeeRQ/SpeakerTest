@@ -54,15 +54,17 @@ private:
 
 public:
     bool setRecord(quint64 duration, const QString& filename);
-    void setIntercept(bool open, quint64 duration, quint64 freq, quint64 range);
-    void setIntercept(bool open); // 侦听 开关设定
+    void openIntercept(quint64 duration, quint64 freq, quint64 range);
+    void closeIntercept(); // 侦听 开关设定
 
 public slots:
     bool setMic(quint64 idx); // 输入麦克风
 //    void startRecord(quint64 duration); //开启录制流程
     void startRecord(); //开启录制流程
     void stopRecord();
+    bool isIdle();
 
+public slots:
     void onDSRecordDone();
     void onDSInterceptDone(bool done);
     void onDSGetFrequency(double freq);
@@ -71,14 +73,9 @@ public slots:
 signals:
     void getFrequency(double freq); //侦听状态下频率获取
 //    void interceptDone(bool done);   //侦听是否完成 true侦听完成 false侦听超时
+    void interceptDone();   //侦听完成信号（仅侦听成功后发射）
     void recordDone(bool done, const QString& result); // 录制结束
     void statusChanged(RecordStatus status);
 };
 
 #endif // RECORDWORKER_H
-
-//signals:
-//    void recordDone(); // 工作流程结束
-//    void interceptTimeout(); //
-//    void getFrequency(quint64 freq);
-

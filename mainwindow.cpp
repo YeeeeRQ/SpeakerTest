@@ -64,6 +64,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     // 音频载入 -> 获取音频信息 并输出至CSV
     connect(this, &MainWindow::sig_startTestAudio, this, &MainWindow::slot_testAudio);
+
 }
 
 MainWindow::~MainWindow()
@@ -251,6 +252,30 @@ void MainWindow::onInterceptTimeout()
     // 侦测超时
     log.warn("侦测超时!");
     log.warn("侦测超时!");
+}
+
+// 侦听完成 业务逻辑 (备注：仅连接一个线程)
+void MainWindow::onInterceptDone()
+{
+    Q_ASSERT(true == m_isRecording);
+    Q_ASSERT(false == m_recordCount[0]);
+    Q_ASSERT(false == m_recordCount[1]);
+
+    // 关闭侦听 // 强制闲置录制线程
+    m_pRecWorkerL->stopRecord();
+    m_pRecWorkerR->stopRecord();
+
+    Q_ASSERT(true == m_pRecWorkerL->isIdle());
+    Q_ASSERT(true == m_pRecWorkerR->isIdle());
+
+    // 侦听完成，两线程开始录制(备注：录制参数已在开始侦听前设定完毕)
+    m_pRecWorkerL->closeIntercept();
+    m_pRecWorkerR->closeIntercept();
+    //标志位置位
+    m_recordCount[0]= false;
+    m_recordCount[1]= false;
+
+    emit recordStatusChanged(m_isRecording);
 }
 
 
@@ -542,34 +567,6 @@ void MainWindow::slot_startAutoTest()
     this->on_btnStartRecord_clicked();
 }
 
-//void MainWindow::slot_startCustomAutoTest()
-//{
-//    checkCustomTestProcess();
-//    if(!this->m_customTestProcessIsOK){
-//        log.warn("错误！自定义流程配置有误.");
-//        log.warn("无法进行测试!");
-//        return ;
-//    }
-
-//    // Todo:
-//    // 工作目录设定
-
-//    // 读取机种名
-//    // 读取产品ID
-//    // 设定 m_wavDir
-//    // 生成 m_wavDir 目录
-
-//    QString model_name = ui->comboBoxModelName->currentText();
-//    QString product_id = ui->lineEdit4ProductID->text();
-//    log.info("开始自定义测试流程");
-//    qDebug() << "Model Name: "<< model_name;
-//    qDebug() << "Product ID:"<< product_id;
-
-
-//    ui->widgetShowInfo->changeStatus2Processing();
-//    emit custom_cmd_done("START");
-//}
-
 // --------------------------------------------------------------------------
 
 void MainWindow::slot_onCodeReaderReceiveBarcode(QString barcode)
@@ -612,10 +609,6 @@ void MainWindow::slot_onAutoTestConfigChanged()
 //    m_testTime1[0] = conf.Get("AudioTest", "duration1").toString().toUInt();
 //    m_testTime1[1] = conf.Get("AudioTest", "duration2").toString().toUInt();
 //    m_testTime1[1] = conf.Get("AudioTest", "duration2").toString().toUInt();
-
-
-
-
     // do nothing
 }
 
@@ -701,16 +694,17 @@ void MainWindow::on_btnStartRecord_clicked()
     qDebug()<< "录制时长：" << m_wavDuration;
 
    if(m_wavDuration >= 1000){
-       // 文件输出
+       // 录制设定
+       //     文件输出
        QString output_l = QDir::toNativeSeparators(m_audioTestDir+ "/L.wav");
        QString output_r = QDir::toNativeSeparators(m_audioTestDir+ "/R.wav");
        m_pRecWorkerL->setRecord(m_wavDuration, output_l);
        m_pRecWorkerR->setRecord(m_wavDuration, output_r);
 
        // 频率侦测
-       bool openIntercept = ui->checkBox_Intercept->isChecked();
-       qDebug() << "Open Intercept:" << openIntercept;
-       if(openIntercept){
+       bool isOpenIntercept = ui->checkBox_Intercept->isChecked();
+       qDebug() << "Open Intercept:" << isOpenIntercept;
+       if(isOpenIntercept){
 
            quint64 freq = setup4autotest->m_firstFreq;
            quint64 range = setup4autotest->m_firstFreqRange;
@@ -719,34 +713,25 @@ void MainWindow::on_btnStartRecord_clicked()
            qDebug() << "Timeout: " << timeout;
            qDebug() << "Freq   : " << freq;
            qDebug() << "Range  : ±" << range;
-           m_pRecWorkerL->setIntercept(openIntercept,
+           m_pRecWorkerL->openIntercept(
                            timeout,
                            freq,
                            range);
-           m_pRecWorkerR->setIntercept(openIntercept,
+           m_pRecWorkerR->openIntercept(
                            timeout,
                            freq,
                            range);
 
        }else{
-           m_pRecWorkerL->setIntercept(false);
-           m_pRecWorkerR->setIntercept(false);
+           m_pRecWorkerL->closeIntercept();
+           m_pRecWorkerR->closeIntercept();
        }
-//       ui->btnStartRecord->setEnabled(false);
-//       ui->btnTest->setEnabled(false);
-
        //标志位置位
        m_recordCount[0]= false;
        m_recordCount[1]= false;
 
-//       log.blue("开始录制");
-
        m_isRecording = true;
        emit recordStatusChanged(m_isRecording);
-
-//       ui->widgetShowInfo->startTimer();
-//       ui->widgetShowInfo->changeStatus2Recording();
-//       emit sig_startRecording();
 
     }else{
        log.warn("录制时长不能小于1000ms");
@@ -821,19 +806,20 @@ void MainWindow::onRecordStatusChanged(bool is_recording)
 
        ui->widgetShowInfo->startTimer();
        ui->widgetShowInfo->changeStatus2Recording();
+
        emit sig_startRecording();
     }else{
 
-       ui->btnStopRecord->setEnabled(false);
-       ui->btnStartRecord->setEnabled(true);
-       ui->btnTest->setEnabled(true);
-       ui->lineEditDurationOfRecord->setEnabled(true);
-       ui->checkBox_Intercept->setEnabled(true);
+        ui->btnStopRecord->setEnabled(false);
+        ui->btnStartRecord->setEnabled(true);
+        ui->btnTest->setEnabled(true);
+        ui->lineEditDurationOfRecord->setEnabled(true);
+        ui->checkBox_Intercept->setEnabled(true);
 
-       ui->widgetShowInfo->stopTimer();
-//       ui->widgetShowInfo->changeStatus2Waiting();
+        ui->widgetShowInfo->stopTimer();
         ui->widgetShowInfo->changeStatus2Done();
-       emit sig_stopRecording();
+
+        emit sig_stopRecording();
     }
 }
 
@@ -1303,6 +1289,9 @@ void MainWindow::setting4Mic()
 
         // 状态变更
         connect(m_pRecWorkerL, &RecordWorker::statusChanged, this, &MainWindow::onRecordWorkerStatusChanged);
+
+        // 侦听结束
+        connect(m_pRecWorkerL, &RecordWorker::interceptDone, this, &MainWindow::onInterceptDone);
     }
 }
 

@@ -209,7 +209,7 @@ bool DataSource::changeRecordStatus(RecordStatus status)
             m_recordStatus = status;
             emit statusChanged(m_recordStatus);
         }
-    }else{//  !!!!!!!!!!!自动模式下不准使用!!!!!!!!!!!!!
+    }else{
         // 停止侦听|录制
         m_recordStatus = status;
         emit statusChanged(m_recordStatus);
@@ -223,9 +223,6 @@ bool DataSource::changeRecordStatus(RecordStatus status)
         // 缓存数据清空
         m_testAudioData->clear();
         m_audioData->clear();
-
-
-//		return false;
     }
     return true;
 }
@@ -293,7 +290,7 @@ qint64 DataSource::writeData(const char * data, qint64 maxSize)
                 m_testAudioData->clear();
                 emit interceptDone(true);
 
-                qDebug() << "Intercept Done!!";
+                qDebug() << QTime::currentTime() <<" Intercept Done!!";
                 return maxSize;
             }
             // 清空缓存音频数据

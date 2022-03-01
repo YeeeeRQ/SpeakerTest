@@ -30,21 +30,39 @@ link_directories(${AUBIO_LINK_DIR})
 set(CMAKE_CXX_FLAGS
     "-D_GLIBCXX_USE_CXX11_ABI=0"
     )
+
 set(TS_FILES SpeakersTest_zh_CN.ts)
+
+set(PROJ_SOURCE_FILE
+    ./font/SourceHanSansK-Regular.ttf
+    res.qrc
+)
+
+set(PROJ_UI_DIR ./UI)
+set(PROJ_UI_FILE
+    ${PROJ_UI_DIR}/Setup4AutoTest.h
+    ${PROJ_UI_DIR}/Setup4AutoTest.cpp
+    ${PROJ_UI_DIR}/Setup4AutoTest.ui
+    ${PROJ_UI_DIR}/setup4mic.h
+    ${PROJ_UI_DIR}/setup4mic.cpp
+    ${PROJ_UI_DIR}/setup4mic.ui
+    ${PROJ_UI_DIR}/qmydisplaydevice.cpp
+    ${PROJ_UI_DIR}/qmydisplaydevice.h
+    ${PROJ_UI_DIR}/Setup4Devices.h
+    ${PROJ_UI_DIR}/Setup4Devices.cpp
+    ${PROJ_UI_DIR}/Setup4Devices.ui
+    ${PROJ_UI_DIR}/setup4model.h
+    ${PROJ_UI_DIR}/setup4model.cpp
+    ${PROJ_UI_DIR}/setup4model.ui
+    ${PROJ_UI_DIR}/showinfo4result.h
+    ${PROJ_UI_DIR}/showinfo4result.cpp
+    ${PROJ_UI_DIR}/showinfo4result.ui
+    ${PROJ_UI_DIR}/TempForm.ui
+)
 
 set(PROJECT_SOURCES
         main.cpp
         mainwindow.cpp mainwindow.h mainwindow.ui
-
-        ./UI/Setup4AutoTest.h ./UI/Setup4AutoTest.cpp ./UI/Setup4AutoTest.ui
-        ./UI/setup4mic.h ./UI/setup4mic.cpp ./UI/setup4mic.ui
-        ./UI/qmydisplaydevice.cpp ./UI/qmydisplaydevice.h
-
-        ./UI/Setup4Devices.h ./UI/Setup4Devices.cpp ./UI/Setup4Devices.ui
-        ./UI/setup4model.h ./UI/setup4model.cpp ./UI/setup4model.ui
-        ./UI/showinfo4result.h ./UI/showinfo4result.cpp ./UI/showinfo4result.ui
-
-        ./UI/TempForm.ui
 
         ./devices/AutoLine.h ./devices/AutoLine.cpp
         ./devices/CodeReader.cpp ./devices/CodeReader.h
@@ -58,10 +76,8 @@ set(PROJECT_SOURCES
         ./RecordWorker/RecordWorker.h ./RecordWorker/RecordWorker.cpp
         ./RecordWorker/DataSource.h ./RecordWorker/DataSource.cpp
 
-        ./font/SourceHanSansK-Regular.ttf
-
-        res.qrc
-
+        ${PROJ_SOURCE_FILE}
+        ${PROJ_UI_FILE}
         ${TS_FILES}
 )
 

@@ -115,6 +115,7 @@ signals:
 private slots:
     void onCheckAllRecordOver();
     void onInterceptTimeout(); //侦测超时
+    void onInterceptDone(); //成功侦测到指定频率!!
 
 // -- 测试模式 (手动|自动)
 private:
