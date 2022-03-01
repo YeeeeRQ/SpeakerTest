@@ -25,6 +25,8 @@ set(AUBIO_INC_DIR "..\\aubio-0.4.6-win64\\include")
 set(AUBIO_LINK_DIR "..\\aubio-0.4.6-win64\\lib")
 include_directories(${AUBIO_INC_DIR})
 link_directories(${AUBIO_LINK_DIR})
+
+
 set(CMAKE_CXX_FLAGS
     "-D_GLIBCXX_USE_CXX11_ABI=0"
     )
@@ -32,27 +34,34 @@ set(TS_FILES SpeakersTest_zh_CN.ts)
 
 set(PROJECT_SOURCES
         main.cpp
-
         mainwindow.cpp mainwindow.h mainwindow.ui
-        Setup4AutoTest.h Setup4AutoTest.cpp Setup4AutoTest.ui
-        setup4mic.h setup4mic.cpp setup4mic.ui
-        Setup4Devices.h Setup4Devices.cpp Setup4Devices.ui
-        setup4model.h setup4model.cpp setup4model.ui
-        showinfo4result.h showinfo4result.cpp showinfo4result.ui
 
-        qmydisplaydevice.cpp qmydisplaydevice.h
-        RecordWorker.h RecordWorker.cpp
-        DataSource.h DataSource.cpp
-        AutoLine.h AutoLine.cpp
-        CodeReader.cpp CodeReader.h
-        config.cpp config.h
-        simplelog.cpp simplelog.h
+        ./UI/Setup4AutoTest.h ./UI/Setup4AutoTest.cpp ./UI/Setup4AutoTest.ui
+        ./UI/setup4mic.h ./UI/setup4mic.cpp ./UI/setup4mic.ui
+        ./UI/qmydisplaydevice.cpp ./UI/qmydisplaydevice.h
 
-        MyCommonFun.cpp MyCommonFun.h
-        TempForm.ui
-        res.qrc
+        ./UI/Setup4Devices.h ./UI/Setup4Devices.cpp ./UI/Setup4Devices.ui
+        ./UI/setup4model.h ./UI/setup4model.cpp ./UI/setup4model.ui
+        ./UI/showinfo4result.h ./UI/showinfo4result.cpp ./UI/showinfo4result.ui
+
+        ./UI/TempForm.ui
+
+        ./devices/AutoLine.h ./devices/AutoLine.cpp
+        ./devices/CodeReader.cpp ./devices/CodeReader.h
+
+        ./config/config.cpp ./config/config.h
+
+        ./log/simplelog.cpp ./log/simplelog.h
+
+        ./util/MyCommonFun.cpp ./util/MyCommonFun.h
+
+        ./RecordWorker/RecordWorker.h ./RecordWorker/RecordWorker.cpp
+        ./RecordWorker/DataSource.h ./RecordWorker/DataSource.cpp
 
         ./font/SourceHanSansK-Regular.ttf
+
+        res.qrc
+
         ${TS_FILES}
 )
 

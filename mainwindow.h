@@ -12,19 +12,20 @@
 #include <QMediaPlaylist>
 #include <QAudioRecorder>
 
-#include "CodeReader.h"
-#include "AutoLine.h"
+#include "./util/MyCommonFun.h"
 
-#include "config.h"
-#include "simplelog.h"
+#include "./devices/CodeReader.h"
+#include "./devices/AutoLine.h"
 
-#include "setup4mic.h"
-#include "setup4model.h"
-#include "Setup4AutoTest.h"
-#include "showinfo4result.h"
+#include "./config/config.h"
+#include "./log/simplelog.h"
 
-#include "RecordWorker.h"
-#include "MyCommonFun.h"
+#include "./UI/Setup4AutoTest.h"
+#include "./UI/setup4mic.h"
+#include "./UI/setup4model.h"
+#include "./UI/showinfo4result.h"
+
+#include "./RecordWorker/RecordWorker.h"
 
 
 QT_BEGIN_NAMESPACE

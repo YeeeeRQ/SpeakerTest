@@ -6,7 +6,7 @@
 
 #include <QDebug>
 
-#include "simplelog.h"
+#include "./log/simplelog.h"
 
 class CodeReader: public QObject
 {

@@ -997,7 +997,7 @@ QHeaderView::section/*表头样式*/
   <customwidget>
    <class>ShowInfo4Result</class>
    <extends>QWidget</extends>
-   <header location="global">showinfo4result.h</header>
+   <header location="global">./UI/showinfo4result.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

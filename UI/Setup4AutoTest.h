@@ -2,7 +2,7 @@
 #define SETUP4AUTOTEST_H
 
 #include <QWidget>
-#include "config.h"
+#include "./config/config.h"
 
 namespace Ui {
 class Setup4AutoTest;

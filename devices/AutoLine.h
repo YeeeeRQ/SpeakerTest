@@ -6,7 +6,7 @@
 #include <QDebug>
 
 
-#include "MyCommonFun.h"
+#include "./util/MyCommonFun.h"
 
 class AutoLine:public QObject
 {
