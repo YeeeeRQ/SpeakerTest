@@ -9,6 +9,7 @@
 #include <QDebug>
 #include <QTimer>
 #include <aubio/aubio.h>
+#include "get_aubio_filter.h"
 
 struct WAVFILEHEADER
 {
@@ -81,6 +82,8 @@ private:
     bool m_isTimeout = false;
 
     QAudioFormat m_fmt; //缺省录制格式
+    quint64 m_freq = 0;
+    filter_type m_filter_type = filter_type::None;
     quint64 m_freq1 = 0;
     quint64 m_freq2 = 0;
 
@@ -90,6 +93,12 @@ private:
 
     void save2WAV();
     double getAudioFrequency();
+
+
+    // 滤出400Hz以上 8000Hz以下 频率
+    aubio_filter_t*  f_highpass400;
+    aubio_filter_t*  f_lowpass8000;
+    aubio_filter_t* get_filter4gain(quint64 freq);
 
 signals:
     void getFrequency(double freq); //侦听状态下频率获取

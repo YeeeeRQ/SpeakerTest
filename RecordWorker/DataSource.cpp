@@ -33,6 +33,10 @@ DataSource::DataSource( QObject *parent) :
     m_audioData = new QByteArray;
     m_testAudioData = new QByteArray;
     m_recordStatus = RecordStatus::IdleMode;
+
+    // 滤出400Hz以上 8000Hz以下 频率
+    f_highpass400 = get_aubio_filter(filter_type::F_HIGHPASS_400Hz);
+    f_lowpass8000 = get_aubio_filter(filter_type::F_LOWPASS_8000Hz);
 }
 
 DataSource::~DataSource()
@@ -40,6 +44,10 @@ DataSource::~DataSource()
     delete m_outputFile;
     delete m_audioData;
     delete m_testAudioData;
+
+    del_aubio_filter(f_highpass400);
+    del_aubio_filter(f_lowpass8000);
+    aubio_cleanup();
 }
 
 void DataSource::setAudioFormat(QAudioFormat fmt)
@@ -96,55 +104,94 @@ RecordStatus DataSource::getRecordStatus()
     return m_recordStatus;
 }
 
+// Todo:
+// 获取sample声压级
 double DataSource::getAudioFrequency()
 {
     // 测试音频大小
-//        qDebug() << "cache :" << m_testAudioData->size();
+    //        qDebug() << "cache :" << m_testAudioData->size();
 
-        uint_t samplerate = m_fmt.sampleRate();
-//        uint_t samplerate = 44100;
-        uint_t win_s = 1024;
-        uint_t hop_size = win_s / 4;
+    uint_t samplerate = m_fmt.sampleRate();
+    //        uint_t samplerate = 44100;
+    uint_t win_s = 1024;
+    uint_t hop_size = win_s / 4;
 
-        fvec_t* samples = new_fvec(hop_size);
-        fvec_t* pitch_out = new_fvec(2);
+    fvec_t* samples = new_fvec(hop_size);
+    fvec_t* pitch_out = new_fvec(2);
 
-        std::vector<uint_t> v_point;
-        std::vector<uint_t> len1_pitch;
-        aubio_pitch_t* o = new_aubio_pitch("default", win_s, hop_size, samplerate);
+    std::vector<uint_t> v_point;
+    std::vector<uint_t> len1_pitch;
+    aubio_pitch_t* o = new_aubio_pitch("default", win_s, hop_size, samplerate);
 
-        // 按2字节(16bit)长度读取，256一组， 封装samples
-        for(quint64 i = 0; i< m_testAudioData->size() ;i+=2 ){
-            quint16 point =((quint16)m_testAudioData->at(i+1) << 8) | ((quint16)m_testAudioData->at(i) &0x00ff);
-            v_point.push_back(point);
+    aubio_filter_do_reset(f_highpass400);
+    aubio_filter_do_reset(f_lowpass8000);
+    aubio_filter_t*  f_gain = get_filter4gain(m_freq);
+    // 按2字节(16bit)长度读取，256一组， 封装samples
+    for(quint64 i = 0; i< m_testAudioData->size() ;i+=2 ){
+        quint16 point =((quint16)m_testAudioData->at(i+1) << 8) | ((quint16)m_testAudioData->at(i) &0x00ff);
+        v_point.push_back(point);
+    }
+    //            qDebug() << "v_point size:" << v_point.size();
+
+    for(quint64 i = 0 ; i < v_point.size()/hop_size; ++i){
+        for(quint64 j =0; j< hop_size; ++j){
+            samples->data[j] = v_point.at(i*hop_size+j);
         }
-//            qDebug() << "v_point size:" << v_point.size();
 
-        for(quint64 i = 0 ; i < v_point.size()/hop_size; ++i){
-            for(quint64 j =0; j< hop_size; ++j){
-                samples->data[j] = v_point.at(i*hop_size+j);
-            }
+        // samples 提取频率(范围：400Hz - 8000Hz)
+        aubio_filter_do(f_highpass400, samples);
+        aubio_filter_do(f_lowpass8000, samples);
 
-            aubio_pitch_do(o, samples, pitch_out);
-            len1_pitch.push_back(pitch_out->data[0]);
+        // 增益 指定侦听频率
+        if(m_filter_type!= filter_type::None){
+            aubio_filter_do(f_gain, samples);
         }
 
-        double freq = std::accumulate(len1_pitch.begin(), len1_pitch.end(), 0.0) / len1_pitch.size();
+        aubio_pitch_do(o, samples, pitch_out);
+        len1_pitch.push_back(pitch_out->data[0]);
+    }
+    // Todo: 改为指定频率范围占比 7/10 即可认定为侦听到指定频率
+    double freq = std::accumulate(len1_pitch.begin(), len1_pitch.end(), 0.0) / len1_pitch.size();
 
-//            qDebug() << "Frequency :" << len1_pitch_avg;
+    //            qDebug() << "Frequency :" << len1_pitch_avg;
 
-        del_aubio_pitch(o);
-        del_fvec(samples);
-        del_fvec(pitch_out);
-        aubio_cleanup();
+    del_aubio_filter(f_gain);
+    del_aubio_pitch(o);
+    del_fvec(samples);
+    del_fvec(pitch_out);
+    aubio_cleanup();
 
-        return freq;
+    return freq;
+}
+
+aubio_filter_t *DataSource::get_filter4gain(quint64 freq)
+{
+    qDebug() << "Filter gain :" << freq;
+    if(m_freq == 400){
+        m_filter_type = filter_type::F_PEAK_400Hz;
+    }else if(m_freq == 1000){
+        m_filter_type = filter_type::F_PEAK_1000Hz;
+    }else  if(m_freq == 2000){
+        m_filter_type = filter_type::F_PEAK_2000Hz;
+    }else  if(m_freq == 3000){
+        m_filter_type = filter_type::F_PEAK_3000Hz;
+    }else  if(m_freq == 4000){
+        m_filter_type = filter_type::F_PEAK_4000Hz;
+    }else  if(m_freq == 5000){
+        m_filter_type = filter_type::F_PEAK_5000Hz;
+    }else{
+        m_filter_type = filter_type::None;
+    }
+
+    aubio_filter_t* f_gain = get_aubio_filter(m_filter_type);
+    return f_gain;
 }
 
 void DataSource::setInterceptFreqRange(quint64 freq, quint64 range)
 {
 //    if(range > 300){
 //    }
+    m_freq = freq;
     m_freq1 = freq-range;
     m_freq2 = freq+range;
 }
@@ -261,7 +308,15 @@ qint64 DataSource::writeData(const char * data, qint64 maxSize)
 
             double freq  = this->getAudioFrequency();
 
-            emit getFrequency(freq); //Todo: 降低获取频率
+            //降低获取频率
+            static quint16 cnt = 0;
+            if(0 == cnt) emit getFrequency(freq);
+            if(cnt > 10){
+                cnt = 0;
+            }else{
+                cnt++;
+            }
+
 
 //            qDebug() << "Freq : " << m_freq1 << " ~ " << m_freq2;
             if(freq > m_freq1 && freq < m_freq2){ // 满足条件
@@ -317,6 +372,7 @@ qint64 DataSource::writeData(const char * data, qint64 maxSize)
             m_recordStatus = RecordStatus::IdleMode;
             m_audioData->clear();
 
+            qDebug() << QTime::currentTime() << " Recording Done";
             emit recordDone();
 
             // Todo：

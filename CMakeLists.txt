@@ -75,6 +75,8 @@ set(PROJECT_SOURCES
 
         ./RecordWorker/RecordWorker.h ./RecordWorker/RecordWorker.cpp
         ./RecordWorker/DataSource.h ./RecordWorker/DataSource.cpp
+        ./RecordWorker/get_aubio_filter.h
+        ./RecordWorker/get_aubio_filter.cpp
 
         ${PROJ_SOURCE_FILE}
         ${PROJ_UI_FILE}

@@ -706,8 +706,8 @@ void MainWindow::on_btnStartRecord_clicked()
        qDebug() << "Open Intercept:" << isOpenIntercept;
        if(isOpenIntercept){
 
-           quint64 freq = setup4autotest->m_firstFreq;
-           quint64 range = setup4autotest->m_firstFreqRange;
+           quint64 freq = setup4autotest->m_interceptFreq;
+           quint64 range = setup4autotest->m_interceptFreqRange;
            quint64 timeout= setup4autotest->m_interceptTimeout;
 
            qDebug() << "Timeout: " << timeout;
@@ -1030,36 +1030,35 @@ void MainWindow::slot_onAudioTestFinished()
     qDebug() << m_accept_pitch1[0] << " - " << m_accept_pitch1[1];
     qDebug() << m_accept_pitch2[0] << " - " << m_accept_pitch2[1];
 
-    log.info("时段1: ");
     // 时段1 左侧
     if(lpitch1 > m_accept_pitch1[0] && lpitch1 < m_accept_pitch1[1]){
-        log.info("左侧频率正常");
+        log.info("时段1: 左侧频率正常");
     }else{
-        log.warn("左侧频率异常");
+        log.warn("时段1: 左侧频率异常");
         goto ERROR_L;
     }
 
     // 时段1 右侧
     if(rpitch1 > m_accept_pitch1[0] && rpitch1 < m_accept_pitch1[1]){
-        log.info("右侧频率正常");
+        log.info("时段1: 右侧频率正常");
     }else{
-        log.warn("右侧频率异常");
+        log.warn("时段1: 右侧频率异常");
         goto ERROR_R;
     }
 
     log.info("时段2: ");
     // 时段2左侧
     if(lpitch2 > m_accept_pitch2[0] && lpitch2 < m_accept_pitch2[1]){
-        log.info("左侧频率正常");
+        log.info("时段2: 左侧频率正常");
     }else{
-        log.warn("左侧频率异常");
+        log.warn("时段2: 左侧频率异常");
         goto ERROR_L;
     }
     // 时段2右侧
     if(rpitch2 > m_accept_pitch2[0] && rpitch2 < m_accept_pitch2[1]){
-        log.info("右侧频率正常");
+        log.info("时段2: 右侧频率正常");
     }else{
-        log.warn("右侧频率异常");
+        log.warn("时段2: 右侧频率异常");
         goto ERROR_R;
     }
 

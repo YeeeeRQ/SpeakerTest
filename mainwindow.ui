@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>901</width>
-    <height>600</height>
+    <width>897</width>
+    <height>612</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -575,6 +575,41 @@ QHeaderView::section/*表头样式*/
                            </spacer>
                           </item>
                           <item>
+                           <widget class="QLabel" name="label_LSPL">
+                            <property name="minimumSize">
+                             <size>
+                              <width>50</width>
+                              <height>0</height>
+                             </size>
+                            </property>
+                            <property name="font">
+                             <font>
+                              <pointsize>12</pointsize>
+                              <bold>true</bold>
+                             </font>
+                            </property>
+                            <property name="text">
+                             <string>000</string>
+                            </property>
+                            <property name="alignment">
+                             <set>Qt::AlignCenter</set>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <spacer name="horizontalSpacer_15">
+                            <property name="orientation">
+                             <enum>Qt::Horizontal</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                             <size>
+                              <width>10</width>
+                              <height>20</height>
+                             </size>
+                            </property>
+                           </spacer>
+                          </item>
+                          <item>
                            <layout class="QHBoxLayout" name="horizontalLayout_13" stretch="1,0,1">
                             <item>
                              <layout class="QVBoxLayout" name="verticalLayout_13">
@@ -702,6 +737,41 @@ QHeaderView::section/*表头样式*/
                              </layout>
                             </item>
                            </layout>
+                          </item>
+                          <item>
+                           <spacer name="horizontalSpacer_16">
+                            <property name="orientation">
+                             <enum>Qt::Horizontal</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                             <size>
+                              <width>10</width>
+                              <height>20</height>
+                             </size>
+                            </property>
+                           </spacer>
+                          </item>
+                          <item>
+                           <widget class="QLabel" name="label_RSPL">
+                            <property name="minimumSize">
+                             <size>
+                              <width>50</width>
+                              <height>0</height>
+                             </size>
+                            </property>
+                            <property name="font">
+                             <font>
+                              <pointsize>12</pointsize>
+                              <bold>true</bold>
+                             </font>
+                            </property>
+                            <property name="text">
+                             <string>000</string>
+                            </property>
+                            <property name="alignment">
+                             <set>Qt::AlignCenter</set>
+                            </property>
+                           </widget>
                           </item>
                           <item>
                            <spacer name="horizontalSpacer_12">
@@ -942,16 +1012,16 @@ QHeaderView::section/*表头样式*/
                 </widget>
                </item>
                <item>
-                <widget class="QPushButton" name="btnSetting4AutoTest">
+                <widget class="QPushButton" name="btnSetting4Mic">
                  <property name="text">
-                  <string>音频测试</string>
+                  <string>麦克风输入</string>
                  </property>
                 </widget>
                </item>
                <item>
-                <widget class="QPushButton" name="btnSetting4Mic">
+                <widget class="QPushButton" name="btnSetting4AutoTest">
                  <property name="text">
-                  <string>麦克风输入</string>
+                  <string>音频测试</string>
                  </property>
                 </widget>
                </item>
@@ -986,7 +1056,7 @@ QHeaderView::section/*表头样式*/
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>901</width>
+     <width>897</width>
      <height>22</height>
     </rect>
    </property>
