@@ -56,6 +56,9 @@ void Setup4AutoTest::loadConfig4AutoTest()
     m_duration1freq =conf.Get("AutoTest", "duration1freq").toUInt();
     m_duration2freq=conf.Get("AutoTest", "duration2freq").toUInt();
 
+    m_frequency1Idx = conf.Get("AutoTest", "frequency1Idx").toUInt();
+    m_frequency2Idx = conf.Get("AutoTest", "frequency2Idx").toUInt();
+
     m_duration1freqRange=conf.Get("AutoTest", "duration2freqRange").toUInt();
     m_duration2freqRange=conf.Get("AutoTest", "duration2freqRange").toUInt();
 
@@ -63,8 +66,6 @@ void Setup4AutoTest::loadConfig4AutoTest()
     m_interceptFreqRange=conf.Get("AutoTest", "interceptFreqRange").toUInt();
     m_interceptTimeout = conf.Get("AutoTest", "interceptTimeout").toUInt();
 
-    m_frequency1Idx = conf.Get("AutoTest", "frequency1Idx").toUInt();
-    m_frequency2Idx = conf.Get("AutoTest", "frequency2Idx").toUInt();
 
 
     ui->lineEdit_recordDelay->setText(QString::number(m_recordDelay));
@@ -77,11 +78,9 @@ void Setup4AutoTest::loadConfig4AutoTest()
     ui->lineEdit_durationRange1->setText(QString::number(m_duration1range));
     ui->lineEdit_durationRange2->setText(QString::number(m_duration2range));
 
-//    quint64 range = ui->lineEdit_durationRange1->text().toUInt();
     QString s = (m_duration1 > m_duration1range?QString::number(m_duration1 - m_duration1range):"0") + "-" +QString::number(m_duration1+m_duration1range);
     ui->label_duration1->setText(s);
 
-//    range = ui->lineEdit_durationRange2->text().toUInt();
     s = (m_duration2 > m_duration2range?QString::number(m_duration2 - m_duration2range):"0") + "-" +QString::number(m_duration2+m_duration2range);
     ui->label_duration2->setText(s);
 
@@ -96,47 +95,42 @@ void Setup4AutoTest::loadConfig4AutoTest()
     ui->lineEdit_InterceptTimeout->setText(QString::number(m_interceptTimeout));
 
     m_interceptFreq = ui->comboBox_InterceptFreq->currentText().toUInt();
-    m_frequency1 = ui->comboBox_Frequency1->currentText().toUInt();
-    m_frequency2 = ui->comboBox_Frequency2->currentText().toUInt();
+    m_duration1freq = ui->comboBox_Frequency1->currentText().toUInt();
+    m_duration2freq = ui->comboBox_Frequency2->currentText().toUInt();
 }
 
 void Setup4AutoTest::saveConfig4AutoTest()
 {
-
-    //    conf.Set("", "", "");
-}
-
-
-void Setup4AutoTest::on_btnApplyAll_clicked()
-{
     // 录制延迟
 //    m_recordDelay = ui->lineEdit_recordDelay->text().toUInt();
 
-    //
+    // 测试时段1 + 测试时段1范围
     m_duration1= ui->lineEdit_duration1->text().toUInt();
-
     m_duration1range = ui->lineEdit_durationRange1->text().toUInt();
     QString s1 = (m_duration1 > m_duration1range?QString::number(m_duration1 - m_duration1range):"0") +  "-" +QString::number(m_duration1+m_duration1range);
     ui->label_duration1->setText(s1);
 
+    // 测试时段2 + 测试时段2范围
     m_duration2= ui->lineEdit_duration2->text().toUInt();
-
     m_duration2range = ui->lineEdit_durationRange2->text().toUInt();
-    QString s2 = (m_duration2 > m_duration2range?QString::number(m_duration2 - m_duration2range):"0")+ "-" +QString::number(m_duration2+m_duration2range);
+    QString s2 = (m_duration2 > m_duration2range? QString::number(m_duration2 - m_duration2range):"0")+ "-" + QString::number(m_duration2+m_duration2range);
     ui->label_duration2->setText(s2);
 
+    // 测试时段1 频率 + 频率范围
+    m_duration1freq = ui->comboBox_Frequency1->currentText().toUInt();
+    m_frequency1Idx = ui->comboBox_Frequency1->currentIndex();
     m_duration1freqRange = ui->lineEdit_Frequency1Range->text().toUInt();
+
+    // 测试时段2 频率 + 频率范围
+    m_duration2freq = ui->comboBox_Frequency2->currentText().toUInt();
+    m_frequency2Idx = ui->comboBox_Frequency2->currentIndex();
     m_duration2freqRange = ui->lineEdit_Frequency2Range->text().toUInt();
 
-    m_interceptFreqIdx = ui->comboBox_InterceptFreq->currentIndex();
+    // 侦听频率 + 范围 + 超时
     m_interceptFreq = ui->comboBox_InterceptFreq->currentText().toUInt();
+    m_interceptFreqIdx = ui->comboBox_InterceptFreq->currentIndex();
     m_interceptFreqRange = ui->lineEdit_FirstFreqRange->text().toUInt();
     m_interceptTimeout = ui->lineEdit_InterceptTimeout->text().toUInt();
-
-    m_frequency1Idx = ui->comboBox_Frequency1->currentIndex();
-    m_frequency2Idx = ui->comboBox_Frequency2->currentIndex();
-    m_frequency1 = ui->comboBox_Frequency1->currentText().toUInt();
-    m_frequency2 = ui->comboBox_Frequency2->currentText().toUInt();
 
 //    conf.Set("AutoTest", "RecordDelay", m_recordDelay);
     conf.Set("AutoTest", "duration1", m_duration1);
@@ -157,6 +151,13 @@ void Setup4AutoTest::on_btnApplyAll_clicked()
 
 
     emit autoTestConfigChanged();
+
+}
+
+
+void Setup4AutoTest::on_btnApplyAll_clicked()
+{
+    this->saveConfig4AutoTest();
 }
 
 

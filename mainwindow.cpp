@@ -1046,7 +1046,6 @@ void MainWindow::slot_onAudioTestFinished()
         goto ERROR_R;
     }
 
-    log.info("时段2: ");
     // 时段2左侧
     if(lpitch2 > m_accept_pitch2[0] && lpitch2 < m_accept_pitch2[1]){
         log.info("时段2: 左侧频率正常");
