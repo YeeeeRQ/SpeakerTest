@@ -110,15 +110,19 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="mainwindow.ui" line="592"/>
+        <location filename="mainwindow.ui" line="769"/>
+        <source>---</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="mainwindow.ui" line="626"/>
         <source>L:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="592"/>
         <location filename="mainwindow.ui" line="648"/>
         <location filename="mainwindow.ui" line="706"/>
-        <location filename="mainwindow.ui" line="769"/>
         <source>000</source>
         <translation type="unfinished"></translation>
     </message>
@@ -163,7 +167,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="410"/>
+        <location filename="mainwindow.cpp" line="399"/>
         <source>双通道扬声器测试</source>
         <translation type="unfinished"></translation>
     </message>

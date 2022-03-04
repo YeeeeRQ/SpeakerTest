@@ -26,6 +26,7 @@
 #include "./UI/showinfo4result.h"
 
 #include "./RecordWorker/RecordWorker.h"
+#include "./RecordWorker/AudioProcess.h"
 
 
 QT_BEGIN_NAMESPACE

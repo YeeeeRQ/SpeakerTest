@@ -31,7 +31,7 @@ DataSource::DataSource( QObject *parent) :
 
     m_outputFile = new QFile(this);
     m_audioData = new QByteArray;
-    m_testAudioData = new QByteArray;
+    m_audioDataTemp = new QByteArray;
     m_recordStatus = RecordStatus::IdleMode;
 
     // 滤出400Hz以上 8000Hz以下 频率
@@ -43,7 +43,7 @@ DataSource::~DataSource()
 {
     delete m_outputFile;
     delete m_audioData;
-    delete m_testAudioData;
+    delete m_audioDataTemp;
 
     del_aubio_filter(f_highpass400);
     del_aubio_filter(f_lowpass8000);
@@ -127,8 +127,8 @@ double DataSource::getAudioFrequency()
     aubio_filter_do_reset(f_lowpass8000);
     aubio_filter_t*  f_gain = get_filter4gain(m_freq);
     // 按2字节(16bit)长度读取，256一组， 封装samples
-    for(quint64 i = 0; i< m_testAudioData->size() ;i+=2 ){
-        quint16 point =((quint16)m_testAudioData->at(i+1) << 8) | ((quint16)m_testAudioData->at(i) &0x00ff);
+    for(quint64 i = 0; i< m_audioDataTemp->size() ;i+=2 ){
+        quint16 point =((quint16)m_audioDataTemp->at(i+1) << 8) | ((quint16)m_audioDataTemp->at(i) &0x00ff);
         v_point.push_back(point);
     }
     //            qDebug() << "v_point size:" << v_point.size();
@@ -166,7 +166,7 @@ double DataSource::getAudioFrequency()
 
 aubio_filter_t *DataSource::get_filter4gain(quint64 freq)
 {
-    qDebug() << "Filter gain :" << freq;
+//    qDebug() << "Filter gain :" << freq;
     if(m_freq == 400){
         m_filter_type = filter_type::F_PEAK_400Hz;
     }else if(m_freq == 1000){
@@ -246,7 +246,7 @@ bool DataSource::changeRecordStatus(RecordStatus status)
     if(this->isIdle()){
         // 开始侦听模式
         if(RecordStatus::InterceptMode == status){
-            m_testAudioData->clear();
+            m_audioDataTemp->clear();
             m_recordStatus = status;
             emit statusChanged(m_recordStatus);
         }
@@ -268,7 +268,7 @@ bool DataSource::changeRecordStatus(RecordStatus status)
         }
 
         // 缓存数据清空
-        m_testAudioData->clear();
+        m_audioDataTemp->clear();
         m_audioData->clear();
     }
     return true;
@@ -293,7 +293,7 @@ qint64 DataSource::writeData(const char * data, qint64 maxSize)
 
             m_recordStatus = RecordStatus::IdleMode;
             m_audioData->clear();
-            m_testAudioData->clear();
+            m_audioDataTemp->clear();
 
             emit interceptDone(false);
         }
@@ -301,7 +301,7 @@ qint64 DataSource::writeData(const char * data, qint64 maxSize)
         // 测试音频大小
         static const quint64 size_300ms = 0.1 * (m_fmt.sampleRate() * m_fmt.sampleSize()/ 8);
 //        qDebug() << m_testAudioData->size();
-        if(m_testAudioData->size() >= size_300ms){ //测试数据已达300ms
+        if(m_audioDataTemp->size() >= size_300ms){ //测试数据已达300ms
             // 次数统计
             static quint64 count = 0;
             static bool prevFreqInRange = false;
@@ -309,13 +309,15 @@ qint64 DataSource::writeData(const char * data, qint64 maxSize)
             double freq  = this->getAudioFrequency();
 
             //降低获取频率
-            static quint16 cnt = 0;
-            if(0 == cnt) emit getFrequency(freq);
-            if(cnt > 10){
-                cnt = 0;
-            }else{
-                cnt++;
-            }
+//            static quint16 cnt = 0;
+//            if(0 == cnt) emit getFrequency(freq);
+//            if(cnt > 10){
+//                cnt = 0;
+//            }else{
+//                cnt++;
+//            }
+            emit getFrequency(freq);
+
 
 
 //            qDebug() << "Freq : " << m_freq1 << " ~ " << m_freq2;
@@ -342,24 +344,23 @@ qint64 DataSource::writeData(const char * data, qint64 maxSize)
                 disconnect(&timer, &QTimer::timeout, this, &DataSource::onInterceptTimeout);
 
                 m_recordStatus = RecordStatus::IdleMode;
-                m_testAudioData->clear();
+                m_audioDataTemp->clear();
                 emit interceptDone(true);
 
                 qDebug() << QTime::currentTime() <<" Intercept Done!!";
                 return maxSize;
             }
             // 清空缓存音频数据
-            m_testAudioData->clear();
+            m_audioDataTemp->clear();
         }
 
-        m_testAudioData->append(data, maxSize); //保存音频数据 for test
+        m_audioDataTemp->append(data, maxSize); //保存音频数据 for test
 
         return maxSize;
     }
 
     if(m_recordStatus == RecordStatus::RecordingMode){
         // 参数设定检测
-
         m_audioData->append(data, maxSize); //保存音频数据
 
         // 1. 录制任务

@@ -88,7 +88,7 @@ private:
     quint64 m_freq2 = 0;
 
     QByteArray* m_audioData;     //录制采样
-    QByteArray* m_testAudioData; //侦听测试采样
+    QByteArray* m_audioDataTemp; //侦听测试采样
     QFile* m_outputFile;
 
     void save2WAV();

@@ -77,6 +77,8 @@ set(PROJECT_SOURCES
         ./RecordWorker/DataSource.h ./RecordWorker/DataSource.cpp
         ./RecordWorker/get_aubio_filter.h
         ./RecordWorker/get_aubio_filter.cpp
+        ./RecordWorker/AudioProcess.h
+        ./RecordWorker/AudioProcess.cpp
 
         ${PROJ_SOURCE_FILE}
         ${PROJ_UI_FILE}

@@ -105,11 +105,11 @@ void MainWindow::closeEvent(QCloseEvent *event)
 void MainWindow::clearFileList()
 {
     static QStringList list{
-        "L",
-        "R",
         "test.csv",
+        "L.wav",
         "R.wav",
-        "L.wav"
+        "L_filtered.wav",
+        "R_filtered.wav",
     };
     for(int i =0;i<list.size();++i){
         QFile file_temp(m_audioTestDir + "/" +list[i]);
@@ -216,17 +216,6 @@ void MainWindow::onCheckAllRecordOver()
        m_recordCount[1] == true){
         m_recordCount[0]= false;
         m_recordCount[1]= false;
-
-//        ui->widgetShowInfo->stopTimer();
-//        ui->widgetShowInfo->changeStatus2Done();
-//        if(m_audioInputs.count() < 2){
-//            ui->btnStartRecord->setEnabled(false); //关闭录制按钮
-//        }else{
-//            ui->btnStartRecord->setEnabled(true);
-//        }
-//        ui->btnTest->setEnabled(true);
-
-//        emit sig_stopRecording();
 
         m_isRecording = false;
         emit recordStatusChanged(false);
@@ -811,7 +800,14 @@ void MainWindow::onRecordStatusChanged(bool is_recording)
     }else{
 
         ui->btnStopRecord->setEnabled(false);
-        ui->btnStartRecord->setEnabled(true);
+//        ui->btnStartRecord->setEnabled(true);
+
+        if(m_audioInputs.count() < 2){
+            ui->btnStartRecord->setEnabled(false); //关闭录制按钮
+        }else{
+            ui->btnStartRecord->setEnabled(true);
+        }
+
         ui->btnTest->setEnabled(true);
         ui->lineEditDurationOfRecord->setEnabled(true);
         ui->checkBox_Intercept->setEnabled(true);
@@ -831,7 +827,25 @@ void MainWindow::slot_testAudio()
     //调用ConsoleAppAudioTest.exe 输出CSV测试结果
 //    QString target_dir = ui->lineEdit4WavDir->text().trimmed();
     QString target_dir = m_audioTestDir;
+    quint64 duration1 = setup4autotest->m_duration1;
+    quint64 duration2 = setup4autotest->m_duration2;
+    quint64 range1 = setup4autotest->m_duration1range;
+    quint64 range2 = setup4autotest->m_duration2range;
 
+
+    AudioProcess* ap = new AudioProcess();
+    ap->setDuration(duration1, range1, duration2, range2);
+    ap->setAudioFilePath(m_audioTestDir);
+    ap->mainProcess();
+
+//    if (ap->setAudioFilePath(source_path)) {
+//    }
+//    else {
+//        std::cerr << "输入路径有误.";
+//        return -3;
+//    }
+
+    /*
     QString app = QDir::toNativeSeparators(QCoreApplication::applicationDirPath() + "/AudioTest/ConsoleAppAudioTest.exe");
 
     QString cmd = app + " " + target_dir;
@@ -846,6 +860,8 @@ void MainWindow::slot_testAudio()
     // Todo:时长限制
     // system(cmd.toLatin1());
     system_hide((char*)cmd.toLatin1().data());
+    */
+
 
     if(m_audioInputs.count() < 2){
         ui->btnStartRecord->setEnabled(false); //关闭录制按钮
