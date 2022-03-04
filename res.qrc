@@ -5,5 +5,7 @@
         <file>images/volumn.bmp</file>
         <file>images/Wave Sound.ico</file>
         <file>font/SourceHanSansK-Regular.ttf</file>
+        <file>audio/fail.wav</file>
+        <file>audio/pass.wav</file>
     </qresource>
 </RCC>

@@ -1131,11 +1131,13 @@ void MainWindow::printResult(bool isOk, const QString& msg)
 //    qDebug() << "pass:"<<m_cmd_pass;
 //    qDebug() << "fail:"<<m_cmd_fail;
     if(isOk){
+        QSound::play("://audio/pass.wav");
         ui->widgetShowInfo->changeStatus2Pass();
         ui->widgetShowInfo->okNumPlusOne();
         m_AutoLine->sendCmd(m_cmd_pass);
         log.info(msg);
     }else{
+        QSound::play("://audio/fail.wav");
         ui->widgetShowInfo->changeStatus2Fail();
         ui->widgetShowInfo->ngNumPlusOne();
         m_AutoLine->sendCmd(m_cmd_fail);
@@ -1151,7 +1153,7 @@ void MainWindow::Setting4Theme()
 //    this->resize(QSize(1280,800));
     this->setMinimumSize(QSize(1440,900));
     this->resize(QSize(1440,900));
-    this->setMaximumSize(QSize(1440,900));
+//    this->setMaximumSize(QSize(1440,900));
     // 主题设定
     QApplication::setStyle(QStyleFactory::create("Fusion"));               // 更改风格
     QApplication::setPalette(QApplication::style()->standardPalette());     // 使用风格默认的颜色

@@ -6,19 +6,19 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>232</height>
+    <width>689</width>
+    <height>323</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>400</width>
-    <height>0</height>
+    <width>600</width>
+    <height>300</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>400</width>
+    <width>2000</width>
     <height>16777215</height>
    </size>
   </property>
@@ -32,7 +32,7 @@
       <widget class="QLabel" name="label_Status">
        <property name="font">
         <font>
-         <pointsize>28</pointsize>
+         <pointsize>32</pointsize>
          <bold>true</bold>
         </font>
        </property>
@@ -45,7 +45,7 @@
       <widget class="QLabel" name="label_Time">
        <property name="font">
         <font>
-         <pointsize>14</pointsize>
+         <pointsize>18</pointsize>
          <bold>true</bold>
         </font>
        </property>
@@ -67,7 +67,7 @@
         <widget class="QLabel" name="label_OK">
          <property name="font">
           <font>
-           <pointsize>12</pointsize>
+           <pointsize>18</pointsize>
            <bold>true</bold>
           </font>
          </property>
@@ -87,7 +87,7 @@
         <widget class="QLabel" name="label_NG">
          <property name="font">
           <font>
-           <pointsize>12</pointsize>
+           <pointsize>18</pointsize>
            <bold>true</bold>
           </font>
          </property>
@@ -107,7 +107,7 @@
         <widget class="QLabel" name="label_Total">
          <property name="font">
           <font>
-           <pointsize>12</pointsize>
+           <pointsize>18</pointsize>
            <bold>true</bold>
           </font>
          </property>
@@ -131,8 +131,8 @@
         <widget class="QLabel" name="label_OK_number">
          <property name="font">
           <font>
-           <pointsize>12</pointsize>
-           <bold>false</bold>
+           <pointsize>18</pointsize>
+           <bold>true</bold>
           </font>
          </property>
          <property name="text">
@@ -154,8 +154,8 @@
         <widget class="QLabel" name="label_NG_number">
          <property name="font">
           <font>
-           <pointsize>12</pointsize>
-           <bold>false</bold>
+           <pointsize>18</pointsize>
+           <bold>true</bold>
           </font>
          </property>
          <property name="text">
@@ -177,8 +177,8 @@
         <widget class="QLabel" name="label_Total_number">
          <property name="font">
           <font>
-           <pointsize>12</pointsize>
-           <bold>false</bold>
+           <pointsize>18</pointsize>
+           <bold>true</bold>
           </font>
          </property>
          <property name="text">
@@ -215,7 +215,7 @@
       <widget class="QLabel" name="label_PassedRateText">
        <property name="font">
         <font>
-         <pointsize>12</pointsize>
+         <pointsize>18</pointsize>
          <bold>true</bold>
         </font>
        </property>
@@ -228,7 +228,7 @@
       <widget class="QLabel" name="label_PassedRate">
        <property name="font">
         <font>
-         <pointsize>12</pointsize>
+         <pointsize>20</pointsize>
          <bold>true</bold>
         </font>
        </property>

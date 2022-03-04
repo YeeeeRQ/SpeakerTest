@@ -11,6 +11,7 @@
 #include <QMediaPlayer>
 #include <QMediaPlaylist>
 #include <QAudioRecorder>
+#include <QSound>
 
 #include "./util/MyCommonFun.h"
 

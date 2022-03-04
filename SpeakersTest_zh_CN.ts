@@ -50,7 +50,7 @@
     </message>
     <message>
         <location filename="mainwindow.ui" line="236"/>
-        <location filename="mainwindow.ui" line="882"/>
+        <location filename="mainwindow.ui" line="888"/>
         <source>测试</source>
         <translation type="unfinished"></translation>
     </message>
@@ -137,32 +137,32 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="940"/>
+        <location filename="mainwindow.ui" line="946"/>
         <source>测试结果</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="959"/>
+        <location filename="mainwindow.ui" line="971"/>
         <source>程序输出</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1002"/>
+        <location filename="mainwindow.ui" line="1014"/>
         <source>设定</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1010"/>
+        <location filename="mainwindow.ui" line="1022"/>
         <source>机种管理</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1024"/>
+        <location filename="mainwindow.ui" line="1036"/>
         <source>音频测试</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1017"/>
+        <location filename="mainwindow.ui" line="1029"/>
         <source>麦克风输入</source>
         <translation type="unfinished"></translation>
     </message>
