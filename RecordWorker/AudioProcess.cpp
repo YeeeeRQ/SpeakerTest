@@ -1,6 +1,8 @@
 ﻿#include "AudioProcess.h"
 #include <QDebug>
 
+// Todo: 通过onsets主动判断起始点。
+
 AudioProcess::AudioProcess( QObject *parent)
 {
 }
@@ -66,6 +68,63 @@ int AudioProcess::process_wav(const QString& target_dir, const QString& filename
     //
     vector<uint_t> len1_pitch, len2_pitch;
     vector<smpl_t> len1_level, len2_level;
+
+
+    // Todo: 起始点重新确认。
+
+    // 左1K 1秒, 右2K 1秒 交替播放
+    // 0 - 1 时段大于0.6，则将0作为起始点，否则将1作为起始点。
+    vector<double> vec_onset;
+    uint_t seek_frames = 0;
+
+    // create some vectors
+    fvec_t* in = new_fvec(hop_size); // input audio buffer
+    fvec_t* out = new_fvec(2); // output position
+
+    // create onset object
+    aubio_onset_t* onset = new_aubio_onset("default", win_s, hop_size, samplerate);
+    do {
+        // put some fresh data in input vector
+        aubio_source_do(source, in, &read);
+
+        // execute onset
+        aubio_onset_do(onset, in, out);
+
+        // do something with the onsets
+        if (out->data[0] != 0) {
+            vec_onset.push_back(aubio_onset_get_last_s(onset));
+//            PRINT_MSG("onset at %.3fms, %.3fs, frame %d\n",
+//                aubio_onset_get_last_ms(o), aubio_onset_get_last_s(o),
+//                aubio_onset_get_last(o));
+        }
+
+        //
+        if(vec_onset.size() >= 2){
+            break;
+        }
+        n_frames += read;
+    } while (read == hop_size);
+    aubio_source_seek(source, 0); // reset source
+    n_frames = 0;
+
+    // clean up memory
+    del_aubio_onset(onset);
+    del_fvec(in);
+    del_fvec(out);
+
+    // 0 - 1 时段大于0.6，则将0作为起始点，否则将1作为起始点。
+    // 0.0 0.75 1.70
+
+
+
+    if(vec_onset.at(1) - vec_onset.at(0) > 0.6){
+        // do noting
+    }else{
+        // 跳过 vec_onset.at(1) 秒
+        // aubio_source_seek;
+    }
+
+
 
     // 两时段的音频处理
     do {

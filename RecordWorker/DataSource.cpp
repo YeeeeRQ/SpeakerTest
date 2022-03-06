@@ -150,8 +150,28 @@ double DataSource::getAudioFrequency()
         aubio_pitch_do(o, samples, pitch_out);
         len1_pitch.push_back(pitch_out->data[0]);
     }
-    // Todo: 改为指定频率范围占比 7/10 即可认定为侦听到指定频率
-    double freq = std::accumulate(len1_pitch.begin(), len1_pitch.end(), 0.0) / len1_pitch.size();
+    double freq = 0.0;
+
+    freq = std::accumulate(len1_pitch.begin(), len1_pitch.end(), 0.0) / len1_pitch.size();
+
+    // 指定频率范围占比 7/10 即可认定为侦听到指定频率
+    if(m_freq > 0){
+        int count = 0;
+        for(auto i: len1_pitch){
+            if(i < m_freq2 &&
+                    i > m_freq1)
+            {
+                count++;
+            }
+        }
+
+        if((double)count / (double)len1_pitch.size() > 7.0/10.0){
+            freq = (double)m_freq;
+            qDebug() << "Frequency (7/10):" << freq;
+        }else{
+//            qDebug() << "Frequency (accumulate):" << freq;
+        }
+    }
 
     //            qDebug() << "Frequency :" << len1_pitch_avg;
 

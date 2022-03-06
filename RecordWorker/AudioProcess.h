@@ -47,6 +47,7 @@ private:
 public:
     bool setAudioFilePath(const QString& target_dir);
     void setDuration(quint64 duration1, quint64 range1, quint64 duration2, quint64 range2);
+//    void setPeakFreq1();
 	void mainProcess();
 private:
     int process_wav(const QString& target_dir, const QString& filename);

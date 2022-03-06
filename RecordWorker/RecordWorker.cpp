@@ -99,7 +99,7 @@ void RecordWorker::onDSRecordDone()
 
 void RecordWorker::onDSInterceptDone(bool done)
 {
-    Q_ASSERT(isRecording == true);
+//    Q_ASSERT(isRecording == true); //??
     Q_ASSERT(ds->isIdle() == true);
 
     if(done){

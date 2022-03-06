@@ -23,6 +23,8 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    this->m_firstSpeaker = "L";
+
     this->setting4Mic();
     this->Setting4Config();
     this->Setting4Path();
@@ -710,7 +712,6 @@ void MainWindow::on_btnStartRecord_clicked()
                            timeout,
                            freq,
                            range);
-
        }else{
            m_pRecWorkerL->closeIntercept();
            m_pRecWorkerR->closeIntercept();
@@ -1048,79 +1049,79 @@ void MainWindow::slot_onAudioTestFinished()
 
     // 时段1 左侧
     if(lpitch1 > m_accept_pitch1[0] && lpitch1 < m_accept_pitch1[1]){
-        log.info("时段1: 左侧频率正常");
+        log.info("✔ 时段1: 左侧频率 正常");
     }else{
-        log.warn("时段1: 左侧频率异常");
+        log.warn("✘ 时段1: 左侧频率 异常");
         goto ERROR_L;
     }
 
     // 时段1 右侧
     if(rpitch1 > m_accept_pitch1[0] && rpitch1 < m_accept_pitch1[1]){
-        log.info("时段1: 右侧频率正常");
+        log.info("✔ 时段1: 右侧频率 正常");
     }else{
-        log.warn("时段1: 右侧频率异常");
+        log.warn("✘ 时段1: 右侧频率 异常");
         goto ERROR_R;
     }
 
     // 时段2左侧
     if(lpitch2 > m_accept_pitch2[0] && lpitch2 < m_accept_pitch2[1]){
-        log.info("时段2: 左侧频率正常");
+        log.info("✔ 时段2: 左侧频率 正常");
     }else{
-        log.warn("时段2: 左侧频率异常");
+        log.warn("✘ 时段2: 左侧频率 异常");
         goto ERROR_L;
     }
     // 时段2右侧
     if(rpitch2 > m_accept_pitch2[0] && rpitch2 < m_accept_pitch2[1]){
-        log.info("时段2: 右侧频率正常");
+        log.info("✔ 时段2: 右侧频率 正常");
     }else{
-        log.warn("时段2: 右侧频率异常");
+        log.warn("✘ 时段2: 右侧频率 异常");
         goto ERROR_R;
     }
 
     if(m_firstSpeaker == "L"){//左侧第一个响
         if(llevel1 > rlevel1){
-            log.info("时段1 左侧强 > 右侧弱 正常");
+            log.info("✔ 时段1 左侧强 ▇▆▅▄▃▂ 右侧弱 正常");
         }else{
-            log.warn("时段1 左侧弱 < 右侧强 异常");
+            log.warn("✘ 时段1 左侧弱 ▂▃▄▅▆▇ 右侧强 异常");
             goto ERROR_BOTH;
         }
         if(llevel2 < rlevel2){
-            log.info("时段2 左侧弱 < 右侧强 正常");
+            log.info("✔ 时段2 左侧弱 ▂▃▄▅▆▇ 右侧强 正常");
         }else{
-            log.warn("时段2 左侧强 > 右侧弱 异常");
+            log.warn("✘ 时段2 左侧强 ▇▆▅▄▃▂ 右侧弱 异常");
             goto ERROR_BOTH;
         }
     }
 
     if(m_firstSpeaker == "R"){//右侧第一个响
         if(llevel1 < rlevel1){
-            log.info("时段1 左侧弱 < 右侧强 正常");
+            log.info("✔时段1 左侧弱 ▂▃▄▅▆▇ 右侧强 正常");
         }else{
-            log.info("时段1 左侧强 > 右侧弱 异常");
+            log.warn("✘ 时段1 左侧强 ▇▆▅▄▃▂ 右侧弱 异常");
             goto ERROR_BOTH;
         }
         if(llevel2 > rlevel2){
-            log.info("时段2 左侧强 > 右侧弱 正常");
+            log.info("✔时段2 左侧强 ▇▆▅▄▃▂ 右侧弱 正常");
         }else{
-            log.info("时段2 左侧弱 < 右侧强 异常");
+            log.warn("✘ 时段2 左侧弱 ▂▃▄▅▆▇ 右侧强 异常");
             goto ERROR_BOTH;
         }
     }
 
 PASS:
-    printResult(true , "正常,  测试通过!");
+    printResult(true , "✔ 正常,  测试通过! ");
     return;
 
 ERROR_L:
-    printResult(false, "异常， 请检查 左侧扬声器！");
+    printResult(false, "✘ ◧ 异常， 请检查 左侧扬声器！");
     return;
 
 ERROR_R:
-    printResult(false, "异常， 请检查 右侧扬声器！");
+    printResult(false, "✘ ◨ 异常， 请检查 右侧扬声器！");
     return;
 
 ERROR_BOTH:
-    printResult(false, "异常， 请检查 [左+右]两侧扬声器！");
+    printResult(false, "✘ ◼ 异常， 请检查 [左+右]两侧扬声器！");
     return;
 }
 
