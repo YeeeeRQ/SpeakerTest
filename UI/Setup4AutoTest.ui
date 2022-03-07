@@ -423,7 +423,7 @@ QHeaderView::section/*表头样式*/
               <item>
                <widget class="QLabel" name="label_33">
                 <property name="text">
-                 <string> ms </string>
+                 <string>Hz</string>
                 </property>
                </widget>
               </item>
@@ -491,7 +491,7 @@ QHeaderView::section/*表头样式*/
               <item>
                <widget class="QLabel" name="label_37">
                 <property name="text">
-                 <string> ms </string>
+                 <string>Hz</string>
                 </property>
                </widget>
               </item>

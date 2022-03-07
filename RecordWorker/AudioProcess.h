@@ -38,7 +38,7 @@ private:
 
 
     // 信号处理, 根据时长定位采样点
-    uint_t len[2];  //采样时段1(单位ms)
+    uint_t len1[2];  //采样时段1(单位ms)
     uint_t len2[2];  //采样时段2(单位ms)
 
     QString target_dir;
