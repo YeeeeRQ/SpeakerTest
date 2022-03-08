@@ -167,7 +167,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="401"/>
+        <location filename="mainwindow.cpp" line="399"/>
         <source>双通道扬声器测试</source>
         <translation type="unfinished"></translation>
     </message>
@@ -222,8 +222,6 @@
         <location filename="UI/Setup4AutoTest.ui" line="256"/>
         <location filename="UI/Setup4AutoTest.ui" line="296"/>
         <location filename="UI/Setup4AutoTest.ui" line="331"/>
-        <location filename="UI/Setup4AutoTest.ui" line="426"/>
-        <location filename="UI/Setup4AutoTest.ui" line="494"/>
         <source> ms </source>
         <translation type="unfinished"></translation>
     </message>
@@ -232,7 +230,7 @@
         <location filename="UI/Setup4AutoTest.ui" line="273"/>
         <location filename="UI/Setup4AutoTest.ui" line="403"/>
         <location filename="UI/Setup4AutoTest.ui" line="471"/>
-        <location filename="UI/Setup4AutoTest.ui" line="723"/>
+        <location filename="UI/Setup4AutoTest.ui" line="726"/>
         <source>  ±     </source>
         <translation type="unfinished"></translation>
     </message>
@@ -241,8 +239,8 @@
         <location filename="UI/Setup4AutoTest.ui" line="289"/>
         <location filename="UI/Setup4AutoTest.ui" line="419"/>
         <location filename="UI/Setup4AutoTest.ui" line="487"/>
-        <location filename="UI/Setup4AutoTest.ui" line="659"/>
-        <location filename="UI/Setup4AutoTest.ui" line="739"/>
+        <location filename="UI/Setup4AutoTest.ui" line="662"/>
+        <location filename="UI/Setup4AutoTest.ui" line="742"/>
         <source>100</source>
         <translation type="unfinished"></translation>
     </message>
@@ -306,8 +304,8 @@
     </message>
     <message>
         <location filename="UI/Setup4AutoTest.ui" line="535"/>
-        <location filename="UI/Setup4AutoTest.ui" line="666"/>
-        <location filename="UI/Setup4AutoTest.ui" line="783"/>
+        <location filename="UI/Setup4AutoTest.ui" line="669"/>
+        <location filename="UI/Setup4AutoTest.ui" line="786"/>
         <source>ms</source>
         <translation type="unfinished"></translation>
     </message>
@@ -317,63 +315,65 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="UI/Setup4AutoTest.ui" line="558"/>
+        <location filename="UI/Setup4AutoTest.ui" line="561"/>
         <source>左侧先响</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="UI/Setup4AutoTest.ui" line="568"/>
+        <location filename="UI/Setup4AutoTest.ui" line="571"/>
         <source>右侧先响</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="UI/Setup4AutoTest.ui" line="583"/>
+        <location filename="UI/Setup4AutoTest.ui" line="586"/>
         <source>初始侦测</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="UI/Setup4AutoTest.ui" line="603"/>
+        <location filename="UI/Setup4AutoTest.ui" line="606"/>
         <source>连续取样:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="UI/Setup4AutoTest.ui" line="619"/>
+        <location filename="UI/Setup4AutoTest.ui" line="622"/>
         <source>4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="UI/Setup4AutoTest.ui" line="626"/>
+        <location filename="UI/Setup4AutoTest.ui" line="629"/>
         <source>次</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="UI/Setup4AutoTest.ui" line="643"/>
+        <location filename="UI/Setup4AutoTest.ui" line="646"/>
         <source>取样时长:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="UI/Setup4AutoTest.ui" line="689"/>
+        <location filename="UI/Setup4AutoTest.ui" line="692"/>
         <source>频率 : </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="UI/Setup4AutoTest.ui" line="706"/>
-        <location filename="UI/Setup4AutoTest.ui" line="746"/>
+        <location filename="UI/Setup4AutoTest.ui" line="426"/>
+        <location filename="UI/Setup4AutoTest.ui" line="494"/>
+        <location filename="UI/Setup4AutoTest.ui" line="709"/>
+        <location filename="UI/Setup4AutoTest.ui" line="749"/>
         <source>Hz</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="UI/Setup4AutoTest.ui" line="763"/>
+        <location filename="UI/Setup4AutoTest.ui" line="766"/>
         <source>超时 : </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="UI/Setup4AutoTest.ui" line="776"/>
+        <location filename="UI/Setup4AutoTest.ui" line="779"/>
         <source>20000</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="UI/Setup4AutoTest.ui" line="829"/>
+        <location filename="UI/Setup4AutoTest.ui" line="832"/>
         <source>应用</source>
         <translation type="unfinished"></translation>
     </message>

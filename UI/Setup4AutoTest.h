@@ -29,6 +29,8 @@ private: // config
 public:
     QString m_mainWorkDir;
 
+    QString m_firstSpeaker;
+
     quint64 m_recordDelay = 0; //录音延时
 
     quint64 m_duration1 = 0; // 测试时段1

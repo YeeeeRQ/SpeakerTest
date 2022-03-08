@@ -23,8 +23,6 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    this->m_firstSpeaker = "L";
-
     this->setting4Mic();
     this->Setting4Config();
     this->Setting4Path();
@@ -594,6 +592,7 @@ void MainWindow::slot_onAutoTestConfigChanged()
 
     // 载入主目录
     m_workDir = conf.Get("Audio", "Path").toString();
+    m_firstSpeaker = setup4autotest->m_firstSpeaker;
 
     // 载入测试设定
 //    m_testTime1_= conf.Get("AudioTest", "duration1").toString();
@@ -825,44 +824,19 @@ void MainWindow::onRecordStatusChanged(bool is_recording)
 // 开始测试->获取音频信息
 void MainWindow::slot_testAudio()
 {
-    //调用ConsoleAppAudioTest.exe 输出CSV测试结果
-//    QString target_dir = ui->lineEdit4WavDir->text().trimmed();
-    QString target_dir = m_audioTestDir;
+    //输出CSV测试结果
+//    QString target_dir = m_audioTestDir;
     quint64 duration1 = setup4autotest->m_duration1;
     quint64 duration2 = setup4autotest->m_duration2;
     quint64 range1 = setup4autotest->m_duration1range;
     quint64 range2 = setup4autotest->m_duration2range;
 
+    // Todo: set peak filter
 
     AudioProcess* ap = new AudioProcess();
     ap->setDuration(duration1, range1, duration2, range2);
     ap->setAudioFilePath(m_audioTestDir);
     ap->mainProcess();
-
-//    if (ap->setAudioFilePath(source_path)) {
-//    }
-//    else {
-//        std::cerr << "输入路径有误.";
-//        return -3;
-//    }
-
-    /*
-    QString app = QDir::toNativeSeparators(QCoreApplication::applicationDirPath() + "/AudioTest/ConsoleAppAudioTest.exe");
-
-    QString cmd = app + " " + target_dir;
-    cmd += " " +  QString::number(setup4autotest->m_duration1);
-    cmd += " " +  QString::number(setup4autotest->m_duration2);
-
-    qDebug() << app;
-    qDebug() << cmd;
-//    log.warn(app);
-    log.warn(cmd);
-
-    // Todo:时长限制
-    // system(cmd.toLatin1());
-    system_hide((char*)cmd.toLatin1().data());
-    */
-
 
     if(m_audioInputs.count() < 2){
         ui->btnStartRecord->setEnabled(false); //关闭录制按钮
@@ -1047,81 +1021,82 @@ void MainWindow::slot_onAudioTestFinished()
     qDebug() << m_accept_pitch1[0] << " - " << m_accept_pitch1[1];
     qDebug() << m_accept_pitch2[0] << " - " << m_accept_pitch2[1];
 
-    // 时段1 左侧
-    if(lpitch1 > m_accept_pitch1[0] && lpitch1 < m_accept_pitch1[1]){
-        log.info("✔ 时段1: 左侧频率 正常");
-    }else{
-        log.warn("✘ 时段1: 左侧频率 异常");
-        goto ERROR_L;
-    }
-
-    // 时段1 右侧
-    if(rpitch1 > m_accept_pitch1[0] && rpitch1 < m_accept_pitch1[1]){
-        log.info("✔ 时段1: 右侧频率 正常");
-    }else{
-        log.warn("✘ 时段1: 右侧频率 异常");
-        goto ERROR_R;
-    }
-
-    // 时段2左侧
-    if(lpitch2 > m_accept_pitch2[0] && lpitch2 < m_accept_pitch2[1]){
-        log.info("✔ 时段2: 左侧频率 正常");
-    }else{
-        log.warn("✘ 时段2: 左侧频率 异常");
-        goto ERROR_L;
-    }
-    // 时段2右侧
-    if(rpitch2 > m_accept_pitch2[0] && rpitch2 < m_accept_pitch2[1]){
-        log.info("✔ 时段2: 右侧频率 正常");
-    }else{
-        log.warn("✘ 时段2: 右侧频率 异常");
-        goto ERROR_R;
-    }
-
+    m_firstSpeaker = setup4autotest->m_firstSpeaker;
     if(m_firstSpeaker == "L"){//左侧第一个响
         if(llevel1 > rlevel1){
-            log.info("✔ 时段1 左侧强 ▇▆▅▄▃▂ 右侧弱 正常");
+            log.info("✔ 时段① 左侧强 ▇▆▅▄▃▂ 右侧弱 正常");
         }else{
-            log.warn("✘ 时段1 左侧弱 ▂▃▄▅▆▇ 右侧强 异常");
+            log.warn("✘ 时段① 左侧弱 ▂▃▄▅▆▇ 右侧强 异常");
             goto ERROR_BOTH;
         }
         if(llevel2 < rlevel2){
-            log.info("✔ 时段2 左侧弱 ▂▃▄▅▆▇ 右侧强 正常");
+            log.info("✔ 时段② 左侧弱 ▂▃▄▅▆▇ 右侧强 正常");
         }else{
-            log.warn("✘ 时段2 左侧强 ▇▆▅▄▃▂ 右侧弱 异常");
+            log.warn("✘ 时段② 左侧强 ▇▆▅▄▃▂ 右侧弱 异常");
             goto ERROR_BOTH;
         }
     }
 
     if(m_firstSpeaker == "R"){//右侧第一个响
         if(llevel1 < rlevel1){
-            log.info("✔时段1 左侧弱 ▂▃▄▅▆▇ 右侧强 正常");
+            log.info("✔ 时段① 左侧弱 ▂▃▄▅▆▇ 右侧强 正常");
         }else{
-            log.warn("✘ 时段1 左侧强 ▇▆▅▄▃▂ 右侧弱 异常");
+            log.warn("✘ 时段① 左侧强 ▇▆▅▄▃▂ 右侧弱 异常");
             goto ERROR_BOTH;
         }
         if(llevel2 > rlevel2){
-            log.info("✔时段2 左侧强 ▇▆▅▄▃▂ 右侧弱 正常");
+            log.info("✔ 时段② 左侧强 ▇▆▅▄▃▂ 右侧弱 正常");
         }else{
-            log.warn("✘ 时段2 左侧弱 ▂▃▄▅▆▇ 右侧强 异常");
+            log.warn("✘ 时段② 左侧弱 ▂▃▄▅▆▇ 右侧强 异常");
             goto ERROR_BOTH;
         }
     }
 
+    // 时段1 左侧
+    if(lpitch1 > m_accept_pitch1[0] && lpitch1 < m_accept_pitch1[1]){
+        log.info("✔ 时段①: 左侧频率 正常");
+    }else{
+        log.warn("✘ 时段①: 左侧频率 异常");
+        goto ERROR_L;
+    }
+
+    // 时段1 右侧
+    if(rpitch1 > m_accept_pitch1[0] && rpitch1 < m_accept_pitch1[1]){
+        log.info("✔ 时段①: 右侧频率 正常");
+    }else{
+        log.warn("✘ 时段①: 右侧频率 异常");
+        goto ERROR_R;
+    }
+
+    // 时段2左侧
+    if(lpitch2 > m_accept_pitch2[0] && lpitch2 < m_accept_pitch2[1]){
+        log.info("✔ 时段②: 左侧频率 正常");
+    }else{
+        log.warn("✘ 时段②: 左侧频率 异常");
+        goto ERROR_L;
+    }
+    // 时段2右侧
+    if(rpitch2 > m_accept_pitch2[0] && rpitch2 < m_accept_pitch2[1]){
+        log.info("✔ 时段②: 右侧频率 正常");
+    }else{
+        log.warn("✘ 时段②: 右侧频率 异常");
+        goto ERROR_R;
+    }
+
 PASS:
-    printResult(true , "✔ 正常,  测试通过! ");
+    printResult(true , "✔ ▯▯ 正常,  测试通过! ");
     return;
 
 ERROR_L:
-    printResult(false, "✘ ◧ 异常， 请检查 左侧扬声器！");
+    printResult(false, "✘ ▮▯ 异常， 请检查 左侧扬声器！");
     return;
 
 ERROR_R:
-    printResult(false, "✘ ◨ 异常， 请检查 右侧扬声器！");
+    printResult(false, "✘ ▯▮ 异常， 请检查 右侧扬声器！");
     return;
 
 ERROR_BOTH:
-    printResult(false, "✘ ◼ 异常， 请检查 [左+右]两侧扬声器！");
+    printResult(false, "✘ ▮▮ 异常， 请检查 [左+右]两侧扬声器！");
     return;
 }
 

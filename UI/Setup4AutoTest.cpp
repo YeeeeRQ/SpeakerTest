@@ -66,8 +66,6 @@ void Setup4AutoTest::loadConfig4AutoTest()
     m_interceptFreqRange=conf.Get("AutoTest", "interceptFreqRange").toUInt();
     m_interceptTimeout = conf.Get("AutoTest", "interceptTimeout").toUInt();
 
-
-
     ui->lineEdit_recordDelay->setText(QString::number(m_recordDelay));
 
     ui->lineEdit_mainWorkDir->setText(m_mainWorkDir);
@@ -97,6 +95,9 @@ void Setup4AutoTest::loadConfig4AutoTest()
     m_interceptFreq = ui->comboBox_InterceptFreq->currentText().toUInt();
     m_duration1freq = ui->comboBox_Frequency1->currentText().toUInt();
     m_duration2freq = ui->comboBox_Frequency2->currentText().toUInt();
+
+    m_firstSpeaker = conf.Get("AutoTest", "firstSpeaker").toString();
+    ui->radioButton_Right->setChecked(m_firstSpeaker == "R" ?true:false);
 }
 
 void Setup4AutoTest::saveConfig4AutoTest()
@@ -107,13 +108,20 @@ void Setup4AutoTest::saveConfig4AutoTest()
     // 测试时段1 + 测试时段1范围
     m_duration1= ui->lineEdit_duration1->text().toUInt();
     m_duration1range = ui->lineEdit_durationRange1->text().toUInt();
-    QString s1 = (m_duration1 > m_duration1range?QString::number(m_duration1 - m_duration1range):"0") +  "-" +QString::number(m_duration1+m_duration1range);
+    QString s1 =
+        (m_duration1 > m_duration1range? QString::number(m_duration1 - m_duration1range):"0")
+        +
+        QString::number(m_duration1+m_duration1range).prepend("-");
+
     ui->label_duration1->setText(s1);
 
     // 测试时段2 + 测试时段2范围
     m_duration2= ui->lineEdit_duration2->text().toUInt();
     m_duration2range = ui->lineEdit_durationRange2->text().toUInt();
-    QString s2 = (m_duration2 > m_duration2range? QString::number(m_duration2 - m_duration2range):"0")+ "-" + QString::number(m_duration2+m_duration2range);
+    QString s2 =
+        (m_duration2 > m_duration2range? QString::number(m_duration2 - m_duration2range):"0")
+        +
+        QString::number(m_duration2+m_duration2range).prepend("-");
     ui->label_duration2->setText(s2);
 
     // 测试时段1 频率 + 频率范围
@@ -132,6 +140,14 @@ void Setup4AutoTest::saveConfig4AutoTest()
     m_interceptFreqRange = ui->lineEdit_FirstFreqRange->text().toUInt();
     m_interceptTimeout = ui->lineEdit_InterceptTimeout->text().toUInt();
 
+    if(ui->radioButton_Right->isChecked()){
+        conf.Set("AutoTest", "firstSpeaker", "R");
+        m_firstSpeaker = "R";
+    }else{
+        conf.Set("AutoTest", "firstSpeaker", "L");
+        m_firstSpeaker = "L";
+    }
+
 //    conf.Set("AutoTest", "RecordDelay", m_recordDelay);
     conf.Set("AutoTest", "duration1", m_duration1);
     conf.Set("AutoTest", "duration2", m_duration2);
@@ -148,7 +164,6 @@ void Setup4AutoTest::saveConfig4AutoTest()
 
     conf.Set("AutoTest", "frequency1Idx", m_frequency1Idx);
     conf.Set("AutoTest", "frequency2Idx", m_frequency2Idx);
-
 
     emit autoTestConfigChanged();
 
