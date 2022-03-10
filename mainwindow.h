@@ -94,6 +94,7 @@ private:
     void startTestAudioInAutoMode();
 
 private:
+    bool m_isProcessing = false;
     bool m_isRecording = false;
 signals:
    void recordStatusChanged(bool is_recording);

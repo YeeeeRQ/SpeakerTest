@@ -1,5 +1,7 @@
 ﻿#include "mainwindow.h"
 
+//#include <QLoggingCategory>
+
 #include <QApplication>
 #include <QLocale>
 #include <QTranslator>
@@ -12,6 +14,7 @@ bool onLoadFont(const QApplication& app, const QString& strPath);
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+//    QLoggingCategory::defaultCategory()->setEnabled(QtDebugMsg, true);
 
     QTranslator translator;
     const QStringList uiLanguages = QLocale::system().uiLanguages();

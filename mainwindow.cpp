@@ -62,7 +62,7 @@ MainWindow::MainWindow(QWidget *parent)
     // 两麦克风输入录制完毕后动作
     connect(this, &MainWindow::allRecordOver, this, &MainWindow::startTestAudio);
 
-    // 音频载入 -> 获取音频信息 并输出至CSV
+    // （点击主界面测试按钮后）音频载入 -> 获取音频信息 并输出至CSV
     connect(this, &MainWindow::sig_startTestAudio, this, &MainWindow::slot_testAudio);
 
 }
@@ -135,8 +135,8 @@ void MainWindow::onMainWindowLoaded()
     this->Setting4MainWindow(); //
 
 
-    QString autoline_com = conf.Get("AutoLine", "Com").toString();
-    qint32 autoline_baud = conf.Get("AutoLine", "Baud").toInt();
+//    QString autoline_com = conf.Get("AutoLine", "Com").toString();
+//    qint32 autoline_baud = conf.Get("AutoLine", "Baud").toInt();
 
     QString readesn_com = conf.Get("ReadEsn", "Com").toString();
     qint32 readesn_baud = conf.Get("ReadEsn", "Baud").toInt();
@@ -147,14 +147,14 @@ void MainWindow::onMainWindowLoaded()
 // 连接外部设备
 
     // 连接 AutoLine
-    if(m_AutoLine){
-        bool open = m_AutoLine->connectDevice(autoline_com, autoline_baud);
-        if(open){
-            log.info("AutoLine COM 打开.");
-        }else{
-            log.info("AutoLine COM 打开失败.");
-        }
-    }
+//    if(m_AutoLine){
+//        bool open = m_AutoLine->connectDevice(autoline_com, autoline_baud);
+//        if(open){
+//            log.info("AutoLine COM 打开.");
+//        }else{
+//            log.info("AutoLine COM 打开失败.");
+//        }
+//    }
 
     // 连接 ReadEsn
     if(m_CodeReader){
@@ -176,6 +176,11 @@ void MainWindow::onMainWindowLoaded()
 //        }
 //    }
 
+    // 初始模式
+    bool switch2AutoMode = conf.Get("AutoTest", "DefaultSwitch").toBool();
+    if(switch2AutoMode){
+        this->on_btnSwitchRunningMode_clicked();
+    }
 
 }
 
@@ -306,6 +311,7 @@ void MainWindow::initConfig()
     conf.Set("Audio", "Path", QDir::toNativeSeparators(audio_path));
 
     // AutoTest
+    conf.Set("AutoTest", "DefaultSwitch", false);
 }
 
 void MainWindow::loadConfig()
@@ -351,6 +357,8 @@ void MainWindow::loadConfig()
     }else{
         log.warn("R 右侧麦克风未设定");
     }
+
+
 }
 
 
@@ -560,8 +568,25 @@ void MainWindow::slot_startAutoTest()
 
 void MainWindow::slot_onCodeReaderReceiveBarcode(QString barcode)
 {
+    if(m_isProcessing){
+        return;
+    }
+    if(!this->isAutoMode()){
+        log.info("当前模式: 手动");
+        return ;
+    }
+
     log.info("Received Barcode: "+barcode);
     ui->lineEdit4ProductID->setText(barcode);
+
+
+    m_isProcessing = true; // 处理流程进行标志位；
+
+    // 开始自动测试流程(流程自定义)
+    log.warn("[AutoMode]: 开始测试流程.");
+    ui->widgetShowInfo->changeStatus2Start();
+    emit sig_startAutoTest();
+
 }
 
 // 接收到AutoLine发送的指令
@@ -786,6 +811,19 @@ void MainWindow::startTestAudio()
 
 void MainWindow::onRecordStatusChanged(bool is_recording)
 {
+
+    // 状态面板 信息展示控制
+    if(is_recording){
+       emit sig_startRecording();
+    }else{
+       emit sig_stopRecording();
+    }
+
+    if(this->isAutoMode()){
+        return;
+    }
+
+    // 界面主要控件 可用状态改变
     if(is_recording){
        ui->btnStopRecord->setEnabled(true);
        ui->btnStartRecord->setEnabled(false);
@@ -796,7 +834,6 @@ void MainWindow::onRecordStatusChanged(bool is_recording)
        ui->widgetShowInfo->startTimer();
        ui->widgetShowInfo->changeStatus2Recording();
 
-       emit sig_startRecording();
     }else{
 
         ui->btnStopRecord->setEnabled(false);
@@ -815,7 +852,6 @@ void MainWindow::onRecordStatusChanged(bool is_recording)
         ui->widgetShowInfo->stopTimer();
         ui->widgetShowInfo->changeStatus2Done();
 
-        emit sig_stopRecording();
     }
 }
 
@@ -838,12 +874,13 @@ void MainWindow::slot_testAudio()
     ap->setAudioFilePath(m_audioTestDir);
     ap->mainProcess();
 
-    if(m_audioInputs.count() < 2){
-        ui->btnStartRecord->setEnabled(false); //关闭录制按钮
-    }else{
-        ui->btnStartRecord->setEnabled(true);
-    }
-    ui->btnTest->setEnabled(true);
+//    if(m_audioInputs.count() < 2){
+//        ui->btnStartRecord->setEnabled(false); //关闭录制按钮
+//    }else{
+//        ui->btnStartRecord->setEnabled(true);
+//    }
+//    ui->btnTest->setEnabled(true);
+
     emit sig_audioTestFinished();
     log.info("...");
 }
@@ -1110,15 +1147,18 @@ void MainWindow::printResult(bool isOk, const QString& msg)
         QSound::play("://audio/pass.wav");
         ui->widgetShowInfo->changeStatus2Pass();
         ui->widgetShowInfo->okNumPlusOne();
-        m_AutoLine->sendCmd(m_cmd_pass);
+//        m_AutoLine->sendCmd(m_cmd_pass);
         log.info(msg);
     }else{
         QSound::play("://audio/fail.wav");
         ui->widgetShowInfo->changeStatus2Fail();
         ui->widgetShowInfo->ngNumPlusOne();
-        m_AutoLine->sendCmd(m_cmd_fail);
+//        m_AutoLine->sendCmd(m_cmd_fail);
         log.warn(msg);
     }
+
+
+    m_isProcessing = false; // 处理流程进行标志位；
 }
 
 
@@ -1213,9 +1253,9 @@ void MainWindow::Setting4Devices()
     // 外部设备连接   1. AutoLine 2. 读码器 3. PG
 
     // AutoLine
-    m_AutoLine = new AutoLine;
-    connect(m_AutoLine, &AutoLine::receiveCmd, this, &MainWindow::slot_onAutoLineReceiveCmd);
-    connect(m_AutoLine, &AutoLine::connectStatusChanged, this, &MainWindow::slot_onAutoLineConnectStatusChanged);
+//    m_AutoLine = new AutoLine;
+//    connect(m_AutoLine, &AutoLine::receiveCmd, this, &MainWindow::slot_onAutoLineReceiveCmd);
+//    connect(m_AutoLine, &AutoLine::connectStatusChanged, this, &MainWindow::slot_onAutoLineConnectStatusChanged);
 
     // 读码器
     m_CodeReader = new CodeReader;
