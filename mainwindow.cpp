@@ -616,10 +616,11 @@ void MainWindow::slot_onAutoTestConfigChanged()
     }
 
     // 载入主目录
-    m_workDir = conf.Get("Audio", "Path").toString();
-    m_firstSpeaker = setup4autotest->m_firstSpeaker;
+    this->m_workDir = conf.Get("Audio", "Path").toString();
+    this->m_firstSpeaker = setup4autotest->m_firstSpeaker;
 
     // 载入测试设定
+
 //    m_testTime1_= conf.Get("AudioTest", "duration1").toString();
 //    m_testTime1[0] = conf.Get("AudioTest", "duration1").toString().toUInt();
 //    m_testTime1[1] = conf.Get("AudioTest", "duration2").toString().toUInt();
@@ -867,19 +868,27 @@ void MainWindow::slot_testAudio()
     quint64 range1 = setup4autotest->m_duration1range;
     quint64 range2 = setup4autotest->m_duration2range;
 
-    // Todo: set peak filter
+    quint64 freq1  = setup4autotest->m_duration1freq;
+    quint64 freq2  = setup4autotest->m_duration2freq;
+    qDebug() << "Frequency 1:" << freq1;
+    qDebug() << "Frequency 2:" << freq2;
 
+
+    //Todo: 输入检测：时段检测，频率检测，文件检测， 侦听频率有无检测
     AudioProcess* ap = new AudioProcess();
     ap->setDuration(duration1, range1, duration2, range2);
     ap->setAudioFilePath(m_audioTestDir);
+    ap->setFreq(freq1, freq2);
     ap->mainProcess();
 
-//    if(m_audioInputs.count() < 2){
-//        ui->btnStartRecord->setEnabled(false); //关闭录制按钮
-//    }else{
-//        ui->btnStartRecord->setEnabled(true);
-//    }
-//    ui->btnTest->setEnabled(true);
+
+    // Todo: 改！
+    if(m_audioInputs.count() < 2){
+        ui->btnStartRecord->setEnabled(false); //关闭录制按钮
+    }else{
+        ui->btnStartRecord->setEnabled(true);
+    }
+    ui->btnTest->setEnabled(true);
 
     emit sig_audioTestFinished();
     log.info("...");
