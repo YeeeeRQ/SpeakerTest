@@ -547,7 +547,7 @@ QHeaderView::section/*表头样式*/
             <bool>true</bool>
            </property>
            <property name="title">
-            <string>测试 播放顺序</string>
+            <string>时段1发声源</string>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout">
             <item>
@@ -558,7 +558,7 @@ QHeaderView::section/*表头样式*/
                  <bool>true</bool>
                 </property>
                 <property name="text">
-                 <string>左侧先响</string>
+                 <string>左侧</string>
                 </property>
                 <property name="checked">
                  <bool>true</bool>
@@ -568,7 +568,7 @@ QHeaderView::section/*表头样式*/
               <item>
                <widget class="QRadioButton" name="radioButton_Right">
                 <property name="text">
-                 <string>右侧先响</string>
+                 <string>右侧</string>
                 </property>
                </widget>
               </item>

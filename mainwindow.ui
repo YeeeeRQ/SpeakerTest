@@ -385,9 +385,6 @@ QHeaderView::section/*表头样式*/
                           <item>
                            <layout class="QHBoxLayout" name="horizontalLayout_16">
                             <item>
-                             <layout class="QVBoxLayout" name="verticalLayout_11"/>
-                            </item>
-                            <item>
                              <widget class="QLabel" name="label_2">
                               <property name="minimumSize">
                                <size>

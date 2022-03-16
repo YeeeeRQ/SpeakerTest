@@ -26,6 +26,9 @@ set(AUBIO_LINK_DIR "..\\aubio-0.4.6-win64\\lib")
 include_directories(${AUBIO_INC_DIR})
 link_directories(${AUBIO_LINK_DIR})
 
+set(MESS_DLL_DIR "./mess/PanelCheck.dll")
+link_directories(${MESS_DLL_DIR})
+
 
 set(CMAKE_CXX_FLAGS
     "-D_GLIBCXX_USE_CXX11_ABI=0"

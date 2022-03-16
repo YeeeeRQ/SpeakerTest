@@ -13,6 +13,9 @@
 #define CONFIG_FILE "/Config.ini"
 #define DATABASE_FILE "/Model.db"
 
+
+
+
 //Todo:
 
 // --------------------------------------------------------------------------
@@ -27,6 +30,8 @@ MainWindow::MainWindow(QWidget *parent)
     this->Setting4Config();
     this->Setting4Path();
     this->Setting4Theme();
+
+    this->test();
 
     // 外部设备连接  1. AutoLine 2. 读码器 3. PG
     this->Setting4Devices();  // 外部设备连接
@@ -102,6 +107,24 @@ void MainWindow::closeEvent(QCloseEvent *event)
     }
 }
 
+void MainWindow::test()
+{
+    QLibrary mylib("./mess/PanelCheck.dll");
+    if(mylib.load())
+    {
+        qDebug() << "dll加载成功";
+
+//        typedef void (*SaveResult)()
+//        static public void SaveResult(
+//        string sn,
+//        string InStr1, string InStr2, string InStr3, string InStr4, string InStr5,
+//        ref string result_Info,
+//        ref string reason_Info,
+// 		  ref string outStr1, ref string outStr2, ref string outStr3, ref string outStr4, ref string outStr5,
+//        string prodFlag = "Y"
+//        )
+    }
+}
 void MainWindow::clearFileList()
 {
     static QStringList list{
@@ -110,6 +133,8 @@ void MainWindow::clearFileList()
         "R.wav",
         "L_filtered.wav",
         "R_filtered.wav",
+        "FAIL",
+        "PASS"
     };
     for(int i =0;i<list.size();++i){
         QFile file_temp(m_audioTestDir + "/" +list[i]);
@@ -820,12 +845,19 @@ void MainWindow::onRecordStatusChanged(bool is_recording)
        emit sig_stopRecording();
     }
 
-    if(this->isAutoMode()){
-        return;
+    if(is_recording && this->isAutoMode()){
+       ui->widgetShowInfo->startTimer();
+       ui->widgetShowInfo->changeStatus2Recording();
+       return;
     }
 
-    // 界面主要控件 可用状态改变
-    if(is_recording){
+    if(!is_recording && this->isAutoMode()){
+        ui->widgetShowInfo->stopTimer();
+        ui->widgetShowInfo->changeStatus2Done();
+       return;
+    }
+
+    if(is_recording && !this->isAutoMode()){
        ui->btnStopRecord->setEnabled(true);
        ui->btnStartRecord->setEnabled(false);
        ui->btnTest->setEnabled(false);
@@ -834,25 +866,26 @@ void MainWindow::onRecordStatusChanged(bool is_recording)
 
        ui->widgetShowInfo->startTimer();
        ui->widgetShowInfo->changeStatus2Recording();
+       return;
+    }
 
-    }else{
-
-        ui->btnStopRecord->setEnabled(false);
-//        ui->btnStartRecord->setEnabled(true);
-
+    if(!is_recording && !this->isAutoMode()){
         if(m_audioInputs.count() < 2){
-            ui->btnStartRecord->setEnabled(false); //关闭录制按钮
+            ui->btnStartRecord->setEnabled(false);
         }else{
             ui->btnStartRecord->setEnabled(true);
         }
 
-        ui->btnTest->setEnabled(true);
         ui->lineEditDurationOfRecord->setEnabled(true);
         ui->checkBox_Intercept->setEnabled(true);
 
+        ui->btnStopRecord->setEnabled(false);
+
+        ui->btnTest->setEnabled(true);
+
         ui->widgetShowInfo->stopTimer();
         ui->widgetShowInfo->changeStatus2Done();
-
+        return;
     }
 }
 
@@ -883,12 +916,12 @@ void MainWindow::slot_testAudio()
 
 
     // Todo: 改！
-    if(m_audioInputs.count() < 2){
-        ui->btnStartRecord->setEnabled(false); //关闭录制按钮
-    }else{
-        ui->btnStartRecord->setEnabled(true);
-    }
-    ui->btnTest->setEnabled(true);
+//    if(m_audioInputs.count() < 2){
+//        ui->btnStartRecord->setEnabled(false); //关闭录制按钮
+//    }else{
+//        ui->btnStartRecord->setEnabled(true);
+//    }
+//    ui->btnTest->setEnabled(true);
 
     emit sig_audioTestFinished();
     log.info("...");
@@ -954,10 +987,22 @@ void MainWindow::slot_onGetRFrequency(qint64 freq)
 
 void MainWindow::slot_onAudioTestFinished()
 {
+    // UI 状态改变
+    if(m_audioInputs.count() < 2){
+        ui->btnStartRecord->setEnabled(false); //关闭录制按钮
+    }else{
+        ui->btnStartRecord->setEnabled(true);
+    }
+    if(!this->isAutoMode()){
+        ui->btnTest->setEnabled(true);
+    }
+
+
+
     //已获取CSV测试结果， 开始判断
 
     //    QString csv_file = current_AudioTestDir + "\\test.csv";
-//    QString csv_file = ui->lineEdit4WavDir->text().trimmed() + "\\test.csv";
+    //    QString csv_file = ui->lineEdit4WavDir->text().trimmed() + "\\test.csv";
     QString csv_file = m_audioTestDir+ "/test.csv";
     qDebug() << csv_file;
     log.blue(csv_file);
@@ -1068,7 +1113,7 @@ void MainWindow::slot_onAudioTestFinished()
     qDebug() << m_accept_pitch2[0] << " - " << m_accept_pitch2[1];
 
     m_firstSpeaker = setup4autotest->m_firstSpeaker;
-    if(m_firstSpeaker == "L"){//左侧第一个响
+    if(m_firstSpeaker == "L"){//第一时段 左侧发声
         if(llevel1 > rlevel1){
             log.info("✔ 时段① 左侧强 ▇▆▅▄▃▂ 右侧弱 正常");
         }else{
@@ -1083,7 +1128,7 @@ void MainWindow::slot_onAudioTestFinished()
         }
     }
 
-    if(m_firstSpeaker == "R"){//右侧第一个响
+    if(m_firstSpeaker == "R"){//第一时段 右侧发声
         if(llevel1 < rlevel1){
             log.info("✔ 时段① 左侧弱 ▂▃▄▅▆▇ 右侧强 正常");
         }else{
@@ -1166,6 +1211,16 @@ void MainWindow::printResult(bool isOk, const QString& msg)
         log.warn(msg);
     }
 
+    // 创建空文件 用于标记测试结果
+    static QString create_file("UNKNOWN");
+    if(isOk){
+        create_file = m_audioTestDir+ "/PASS";
+    }else{
+        create_file = m_audioTestDir+ "/FAIL";
+    }
+    QFile file(create_file);
+    file.open(QIODevice::WriteOnly);
+    file.close();
 
     m_isProcessing = false; // 处理流程进行标志位；
 }
@@ -1401,16 +1456,12 @@ void MainWindow::on_btnSwitchRunningMode_clicked()
     }
 }
 
-
 void MainWindow::on_btnTest_clicked()
 {
     this->startTestAudio();
 }
 
 // --------------------------------------------------------------------------
-
-// --------------------------------------------------------------------------
-
 void MainWindow::on_btnLockOption4Model_clicked()
 {
     static bool lock = false;

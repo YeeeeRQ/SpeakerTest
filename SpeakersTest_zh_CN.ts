@@ -50,7 +50,7 @@
     </message>
     <message>
         <location filename="mainwindow.ui" line="236"/>
-        <location filename="mainwindow.ui" line="888"/>
+        <location filename="mainwindow.ui" line="885"/>
         <source>测试</source>
         <translation type="unfinished"></translation>
     </message>
@@ -80,94 +80,94 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="404"/>
+        <location filename="mainwindow.ui" line="401"/>
         <source>录制时长：</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="428"/>
+        <location filename="mainwindow.ui" line="425"/>
         <source>2000</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="449"/>
+        <location filename="mainwindow.ui" line="446"/>
         <source>ms</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="467"/>
+        <location filename="mainwindow.ui" line="464"/>
         <source>开始</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="488"/>
+        <location filename="mainwindow.ui" line="485"/>
         <source>停止</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="516"/>
+        <location filename="mainwindow.ui" line="513"/>
         <source>侦听</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="592"/>
-        <location filename="mainwindow.ui" line="769"/>
+        <location filename="mainwindow.ui" line="589"/>
+        <location filename="mainwindow.ui" line="766"/>
         <source>---</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="626"/>
+        <location filename="mainwindow.ui" line="623"/>
         <source>L:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="648"/>
-        <location filename="mainwindow.ui" line="706"/>
+        <location filename="mainwindow.ui" line="645"/>
+        <location filename="mainwindow.ui" line="703"/>
         <source>000</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="680"/>
+        <location filename="mainwindow.ui" line="677"/>
         <source>Hz</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="721"/>
+        <location filename="mainwindow.ui" line="718"/>
         <source>:R</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="946"/>
+        <location filename="mainwindow.ui" line="943"/>
         <source>测试结果</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="971"/>
+        <location filename="mainwindow.ui" line="968"/>
         <source>程序输出</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1014"/>
+        <location filename="mainwindow.ui" line="1011"/>
         <source>设定</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1022"/>
+        <location filename="mainwindow.ui" line="1019"/>
         <source>机种管理</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1036"/>
+        <location filename="mainwindow.ui" line="1033"/>
         <source>音频测试</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="1029"/>
+        <location filename="mainwindow.ui" line="1026"/>
         <source>麦克风输入</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="407"/>
+        <location filename="mainwindow.cpp" line="432"/>
         <source>双通道扬声器测试</source>
         <translation type="unfinished"></translation>
     </message>
@@ -310,18 +310,15 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="UI/Setup4AutoTest.ui" line="550"/>
-        <source>测试 播放顺序</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="UI/Setup4AutoTest.ui" line="561"/>
-        <source>左侧先响</source>
+        <source>左侧</source>
+        <oldsource>左侧先响</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="UI/Setup4AutoTest.ui" line="571"/>
-        <source>右侧先响</source>
+        <source>右侧</source>
+        <oldsource>右侧先响</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -360,6 +357,11 @@
         <location filename="UI/Setup4AutoTest.ui" line="709"/>
         <location filename="UI/Setup4AutoTest.ui" line="749"/>
         <source>Hz</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="UI/Setup4AutoTest.ui" line="550"/>
+        <source>时段1发声源</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

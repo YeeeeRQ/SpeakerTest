@@ -68,7 +68,6 @@ void ShowInfo4Result::freshenTime()
     showTime = showTime.addMSecs(t);
     this->timeStr = showTime.toString("mm:ss.zzz")+"s";
     this->ui->label_Time->setText(timeStr);
-
 }
 
 void ShowInfo4Result::startTimer()
